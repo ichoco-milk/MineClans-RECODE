@@ -4,3 +4,4 @@ author: ${author}
 main: ${mainClass}
 version: ${version}
 url: ${url}
+api-version: 1.21
