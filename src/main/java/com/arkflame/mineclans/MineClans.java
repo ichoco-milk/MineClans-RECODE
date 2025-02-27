@@ -1,6 +1,9 @@
 package com.arkflame.mineclans;
 
+import java.util.logging.Logger;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
@@ -44,7 +47,7 @@ public class MineClans extends JavaPlugin {
     private ConfigWrapper messages;
 
     // Providers
-    private MySQLProvider mySQLProvider;
+    private MySQLProvider mySQLProvider = null;
 
     // Managers
     private FactionManager factionManager;
@@ -72,7 +75,7 @@ public class MineClans extends JavaPlugin {
     private BuffManager buffManager;
 
     // Redis Provider
-    private RedisProvider redisProvider;
+    private RedisProvider redisProvider = null;
 
     // Bungee Util
     private BungeeUtil bungeeUtil;
@@ -156,46 +159,57 @@ public class MineClans extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Logger logger = getLogger();
+        Server server = getServer();
         // Set static instance
         setInstance(this);
-
         // Save default config
         config = new ConfigWrapper(this, "config.yml").saveDefault().load();
         messages = new ConfigWrapper(this, "messages.yml").saveDefault().load();
 
-        mySQLProvider = new MySQLProvider(
-                config.getBoolean("mysql.enabled"),
-                config.getString("mysql.url"),
-                config.getString("mysql.username"),
-                config.getString("mysql.password"));
-
-        if (!mySQLProvider.isConnected()) {
-            getLogger().severe("=============== DATABASE CONNECTION ERROR ================");
-            getLogger().severe("MineClans is unable to connect to the database.");
-            getLogger().severe("To fix this, please configure the database settings in the 'config.yml' file.");
-            getLogger().severe("You need a MySQL database for the plugin to work properly.");
-            getLogger().severe("Make sure you have the following settings in the 'config.yml':");
-            getLogger().severe("mysql:");
-            getLogger().severe("  enabled: true");
-            getLogger().severe(
-                    "  url: jdbc:mysql://localhost:3306/database  # Replace 'database' with your database name");
-            getLogger().severe("  username: root  # Change if your username is different");
-            getLogger().severe("  password: password  # Use your actual database password");
-            getLogger().severe("After making these changes, save the file and restart your server.");
-            getLogger().severe("=============== DATABASE CONNECTION ERROR ================");
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
+        try {
+            mySQLProvider = new MySQLProvider(
+                    config.getBoolean("mysql.enabled"),
+                    config.getString("mysql.url"),
+                    config.getString("mysql.username"),
+                    config.getString("mysql.password"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.severe("An error occurred while connecting to the database.");
+        } finally {
+            if (!mySQLProvider.isConnected()) {
+                logger.severe("=============== DATABASE CONNECTION ERROR ================");
+                logger.severe("MineClans is unable to connect to the database.");
+                logger.severe("To fix this, please configure the database settings in the 'config.yml' file.");
+                logger.severe("You need a MySQL database for the plugin to work properly.");
+                logger.severe("Make sure you have the following settings in the 'config.yml':");
+                logger.severe("mysql:");
+                logger.severe("  enabled: true");
+                logger.severe(
+                        "  url: jdbc:mysql://localhost:3306/database  # Replace 'database' with your database name");
+                logger.severe("  username: root  # Change if your username is different");
+                logger.severe("  password: password  # Use your actual database password");
+                logger.severe("After making these changes, save the file and restart your server.");
+                logger.severe("=============== DATABASE CONNECTION ERROR ================");
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
+            }
         }
 
         // Managers
         factionManager = new FactionManager();
         factionPlayerManager = new FactionPlayerManager();
         clanEventManager = new ClanEventManager(this);
-        clanEventScheduler = new ClanEventScheduler(config.getInt("events.interval"), config.getInt("events.time-limit"));
+        clanEventScheduler = new ClanEventScheduler(config.getInt("events.interval"),
+                config.getInt("events.time-limit"));
         leaderboardManager = new LeaderboardManager(mySQLProvider.getPowerDAO());
         powerManager = new PowerManager(mySQLProvider.getPowerDAO(), leaderboardManager);
         buffManager = new BuffManager(config);
-        redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), getLogger());
+        if (config.getConfig().getBoolean("redis.enabled", false)) {
+            redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
+        } else {
+            logger.info("Redis is disabled in the configuration fille. Buffs and locations wont synchronize.");
+        }
         bungeeUtil = new BungeeUtil(this);
         teleportScheduler = new TeleportScheduler(this);
 
@@ -203,7 +217,7 @@ public class MineClans extends JavaPlugin {
         api = new MineClansAPI(factionManager, factionPlayerManager, mySQLProvider, redisProvider);
 
         // Register Listeners
-        PluginManager pluginManager = getServer().getPluginManager();
+        PluginManager pluginManager = server.getPluginManager();
         pluginManager.registerEvents(new ChatListener(), this);
         pluginManager.registerEvents(new ClanEventListener(), this);
         pluginManager.registerEvents(new FactionFriendlyFireListener(), this);
@@ -228,12 +242,12 @@ public class MineClans extends JavaPlugin {
         buffExpireTask.register();
 
         // Attempt to hook Vault
-        if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
+        if (server.getPluginManager().getPlugin("Vault") != null) {
             if (!setupEconomy()) {
-                getLogger().severe("Vault economy setup failed, using fallback.");
+                logger.severe("Vault economy setup failed, using fallback.");
             }
         } else {
-            getLogger().info("Vault not found, using fallback economy.");
+            logger.info("Vault not found, using fallback economy.");
         }
     }
 

@@ -48,7 +48,9 @@ public class BuffItem extends MenuItem {
             Faction faction = MineClans.getInstance().getAPI().getFaction(player);
             buff.giveEffects(faction);
             buff.notify(player.getName(), faction);
-            MineClans.getInstance().getRedisProvider().activateBuff(faction.getId(), player.getName(), buff.getName());
+            if (MineClans.getInstance().getRedisProvider() != null) {
+                MineClans.getInstance().getRedisProvider().activateBuff(faction.getId(), player.getName(), buff.getName());
+            }
             MineClans.runSync(() -> {
                 player.closeInventory();
             });

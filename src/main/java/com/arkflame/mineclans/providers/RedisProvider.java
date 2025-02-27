@@ -45,13 +45,7 @@ public class RedisProvider {
         this.config = config;
         this.logger = logger;
 
-        if (config.getBoolean("redis.enabled", false)) {
-            new Thread(this::subscribeToFactionUpdates).start();
-        } else {
-            this.jedisPool = null;
-            this.channelName = null;
-            logger.info("Redis is disabled in configuration.");
-        }
+        new Thread(this::subscribeToFactionUpdates).start();
     }
 
     private void validateInputs(FactionManager factionManager, Configuration config) {
@@ -62,17 +56,15 @@ public class RedisProvider {
 
     // Call this method once to initialize and open the pool
     public void initializeRedis() {
-        if (config.getBoolean("redis.enabled", false)) {
-            if (jedisPool == null || jedisPool.isClosed()) {
-                JedisPoolConfig poolConfig = new JedisPoolConfig();
-                poolConfig.setMaxTotal(128);
-                poolConfig.setMaxIdle(64);
-                poolConfig.setMinIdle(16);
-                poolConfig.setTestOnBorrow(true);
-                poolConfig.setTestOnReturn(true);
+        if (jedisPool == null || jedisPool.isClosed()) {
+            JedisPoolConfig poolConfig = new JedisPoolConfig();
+            poolConfig.setMaxTotal(128);
+            poolConfig.setMaxIdle(64);
+            poolConfig.setMinIdle(16);
+            poolConfig.setTestOnBorrow(true);
+            poolConfig.setTestOnReturn(true);
 
-                jedisPool = new JedisPool(config.getString("redis.host"), config.getInt("redis.port"));
-            }
+            jedisPool = new JedisPool(config.getString("redis.host"), config.getInt("redis.port"));
         }
     }
 

@@ -129,7 +129,9 @@ public class LocationData {
                     bungeeUtil.sendPlayerToServer(player, serverName);
 
                     // Send Redis request for cross-server handling
-                    MineClans.getInstance().getRedisProvider().requestHome(player.getUniqueId());
+                    if (MineClans.getInstance().getRedisProvider() != null) {
+                        MineClans.getInstance().getRedisProvider().requestHome(player.getUniqueId());
+                    }
                 }
             });
             return true;
