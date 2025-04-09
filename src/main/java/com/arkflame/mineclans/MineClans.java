@@ -35,7 +35,7 @@ import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.menus.listeners.MenuListener;
 import com.arkflame.mineclans.placeholders.FactionsPlaceholder;
 import com.arkflame.mineclans.providers.MySQLProvider;
-import com.arkflame.mineclans.providers.RedisProvider;
+import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.tasks.BuffExpireTask;
 import com.arkflame.mineclans.tasks.TeleportScheduler;
 import com.arkflame.mineclans.utils.BungeeUtil;
@@ -205,11 +205,7 @@ public class MineClans extends JavaPlugin {
         leaderboardManager = new LeaderboardManager(mySQLProvider.getPowerDAO());
         powerManager = new PowerManager(mySQLProvider.getPowerDAO(), leaderboardManager);
         buffManager = new BuffManager(config);
-        if (config.getConfig().getBoolean("redis.enabled", false)) {
-            redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
-        } else {
-            logger.info("Redis is disabled in the configuration fille. Buffs and locations wont synchronize.");
-        }
+        redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
         bungeeUtil = new BungeeUtil(this);
         teleportScheduler = new TeleportScheduler(this);
 

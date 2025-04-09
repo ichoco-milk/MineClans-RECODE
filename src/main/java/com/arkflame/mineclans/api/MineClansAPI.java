@@ -57,7 +57,7 @@ import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
 import com.arkflame.mineclans.models.Relation;
 import com.arkflame.mineclans.providers.MySQLProvider;
-import com.arkflame.mineclans.providers.RedisProvider;
+import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.utils.LocationData;
 
 import net.milkbowl.vault.economy.Economy;
