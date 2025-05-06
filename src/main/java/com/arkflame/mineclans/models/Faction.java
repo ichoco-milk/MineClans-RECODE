@@ -22,7 +22,7 @@ import com.arkflame.mineclans.buff.ActiveBuff;
 import com.arkflame.mineclans.enums.Rank;
 import com.arkflame.mineclans.enums.RelationType;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
-import com.arkflame.mineclans.modernlib.utils.Titles;
+import com.arkflame.mineclans.utils.Titles;
 import com.arkflame.mineclans.utils.FactionNamingUtil;
 import com.arkflame.mineclans.utils.LocationData;
 import com.arkflame.mineclans.utils.LocationUtil;

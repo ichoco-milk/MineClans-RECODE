@@ -7,7 +7,7 @@ import com.arkflame.mineclans.api.results.UninviteResult;
 import com.arkflame.mineclans.api.results.UninviteResult.UninviteResultState;
 import com.arkflame.mineclans.modernlib.commands.ModernArguments;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
-import com.arkflame.mineclans.modernlib.utils.Titles;
+import com.arkflame.mineclans.utils.Titles;
 import com.arkflame.mineclans.utils.MelodyUtil;
 import com.arkflame.mineclans.utils.MelodyUtil.Melody;
 

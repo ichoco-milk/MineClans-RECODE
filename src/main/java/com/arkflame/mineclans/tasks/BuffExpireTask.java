@@ -11,7 +11,7 @@ import com.arkflame.mineclans.buff.ActiveBuff;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.tasks.ModernTask;
 import com.arkflame.mineclans.modernlib.utils.ChatColors;
-import com.arkflame.mineclans.modernlib.utils.Titles;
+import com.arkflame.mineclans.utils.Titles;
 
 public class BuffExpireTask extends ModernTask {
     public BuffExpireTask() {

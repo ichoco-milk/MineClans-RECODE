@@ -7,7 +7,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.results.AddKillResult.AddKillResultType;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
-import com.arkflame.mineclans.modernlib.utils.Titles;
+import com.arkflame.mineclans.utils.Titles;
 import com.arkflame.mineclans.utils.MelodyUtil;
 import com.arkflame.mineclans.utils.MelodyUtil.Melody;
 

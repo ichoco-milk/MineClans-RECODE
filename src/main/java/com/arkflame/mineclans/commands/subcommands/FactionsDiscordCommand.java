@@ -8,7 +8,7 @@ import com.arkflame.mineclans.api.results.DiscordResult.DiscordResultState;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.commands.ModernArguments;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
-import com.arkflame.mineclans.modernlib.utils.Titles;
+import com.arkflame.mineclans.utils.Titles;
 
 public class FactionsDiscordCommand {
     public static void onCommand(Player player, ModernArguments args) {

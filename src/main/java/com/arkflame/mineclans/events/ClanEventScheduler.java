@@ -8,7 +8,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.modernlib.utils.Sounds;
-import com.arkflame.mineclans.modernlib.utils.Titles;
+import com.arkflame.mineclans.utils.Titles;
 
 public class ClanEventScheduler {
     // Current event
