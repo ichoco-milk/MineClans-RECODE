@@ -1107,4 +1107,19 @@ public class MineClansAPI {
     public ClaimedChunks getClaimedChunks() {
         return MineClans.getInstance().getClaimedChunks();
     }
+
+    public boolean isSameTeam(Player player, UUID toFactionId) {
+        if (toFactionId == null) {
+            return false;
+        }
+        FactionPlayer factionPlayer = factionPlayerManager.getOrLoad(player.getUniqueId());
+        if (factionPlayer == null) {
+            return false;
+        }
+        Faction faction = factionPlayer.getFaction();
+        if (faction == null) {
+            return false;
+        }
+        return toFactionId.equals(faction.getId());
+    }
 }

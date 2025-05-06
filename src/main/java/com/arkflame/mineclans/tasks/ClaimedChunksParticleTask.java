@@ -8,17 +8,16 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;
 import com.arkflame.mineclans.models.ChunkCoordinate;
+import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.utils.ParticleUtil;
 
 public class ClaimedChunksParticleTask extends BukkitRunnable {
+    private static String SAME_FACTION_PARTICLE = "VILLAGER_HAPPY";
+    private static String ENEMY_FACTION_PARTICLE = "FLAME";
     private final MineClansAPI api;
-    private final String particleType;
-    private final int particleCount;
 
-    public ClaimedChunksParticleTask(String particleType, int particleCount) {
+    public ClaimedChunksParticleTask() {
         this.api = MineClans.getInstance().getAPI();
-        this.particleType = particleType;
-        this.particleCount = particleCount;
     }
 
     @Override
@@ -46,8 +45,9 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
                 if (api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ)) {
                     ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ);
                     if (claim != null) {
-                        // TODO: RELATION BASED PARTICLES!!!!
-                        String factionParticle = this.particleType;
+                        Faction faction = api.getFaction(player);
+                        boolean isSameFaction = faction != null && claim.getFactionId().equals(faction.getId());
+                        String factionParticle = isSameFaction ? SAME_FACTION_PARTICLE : ENEMY_FACTION_PARTICLE;
                         
                         // Show particles around chunk borders
                         for (int i = -1; i <= 1; i++) {
@@ -78,30 +78,30 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
         // North edge (minZ)
         for (int i = 0; i <= pointsPerSide; i++) {
             Location loc = new Location(worldLoc.getWorld(), minX + (step * i), y, minZ);
-            ParticleUtil.spawnParticle(player, loc, particleType, particleCount, 0, 0, 0, 0);
+            ParticleUtil.spawnParticle(player, loc, particleType, 1, 0, 0, 0, 0);
         }
 
         // East edge (maxX)
         for (int i = 0; i <= pointsPerSide; i++) {
             Location loc = new Location(worldLoc.getWorld(), maxX, y, minZ + (step * i));
-            ParticleUtil.spawnParticle(player, loc, particleType, particleCount, 0, 0, 0, 0);
+            ParticleUtil.spawnParticle(player, loc, particleType, 1, 0, 0, 0, 0);
         }
 
         // South edge (maxZ)
         for (int i = 0; i <= pointsPerSide; i++) {
             Location loc = new Location(worldLoc.getWorld(), maxX - (step * i), y, maxZ);
-            ParticleUtil.spawnParticle(player, loc, particleType, particleCount, 0, 0, 0, 0);
+            ParticleUtil.spawnParticle(player, loc, particleType, 1, 0, 0, 0, 0);
         }
 
         // West edge (minX)
         for (int i = 0; i <= pointsPerSide; i++) {
             Location loc = new Location(worldLoc.getWorld(), minX, y, maxZ - (step * i));
-            ParticleUtil.spawnParticle(player, loc, particleType, particleCount, 0, 0, 0, 0);
+            ParticleUtil.spawnParticle(player, loc, particleType, 1, 0, 0, 0, 0);
         }
     }
 
-    public static void start(String particleType, int particleCount, long interval) {
-        new ClaimedChunksParticleTask(particleType, particleCount)
+    public static void start(long interval) {
+        new ClaimedChunksParticleTask()
             .runTaskTimerAsynchronously(MineClans.getInstance(), 0L, interval);
     }
 }

@@ -250,7 +250,7 @@ public class MineClans extends JavaPlugin {
             // Register tasks
             BuffExpireTask buffExpireTask = new BuffExpireTask();
             buffExpireTask.register();
-            ClaimedChunksParticleTask.start("VILLAGER_HAPPY", 1, 20L);
+            ClaimedChunksParticleTask.start(20L);
             PowerTask.start();
 
             // Attempt to hook Vault

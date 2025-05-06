@@ -54,9 +54,11 @@ menus:
 factions:
   claims:
     entered:
-      message: "&7Claim %x%, %z% owned by %owner%."
+      message-team: "&7Entering claim %x%, %z% owned by &a%owner%."
+      message-enemy: "&7Entering claim %x%, %z% owned by &c%owner%."
     left:
-      message: "&7Left claim %x%, %z% owned by %owner%."
+      message-team: "&7Leaving claim %x%, %z% owned by &a%owner%."
+      message-enemy: "&7Leaving claim %x%, %z% owned by &c%owner%."
     not_in_faction: "&cYou must be in a faction to view claims!"
     no_claims: "&7Your faction hasn't claimed any chunks yet."
     invalid_page: "&cInvalid page! Please choose between 1 and %max%."

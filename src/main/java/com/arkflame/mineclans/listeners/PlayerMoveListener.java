@@ -67,13 +67,18 @@ public class PlayerMoveListener implements Listener {
                 // or to a different faction's territory
                 if (fromChunk != null
                         && (toChunk == null || (fromFactionId == null || !fromFactionId.equals(toFactionId)))) {
-                    Faction fromFaction = plugin.getFactionManager().getFaction(fromFactionId);
-                    String fromFactionName = fromFaction != null ? fromFaction.getName() : "Unknown";
+                    if (toFactionId == null) {
+                        Faction fromFaction = plugin.getFactionManager().getFaction(fromFactionId);
+                        String fromFactionName = fromFaction != null ? fromFaction.getName() : "Unknown";
+                        boolean isSameTeam = MineClans.getInstance().getAPI().isSameTeam(player, fromFactionId);
+                        String leftMessage = isSameTeam ? "factions.claims.left.message-team"
+                                : "factions.claims.left.message-enemy";
 
-                    player.sendMessage(plugin.getMessages().getText("factions.claims.left.message",
-                            "%x%", String.valueOf(fromX),
-                            "%z%", String.valueOf(fromZ),
-                            "%owner%", fromFactionName));
+                        player.sendMessage(plugin.getMessages().getText(leftMessage,
+                                "%x%", String.valueOf(fromX),
+                                "%z%", String.valueOf(fromZ),
+                                "%owner%", fromFactionName));
+                    }
                 }
 
                 // Handle entering message - only if we're entering a faction's territory from
@@ -83,8 +88,11 @@ public class PlayerMoveListener implements Listener {
                         && (fromChunk == null || (toFactionId != null && !toFactionId.equals(fromFactionId)))) {
                     Faction toFaction = plugin.getFactionManager().getFaction(toFactionId);
                     String toFactionName = toFaction != null ? toFaction.getName() : "Unknown";
+                    boolean isSameTeam = MineClans.getInstance().getAPI().isSameTeam(player, toFactionId);
+                    String enteredMessage = isSameTeam ? "factions.claims.entered.message-team"
+                            : "factions.claims.entered.message-enemy";
 
-                    player.sendMessage(plugin.getMessages().getText("factions.claims.entered.message",
+                    player.sendMessage(plugin.getMessages().getText(enteredMessage,
                             "%x%", String.valueOf(toX),
                             "%z%", String.valueOf(toZ),
                             "%owner%", toFactionName));
