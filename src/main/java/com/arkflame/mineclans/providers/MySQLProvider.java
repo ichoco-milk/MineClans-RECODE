@@ -45,6 +45,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.providers.daos.ChestDAO;
 import com.arkflame.mineclans.providers.daos.ClaimedChunksDAO;
@@ -52,6 +54,7 @@ import com.arkflame.mineclans.providers.daos.FactionDAO;
 import com.arkflame.mineclans.providers.daos.FactionPlayerDAO;
 import com.arkflame.mineclans.providers.daos.InvitedDAO;
 import com.arkflame.mineclans.providers.daos.MemberDAO;
+import com.arkflame.mineclans.providers.daos.PowerDAO;
 import com.arkflame.mineclans.providers.daos.ScoreDAO;
 import com.arkflame.mineclans.providers.daos.RanksDAO;
 import com.arkflame.mineclans.providers.daos.RelationsDAO;
@@ -72,6 +75,7 @@ public class MySQLProvider {
     private RelationsDAO relationsDAO;
     private ScoreDAO scoreDAO;
     private ClaimedChunksDAO claimedChunksDAO;
+    private PowerDAO powerDAO;
 
     private boolean connected = false;
 
@@ -92,6 +96,7 @@ public class MySQLProvider {
         relationsDAO = new RelationsDAO(this);
         scoreDAO = new ScoreDAO(this);
         claimedChunksDAO = new ClaimedChunksDAO(this);
+        powerDAO = new PowerDAO(this);
 
         // Generate hikari config
         generateHikariConfig(url, username, password);
@@ -166,6 +171,7 @@ public class MySQLProvider {
         factionPlayerDAO.createTable();
         scoreDAO.createTable();
         claimedChunksDAO.createTable();
+        powerDAO.createTable();
     }
 
     public void initialize() {
@@ -180,6 +186,10 @@ public class MySQLProvider {
     }
 
     public void executeUpdateQuery(String query, Object... params) {
+        if (Bukkit.isPrimaryThread()) {
+            System.out.println("WARNING: This method should not be called from the main thread.");
+            new Exception().printStackTrace();
+        }
         if (dataSource == null) {
             return;
         }
@@ -197,6 +207,10 @@ public class MySQLProvider {
     }
 
     public void executeSelectQuery(String query, ResultSetProcessor task, Object... params) {
+        if (Bukkit.isPrimaryThread()) {
+            System.out.println("WARNING: This method should not be called from the main thread.");
+            new Exception().printStackTrace();
+        }
         if (dataSource == null) {
             return;
         }
@@ -219,5 +233,9 @@ public class MySQLProvider {
 
     public ClaimedChunksDAO getClaimedChunksDAO() {
         return claimedChunksDAO;
+    }
+
+    public PowerDAO getPowerDAO() {
+        return powerDAO;
     }
 }

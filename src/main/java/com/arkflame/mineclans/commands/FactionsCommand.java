@@ -31,6 +31,9 @@ public class FactionsCommand extends ModernCommand {
             Player player = (Player) sender;
             String subcommand = args.getText(0);
             switch (subcommand.toLowerCase()) {
+                case "power":
+                    player.sendMessage(MineClans.getInstance().getAPI().getFactionPlayer(player).getPower() + "/" + "10");
+                    break;
                 case "claim":
                     FactionsClaimCommand.onCommand(player, args);
                     break;
@@ -39,6 +42,7 @@ public class FactionsCommand extends ModernCommand {
                     break;
                 case "claims":
                     FactionsClaimsCommand.onCommand(player, args);
+                    break;
                 case "create":
                     FactionsCreateCommand.onCommand(player, args);
                     break;

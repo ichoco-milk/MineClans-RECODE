@@ -20,14 +20,10 @@ public class FactionsClaimCommand {
         MineClansAPI api = mineClans.getAPI();
         ConfigWrapper messages = mineClans.getMessages();
 
-        // Debug: Start of command execution
-        mineClans.getLogger().info("[ClaimCommand] Claim command executed by " + player.getName());
-
         // Check if player is in a faction
         Faction faction = api.getFaction(player);
         if (faction == null) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "not_in_faction")));
-            mineClans.getLogger().info("[ClaimCommand] Player not in a faction");
             return;
         }
 
@@ -35,7 +31,6 @@ public class FactionsClaimCommand {
         FactionPlayer factionPlayer = api.getFactionPlayer(player);
         if (!factionPlayer.getRank().isEqualOrHigherThan(Rank.COLEADER)) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "no_permission")));
-            mineClans.getLogger().info("[ClaimCommand] Player lacks permission to claim");
             return;
         }
 
@@ -44,16 +39,12 @@ public class FactionsClaimCommand {
         int chunkX = chunk.getX();
         int chunkZ = chunk.getZ();
 
-        // Debug: Chunk coordinates
-        mineClans.getLogger().info("[ClaimCommand] Attempting to claim chunk at X:" + chunkX + " Z:" + chunkZ);
-
         // Check if chunk is already claimed
         if (api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ)) {
             ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ);
             String ownerName = api.getFaction(existingClaim.getFactionId()).getName();
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "already_claimed")
                     .replace("%faction%", ownerName)));
-            mineClans.getLogger().info("[ClaimCommand] Chunk already claimed by " + ownerName);
             return;
         }
 
@@ -65,7 +56,6 @@ public class FactionsClaimCommand {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "claim_limit_reached")
                     .replace("%current%", String.valueOf(currentClaims))
                     .replace("%max%", String.valueOf(maxClaims))));
-            mineClans.getLogger().info("[ClaimCommand] Faction claim limit reached (" + currentClaims + "/" + maxClaims + ")");
             return;
         }
 
@@ -76,7 +66,6 @@ public class FactionsClaimCommand {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "success")
                     .replace("%x%", String.valueOf(chunkX))
                     .replace("%z%", String.valueOf(chunkZ))));
-            mineClans.getLogger().info("[ClaimCommand] Successfully claimed chunk for faction " + faction.getName());
         } else {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "error")));
             mineClans.getLogger().warning("[ClaimCommand] Failed to claim chunk for unknown reason");

@@ -182,6 +182,9 @@ public class FactionMessageSub extends JedisPubSub {
             return;
 
         switch (parts[0]) {
+            case "updatePower":
+                MineClans.getInstance().getAPI().updatePower(player, parseDouble(parts[2]), false);
+                break;
             case "updateFaction":
                 factionPlayerManager.updateFaction(playerId, factionManager.getFaction(parts[2]));
                 break;

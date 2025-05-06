@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,11 +30,6 @@ import com.arkflame.mineclans.utils.MelodyUtil;
 import com.arkflame.mineclans.utils.MelodyUtil.Melody;
 
 import net.md_5.bungee.api.ChatColor;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
 
 public class Faction implements InventoryHolder {
     // The ID
@@ -86,6 +83,9 @@ public class Faction implements InventoryHolder {
 
     // Score
     private double score = 0;
+
+    // Power
+    private int power = 0;
 
     private boolean receivedSubDuringUpdate = false;
     private boolean editingChest = false;
@@ -509,17 +509,35 @@ public class Faction implements InventoryHolder {
     // Send message, title, melody
     public void sendMessageTitleMelody(String message, String title, String subtitle, int fadeIn, int stay, int fadeOut,
             Melody melody) {
-            for (UUID uuid : getOnlineMembers()) {
-                Player otherPlayer = Bukkit.getPlayer(uuid);
-                if (otherPlayer != null) {
-                    otherPlayer.sendMessage(message);
-                    Titles.sendTitle(otherPlayer, title, subtitle, fadeIn, stay, fadeOut);
-                    MelodyUtil.playMelody(MineClans.getInstance(), otherPlayer, melody);
-                }
+        for (UUID uuid : getOnlineMembers()) {
+            Player otherPlayer = Bukkit.getPlayer(uuid);
+            if (otherPlayer != null) {
+                otherPlayer.sendMessage(message);
+                Titles.sendTitle(otherPlayer, title, subtitle, fadeIn, stay, fadeOut);
+                MelodyUtil.playMelody(MineClans.getInstance(), otherPlayer, melody);
             }
+        }
     }
 
     public void setEditingChest(boolean b) {
         editingChest = b;
+    }
+
+    public int getPower() {
+        return Math.round((power * 10)) / 10;
+    }
+
+    public void updatePower() {
+        power = 0;
+        for (UUID uuid : getMembers()) {
+            FactionPlayer player = MineClans.getInstance().getAPI().getFactionPlayer(uuid);
+            if (player != null) {
+                power += player.getPower();
+            }
+        }
+    }
+
+    public int getMaxPower() {
+        return members.size() * 10;
     }
 }

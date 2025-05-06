@@ -118,6 +118,7 @@ public class FactionManager {
         if (faction != null) {
             faction.disbandFaction();
             factionCacheByName.remove(factionName);
+            factionCacheByID.remove(faction.getId());
         }
     }
 

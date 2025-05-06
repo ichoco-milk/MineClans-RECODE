@@ -235,6 +235,7 @@ public class MineClansAPI {
         if (factionPlayer.getRank().isLowerThan(Rank.LEADER)) {
             return new DisbandResult(DisbandResultState.NO_PERMISSION);
         }
+        mySQLProvider.getClaimedChunksDAO().unclaimAllChunks(faction.getId());
         factionPlayerManager.updateFaction(factionPlayer.getPlayerId(), null);
         factionPlayerManager.save(factionPlayer);
         for (UUID uuid : faction.getMembers()) {
@@ -394,7 +395,8 @@ public class MineClansAPI {
         Faction faction = factionPlayer.getFaction();
         String chatPrefix = MineClans.getInstance().getMessages().getText("factions.chat.prefix_alliance");
         String playerName = player.getName();
-        String formattedMessage = chatPrefix.replace("%player%", playerName).replace("%faction%", faction.getName()) + message;
+        String formattedMessage = chatPrefix.replace("%player%", playerName).replace("%faction%", faction.getName())
+                + message;
 
         // Send faction message
         factionManager.sendFactionMessage(faction, formattedMessage);
@@ -860,6 +862,27 @@ public class MineClansAPI {
         factionManager.saveFactionToDatabase(faction);
         redisProvider.deposit(faction.getId(), amount);
         return new DepositResult(DepositResultType.SUCCESS, amount); // Deposit successful
+    }
+
+    public void updatePower(FactionPlayer player, double amount, boolean publishUpdate) {
+        if (player != null) {
+            boolean changed = player.setPower(player.getPower() + amount);
+            if (changed) {
+                if (publishUpdate) {
+                    mySQLProvider.getPowerDAO().setPower(player.getPlayerId(), player.getPower());
+                    redisProvider.updatePower(player.getPlayerId(), amount);
+                }
+                Faction faction = player.getFaction();
+                if (faction != null) {
+                    faction.updatePower();
+                }
+            }
+        }
+    }
+
+    public void updatePower(Player player, double amount, boolean publishUpdate) {
+        FactionPlayer factionPlayer = getFactionPlayer(player);
+        updatePower(factionPlayer, amount, publishUpdate);
     }
 
     public AddKillResult addKill(Player player, Player killed) {

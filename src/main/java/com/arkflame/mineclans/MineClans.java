@@ -39,6 +39,7 @@ import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.tasks.BuffExpireTask;
 import com.arkflame.mineclans.tasks.ClaimedChunksParticleTask;
+import com.arkflame.mineclans.tasks.PowerTask;
 import com.arkflame.mineclans.tasks.TeleportScheduler;
 import com.arkflame.mineclans.utils.BungeeUtil;
 
@@ -172,91 +173,95 @@ public class MineClans extends JavaPlugin {
         Server server = getServer();
         // Set static instance
         setInstance(this);
-        // Save default config
-        config = new ConfigWrapper(this, "config.yml").saveDefault().load();
-        messages = new ConfigWrapper(this, "messages.yml").saveDefault().load();
+        runAsync(() -> {
+            // Save default config
+            config = new ConfigWrapper(this, "config.yml").saveDefault().load();
+            messages = new ConfigWrapper(this, "messages.yml").saveDefault().load();
 
-        try {
-            mySQLProvider = new MySQLProvider(
-                    config.getBoolean("mysql.enabled"),
-                    config.getString("mysql.url"),
-                    config.getString("mysql.username"),
-                    config.getString("mysql.password"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.severe("An error occurred while connecting to the database.");
-        } finally {
-            if (!mySQLProvider.isConnected()) {
-                logger.severe("=============== DATABASE CONNECTION ERROR ================");
-                logger.severe("MineClans is unable to connect to the database.");
-                logger.severe("To fix this, please configure the database settings in the 'config.yml' file.");
-                logger.severe("You need a MySQL database for the plugin to work properly.");
-                logger.severe("Make sure you have the following settings in the 'config.yml':");
-                logger.severe("mysql:");
-                logger.severe("  enabled: true");
-                logger.severe(
-                        "  url: jdbc:mysql://localhost:3306/database  # Replace 'database' with your database name");
-                logger.severe("  username: root  # Change if your username is different");
-                logger.severe("  password: password  # Use your actual database password");
-                logger.severe("After making these changes, save the file and restart your server.");
-                logger.severe("=============== DATABASE CONNECTION ERROR ================");
-                Bukkit.getPluginManager().disablePlugin(this);
-                return;
+            try {
+                mySQLProvider = new MySQLProvider(
+                        config.getBoolean("mysql.enabled"),
+                        config.getString("mysql.url"),
+                        config.getString("mysql.username"),
+                        config.getString("mysql.password"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.severe("An error occurred while connecting to the database.");
+            } finally {
+                if (!mySQLProvider.isConnected()) {
+                    logger.severe("=============== DATABASE CONNECTION ERROR ================");
+                    logger.severe("MineClans is unable to connect to the database.");
+                    logger.severe("To fix this, please configure the database settings in the 'config.yml' file.");
+                    logger.severe("You need a MySQL database for the plugin to work properly.");
+                    logger.severe("Make sure you have the following settings in the 'config.yml':");
+                    logger.severe("mysql:");
+                    logger.severe("  enabled: true");
+                    logger.severe(
+                            "  url: jdbc:mysql://localhost:3306/database  # Replace 'database' with your database name");
+                    logger.severe("  username: root  # Change if your username is different");
+                    logger.severe("  password: password  # Use your actual database password");
+                    logger.severe("After making these changes, save the file and restart your server.");
+                    logger.severe("=============== DATABASE CONNECTION ERROR ================");
+                    Bukkit.getPluginManager().disablePlugin(this);
+                    return;
+                }
             }
-        }
 
-        // Managers
-        factionManager = new FactionManager();
-        factionPlayerManager = new FactionPlayerManager();
-        clanEventManager = new ClanEventManager(this);
-        clanEventScheduler = new ClanEventScheduler(config.getInt("events.interval"),
-                config.getInt("events.time-limit"));
-        leaderboardManager = new LeaderboardManager(mySQLProvider.getScoreDAO());
-        scoreManager = new ScoreManager(mySQLProvider.getScoreDAO(), leaderboardManager);
-        buffManager = new BuffManager(config);
-        redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
-        bungeeUtil = new BungeeUtil(this);
-        teleportScheduler = new TeleportScheduler(this);
-        claimedChunks = new ClaimedChunks(mySQLProvider.getClaimedChunksDAO());
+            // Managers
+            factionManager = new FactionManager();
+            factionPlayerManager = new FactionPlayerManager();
+            clanEventManager = new ClanEventManager(this);
+            clanEventScheduler = new ClanEventScheduler(config.getInt("events.interval"),
+                    config.getInt("events.time-limit"));
+            leaderboardManager = new LeaderboardManager(mySQLProvider.getScoreDAO());
+            scoreManager = new ScoreManager(mySQLProvider.getScoreDAO(), leaderboardManager);
+            buffManager = new BuffManager(config);
+            redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
+            bungeeUtil = new BungeeUtil(this);
+            teleportScheduler = new TeleportScheduler(this);
+            claimedChunks = new ClaimedChunks(mySQLProvider.getClaimedChunksDAO());
 
-        // Initialize API
-        api = new MineClansAPI(factionManager, factionPlayerManager, mySQLProvider, redisProvider);
+            // Initialize API
+            api = new MineClansAPI(factionManager, factionPlayerManager, mySQLProvider, redisProvider);
 
-        // Register Listeners
-        PluginManager pluginManager = server.getPluginManager();
-        pluginManager.registerEvents(new ChatListener(), this);
-        pluginManager.registerEvents(new ClanEventListener(), this);
-        pluginManager.registerEvents(new FactionFriendlyFireListener(), this);
-        pluginManager.registerEvents(new InventoryClickListener(), this);
-        pluginManager.registerEvents(new PlayerJoinListener(factionPlayerManager), this);
-        pluginManager.registerEvents(new PlayerKillListener(), this);
-        pluginManager.registerEvents(new PlayerMoveListener(), this);
-        pluginManager.registerEvents(new PlayerQuitListener(factionPlayerManager), this);
-        pluginManager.registerEvents(new MenuListener(), this);
+            // Register Listeners
+            PluginManager pluginManager = server.getPluginManager();
+            pluginManager.registerEvents(new ChatListener(), this);
+            pluginManager.registerEvents(new ClanEventListener(), this);
+            pluginManager.registerEvents(new FactionFriendlyFireListener(), this);
+            pluginManager.registerEvents(new InventoryClickListener(), this);
+            pluginManager.registerEvents(new PlayerJoinListener(factionPlayerManager), this);
+            pluginManager.registerEvents(new PlayerKillListener(), this);
+            pluginManager.registerEvents(new PlayerMoveListener(), this);
+            pluginManager.registerEvents(new PlayerQuitListener(factionPlayerManager), this);
+            pluginManager.registerEvents(new MenuListener(), this);
 
-        // Register Commands
-        factionsCommand = new FactionsCommand();
-        factionsCommand.register(this);
+            // Register Commands
+            factionsCommand = new FactionsCommand();
+            factionsCommand.register(this);
 
-        // Register the placeholder
-        if (pluginManager.getPlugin("PlaceholderAPI") != null) {
-            new FactionsPlaceholder(this).register();
-        }
-
-        // Register tasks
-        BuffExpireTask buffExpireTask = new BuffExpireTask();
-        buffExpireTask.register();
-        // Start showing particle borders every 20 ticks (1 second)
-        ClaimedChunksParticleTask.start("VILLAGER_HAPPY", 1, 20L);
-
-        // Attempt to hook Vault
-        if (server.getPluginManager().getPlugin("Vault") != null) {
-            if (!setupEconomy()) {
-                logger.severe("Vault economy setup failed, using fallback.");
+            // Register the placeholder
+            if (pluginManager.getPlugin("PlaceholderAPI") != null) {
+                runSync(() -> {
+                    new FactionsPlaceholder(this).register();
+                });
             }
-        } else {
-            logger.info("Vault not found, using fallback economy.");
-        }
+
+            // Register tasks
+            BuffExpireTask buffExpireTask = new BuffExpireTask();
+            buffExpireTask.register();
+            ClaimedChunksParticleTask.start("VILLAGER_HAPPY", 1, 20L);
+            PowerTask.start();
+
+            // Attempt to hook Vault
+            if (server.getPluginManager().getPlugin("Vault") != null) {
+                if (!setupEconomy()) {
+                    logger.severe("Vault economy setup failed, using fallback.");
+                }
+            } else {
+                logger.info("Vault not found, using fallback economy.");
+            }
+        });
     }
 
     @Override

@@ -80,7 +80,9 @@ public class FactionsWhoCommand {
                 .replace("%balance%", formattedBalance)
                 .replace("%kills%", kills)
                 .replace("%score%", score)
-                .replace("%founded_date%", foundedDate);
+                .replace("%founded_date%", foundedDate)
+                .replace("%power%", String.valueOf(faction.getPower()))
+                .replace("%max_power%", String.valueOf(faction.getMaxPower()));
     }
     
     private static String buildMemberList(ConfigWrapper messages, Faction faction, MineClansAPI api) {

@@ -199,6 +199,7 @@ factions:
       %announcement%
       %discord%
       &e  Balance:&a $%balance%&e Kills:&c %kills%&e Score:&b %score%
+      &e  Power:&b %power% / %max_power%
       &e  Founded At:&f %founded_date%
       &7&m-------------------------
     leader: "&e  Leaders:&7 %members%"

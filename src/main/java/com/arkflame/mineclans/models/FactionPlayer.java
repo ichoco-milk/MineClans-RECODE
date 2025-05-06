@@ -21,13 +21,14 @@ public class FactionPlayer {
     private String name;
     private Date joinDate;
     private Date lastActive;
-    private int kills;
-    private int deaths;
+    private int kills = 0;
+    private int deaths = 0;
     private ToggleChatResult.ToggleChatState chat = ToggleChatState.DISABLED;
     private Collection<UUID> killedPlayers = new HashSet<>();
     private EnteringType enteringType = EnteringType.DEPOSIT;
     private long enteringTime = 0;
     private long lastHomeRequest = 0;
+    private Double power = null;
 
     public FactionPlayer(UUID playerId) {
         this.playerId = playerId;
@@ -35,8 +36,6 @@ public class FactionPlayer {
         this.factionId = null;
         this.joinDate = null;
         this.lastActive = null;
-        this.kills = 0;
-        this.deaths = 0;
     }
 
     public UUID getPlayerId() {
@@ -187,5 +186,30 @@ public class FactionPlayer {
 
     public void requestHome() {
         this.lastHomeRequest = System.currentTimeMillis();
+    }
+
+    public double getPower() {
+        if (power == null) {
+            power = MineClans.getInstance().getMySQLProvider().getPowerDAO().getPower(playerId);
+        }
+        return Math.round((power * 10)) / 10;
+    }
+
+    public boolean setPower(double power) {
+        if (this.power == null) {
+            return false;
+        }
+        double oldPower = this.power;
+        this.power = power;
+        if (this.power > 10) {
+            this.power = 10D;
+        }
+        if (this.power < -10) {
+            this.power = -10D;
+        }
+        if (oldPower == this.power) {
+            return false;
+        }
+        return true;
     }
 }
