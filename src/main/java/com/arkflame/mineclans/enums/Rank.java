@@ -7,14 +7,14 @@ public enum Rank {
     MEMBER(2),
     RECRUIT(1);
 
-    private final int power;
+    private final int score;
 
-    Rank(int power) {
-        this.power = power;
+    Rank(int score) {
+        this.score = score;
     }
 
-    public int getPower() {
-        return power;
+    public int getScore() {
+        return score;
     }
 
     public Rank getNext() {
@@ -48,10 +48,10 @@ public enum Rank {
     }
 
     public boolean isEqualOrHigherThan(Rank rank) {
-        return this.power >= rank.power;
+        return this.score >= rank.score;
     }
 
     public boolean isLowerThan(Rank rank) {
-        return this.power < rank.power;
+        return this.score < rank.score;
     }
 }

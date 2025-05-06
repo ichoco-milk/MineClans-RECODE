@@ -68,7 +68,7 @@ public class FactionsListCommand {
                     .replace("%faction%", faction.getName())
                     .replace("%members%", String.valueOf(memberCount))
                     .replace("%max_members%", String.valueOf(maxMembers))
-                    .replace("%faction_level%", String.valueOf(faction.getPower()));  // Assuming faction level exists
+                    .replace("%faction_level%", String.valueOf(faction.getScore()));  // Assuming faction level exists
 
             player.sendMessage(entryMessage);
         }

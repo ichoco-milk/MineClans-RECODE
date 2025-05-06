@@ -30,7 +30,7 @@ import com.arkflame.mineclans.listeners.PlayerQuitListener;
 import com.arkflame.mineclans.managers.FactionManager;
 import com.arkflame.mineclans.managers.FactionPlayerManager;
 import com.arkflame.mineclans.managers.LeaderboardManager;
-import com.arkflame.mineclans.managers.PowerManager;
+import com.arkflame.mineclans.managers.ScoreManager;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.menus.listeners.MenuListener;
@@ -70,8 +70,8 @@ public class MineClans extends JavaPlugin {
     // Leaderboard Manager
     private LeaderboardManager leaderboardManager;
 
-    // Power Manager
-    private PowerManager powerManager;
+    // Score Manager
+    private ScoreManager scoreManager;
 
     // Buff Manager
     private BuffManager buffManager;
@@ -142,8 +142,8 @@ public class MineClans extends JavaPlugin {
         return leaderboardManager;
     }
 
-    public PowerManager getPowerManager() {
-        return powerManager;
+    public ScoreManager getScoreManager() {
+        return scoreManager;
     }
 
     public BuffManager getBuffManager() {
@@ -211,8 +211,8 @@ public class MineClans extends JavaPlugin {
         clanEventManager = new ClanEventManager(this);
         clanEventScheduler = new ClanEventScheduler(config.getInt("events.interval"),
                 config.getInt("events.time-limit"));
-        leaderboardManager = new LeaderboardManager(mySQLProvider.getPowerDAO());
-        powerManager = new PowerManager(mySQLProvider.getPowerDAO(), leaderboardManager);
+        leaderboardManager = new LeaderboardManager(mySQLProvider.getScoreDAO());
+        scoreManager = new ScoreManager(mySQLProvider.getScoreDAO(), leaderboardManager);
         buffManager = new BuffManager(config);
         redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
         bungeeUtil = new BungeeUtil(this);

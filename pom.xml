@@ -35,7 +35,7 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
-
+ 
     <!-- Dependencies imports -->
     <dependencies>
         <dependency>

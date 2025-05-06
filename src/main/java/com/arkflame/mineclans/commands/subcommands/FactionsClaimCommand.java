@@ -57,9 +57,9 @@ public class FactionsClaimCommand {
             return;
         }
 
-        // Check faction power/claim limit
+        // Check faction score/claim limit
         int currentClaims = api.getClaimedChunks().getClaimedChunkCount(faction.getId());
-        int maxClaims = (int) faction.getPower() + 10; // Assuming power determines max claims
+        int maxClaims = (int) faction.getScore() + 10; // Assuming score determines max claims
 
         if (currentClaims >= maxClaims) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "claim_limit_reached")

@@ -84,8 +84,8 @@ public class Faction implements InventoryHolder {
     // Events Won
     private int eventsWon = 0;
 
-    // Power
-    private double power = 0;
+    // Score
+    private double score = 0;
 
     private boolean receivedSubDuringUpdate = false;
     private boolean editingChest = false;
@@ -175,7 +175,7 @@ public class Faction implements InventoryHolder {
 
     public void setBalance(double balance) {
         this.balance = balance;
-        updatePower();
+        updateScore();
     }
 
     public Map<UUID, Relation> getRelations() {
@@ -236,7 +236,7 @@ public class Faction implements InventoryHolder {
 
     public void addMember(UUID member) {
         this.members.add(member);
-        updatePower();
+        updateScore();
     }
 
     public void removeMember(UUID member) {
@@ -329,7 +329,7 @@ public class Faction implements InventoryHolder {
 
     public void setKills(int kills) {
         this.kills = kills;
-        updatePower();
+        updateScore();
     }
 
     public int getEventsWon() {
@@ -338,27 +338,27 @@ public class Faction implements InventoryHolder {
 
     public void setEventsWon(int eventsWon) {
         this.eventsWon = eventsWon;
-        updatePower();
+        updateScore();
     }
 
     public void addEventsWon() {
         setEventsWon(eventsWon + 1);
     }
 
-    private double calculatePower() {
+    private double calculateScore() {
         ConfigWrapper config = MineClans.getInstance().getCfg();
         double killsWeight = config.getDouble("weights.kill");
         double moneyWeight = config.getDouble("weights.money");
         double memberCountWeight = config.getDouble("weights.member_count");
         double eventsWonWeight = config.getDouble("weights.events_won");
 
-        double killsPower = kills * killsWeight;
-        double moneyPower = balance * moneyWeight;
-        double memberCountPower = members.size() * memberCountWeight;
-        double eventsWonPower = eventsWon * eventsWonWeight;
+        double killsScore = kills * killsWeight;
+        double moneyScore = balance * moneyWeight;
+        double memberCountScore = members.size() * memberCountWeight;
+        double eventsWonScore = eventsWon * eventsWonWeight;
 
-        double power = killsPower + moneyPower + memberCountPower + eventsWonPower;
-        return power;
+        double score = killsScore + moneyScore + memberCountScore + eventsWonScore;
+        return score;
     }
 
     @Override
@@ -366,14 +366,14 @@ public class Faction implements InventoryHolder {
         return chestInventory;
     }
 
-    public double getPower() {
-        return this.power;
+    public double getScore() {
+        return this.score;
     }
 
-    public void updatePower() {
-        double newPower = calculatePower();
-        if (this.power != newPower) {
-            this.power = newPower;
+    public void updateScore() {
+        double newScore = calculateScore();
+        if (this.score != newScore) {
+            this.score = newScore;
         }
     }
 

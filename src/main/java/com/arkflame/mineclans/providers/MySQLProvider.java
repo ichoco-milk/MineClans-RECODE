@@ -52,7 +52,7 @@ import com.arkflame.mineclans.providers.daos.FactionDAO;
 import com.arkflame.mineclans.providers.daos.FactionPlayerDAO;
 import com.arkflame.mineclans.providers.daos.InvitedDAO;
 import com.arkflame.mineclans.providers.daos.MemberDAO;
-import com.arkflame.mineclans.providers.daos.PowerDAO;
+import com.arkflame.mineclans.providers.daos.ScoreDAO;
 import com.arkflame.mineclans.providers.daos.RanksDAO;
 import com.arkflame.mineclans.providers.daos.RelationsDAO;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
@@ -70,7 +70,7 @@ public class MySQLProvider {
     private MemberDAO memberDAO;
     private RanksDAO ranksDAO;
     private RelationsDAO relationsDAO;
-    private PowerDAO powerDAO;
+    private ScoreDAO scoreDAO;
     private ClaimedChunksDAO claimedChunksDAO;
 
     private boolean connected = false;
@@ -90,7 +90,7 @@ public class MySQLProvider {
         memberDAO = new MemberDAO(this);
         ranksDAO = new RanksDAO(this);
         relationsDAO = new RelationsDAO(this);
-        powerDAO = new PowerDAO(this);
+        scoreDAO = new ScoreDAO(this);
         claimedChunksDAO = new ClaimedChunksDAO(this);
 
         // Generate hikari config
@@ -140,8 +140,8 @@ public class MySQLProvider {
         return relationsDAO;
     }
 
-    public PowerDAO getPowerDAO() {
-        return powerDAO;
+    public ScoreDAO getScoreDAO() {
+        return scoreDAO;
     }
 
     public RanksDAO getRanksDAO() {
@@ -164,7 +164,7 @@ public class MySQLProvider {
         relationsDAO.createTable();
         ranksDAO.createTable();
         factionPlayerDAO.createTable();
-        powerDAO.createTable();
+        scoreDAO.createTable();
         claimedChunksDAO.createTable();
     }
 

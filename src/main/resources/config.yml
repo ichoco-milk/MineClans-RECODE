@@ -1,4 +1,4 @@
-# How much power is earned from this actions
+# How much score is earned from this actions
 weights:
   kill: 0.5
   money: 0.01

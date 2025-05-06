@@ -63,7 +63,7 @@ public class FactionsWhoCommand {
 
         String formattedBalance = NumberUtil.formatBalance(faction.getBalance());
         String kills = String.valueOf(faction.getKills());
-        String power = String.valueOf(faction.getPower());
+        String score = String.valueOf(faction.getScore());
         String foundedDate = faction.getCreationDate();
         String announcement = Optional.ofNullable(faction.getAnnouncement()).orElse("No announcements.");
         String discordLink = Optional.ofNullable(faction.getDiscord()).orElse("No Discord link.");
@@ -79,7 +79,7 @@ public class FactionsWhoCommand {
                 .replace("%discord%", messages.getText(BASE_PATH + "discord").replace("%link%", discordLink))
                 .replace("%balance%", formattedBalance)
                 .replace("%kills%", kills)
-                .replace("%power%", power)
+                .replace("%score%", score)
                 .replace("%founded_date%", foundedDate);
     }
     
