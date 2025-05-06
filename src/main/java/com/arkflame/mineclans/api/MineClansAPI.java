@@ -48,6 +48,7 @@ import com.arkflame.mineclans.api.results.TransferResult;
 import com.arkflame.mineclans.api.results.UninviteResult;
 import com.arkflame.mineclans.api.results.WithdrawResult;
 import com.arkflame.mineclans.api.results.WithdrawResult.WithdrawResultType;
+import com.arkflame.mineclans.claims.ClaimedChunks;
 import com.arkflame.mineclans.enums.Rank;
 import com.arkflame.mineclans.enums.RelationType;
 import com.arkflame.mineclans.events.ClanEvent;
@@ -1078,5 +1079,9 @@ public class MineClansAPI {
         }
         redisProvider.endChestUpdate(faction, updateChestContent);
         faction.setEditingChest(false);
+    }
+
+    public ClaimedChunks getClaimedChunks() {
+        return MineClans.getInstance().getClaimedChunks();
     }
 }

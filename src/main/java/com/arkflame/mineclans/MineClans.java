@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.arkflame.mineclans.api.MineClansAPI;
 import com.arkflame.mineclans.buff.BuffManager;
+import com.arkflame.mineclans.claims.ClaimedChunks;
 import com.arkflame.mineclans.commands.FactionsCommand;
 import com.arkflame.mineclans.events.ClanEventManager;
 import com.arkflame.mineclans.events.ClanEventScheduler;
@@ -37,6 +38,7 @@ import com.arkflame.mineclans.placeholders.FactionsPlaceholder;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.tasks.BuffExpireTask;
+import com.arkflame.mineclans.tasks.ClaimedChunksParticleTask;
 import com.arkflame.mineclans.tasks.TeleportScheduler;
 import com.arkflame.mineclans.utils.BungeeUtil;
 
@@ -82,6 +84,9 @@ public class MineClans extends JavaPlugin {
 
     // Teleport Scheduler
     private TeleportScheduler teleportScheduler;
+
+    // Claimed Chunks
+    private ClaimedChunks claimedChunks;
 
     public ConfigWrapper getCfg() {
         return config;
@@ -157,6 +162,10 @@ public class MineClans extends JavaPlugin {
         return teleportScheduler;
     }
 
+    public ClaimedChunks getClaimedChunks() {
+        return claimedChunks;
+    }
+
     @Override
     public void onEnable() {
         Logger logger = getLogger();
@@ -208,6 +217,7 @@ public class MineClans extends JavaPlugin {
         redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
         bungeeUtil = new BungeeUtil(this);
         teleportScheduler = new TeleportScheduler(this);
+        claimedChunks = new ClaimedChunks(mySQLProvider.getClaimedChunksDAO());
 
         // Initialize API
         api = new MineClansAPI(factionManager, factionPlayerManager, mySQLProvider, redisProvider);
@@ -236,6 +246,8 @@ public class MineClans extends JavaPlugin {
         // Register tasks
         BuffExpireTask buffExpireTask = new BuffExpireTask();
         buffExpireTask.register();
+        // Start showing particle borders every 20 ticks (1 second)
+        ClaimedChunksParticleTask.start("VILLAGER_HAPPY", 1, 20L);
 
         // Attempt to hook Vault
         if (server.getPluginManager().getPlugin("Vault") != null) {

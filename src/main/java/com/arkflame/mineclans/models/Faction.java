@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,6 +30,7 @@ import com.arkflame.mineclans.utils.MelodyUtil.Melody;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -496,10 +498,6 @@ public class Faction implements InventoryHolder {
         return editingChest;
     }
 
-    public void setEditingChest(boolean editingChest) {
-        this.editingChest = editingChest;
-    }
-
     public void setReceivedSubDuringUpdate(boolean receivedSubDuringUpdate) {
         this.receivedSubDuringUpdate = receivedSubDuringUpdate;
     }
@@ -519,5 +517,9 @@ public class Faction implements InventoryHolder {
                     MelodyUtil.playMelody(MineClans.getInstance(), otherPlayer, melody);
                 }
             }
+    }
+
+    public void setEditingChest(boolean b) {
+        editingChest = b;
     }
 }

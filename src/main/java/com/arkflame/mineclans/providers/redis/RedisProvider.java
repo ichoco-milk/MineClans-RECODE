@@ -216,4 +216,8 @@ public class RedisProvider {
     public void requestHome(UUID playerId) {
         publishUpdate("player", playerId, "requestHome");
     }
+
+    public void updateChunk(UUID factionId, int x, int z, boolean remove) {
+        publishUpdate("faction", factionId, "updateChunk", String.valueOf(x), String.valueOf(z), String.valueOf(remove));
+    }
 }

@@ -146,6 +146,15 @@ public class ConfigWrapper {
         }
     }
 
+    public String getText(String key, Object... placeholders) {
+        // Convert objects to strings
+        String[] stringPlaceholders = new String[placeholders.length];
+        for (int i = 0; i < placeholders.length; i++) {
+            stringPlaceholders[i] = String.valueOf(placeholders[i]);
+        }
+        return getText(key, stringPlaceholders);
+    }
+
     public String getText(String key, String... placeholders) {
         String text = getText(key);
     

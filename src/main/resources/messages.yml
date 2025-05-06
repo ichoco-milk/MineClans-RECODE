@@ -52,6 +52,37 @@ menus:
         lore: "&7Enter specific amount to withdraw"
 
 factions:
+  claims:
+    entered:
+      message: "&7Claim %x%, %z% owned by %owner%."
+    left:
+      message: "&7Left claim %x%, %z% owned by %owner%."
+    not_in_faction: "&cYou must be in a faction to view claims!"
+    no_claims: "&7Your faction hasn't claimed any chunks yet."
+    invalid_page: "&cInvalid page! Please choose between 1 and %max%."
+    header: |
+      &6&lClaims of &e&l%faction% &6&l(Page &e%page%/%max_page%&6) &8- &7Total: &f%total%
+      &7&m--------------------------------
+    chunk_format: "&8- &7X: &f%x% &7Z: &f%z%"
+    current_chunk_format: "&8- &aX: &f%x% &aZ: &f%z% &8(&aCurrent&8)"
+    footer: "&7Use &f%command% <page> &7to view other pages. &8(Page %page%/%max_page%)"
+
+  claim:
+    not_in_faction: "&cYou must be in a faction to claim land!"
+    no_permission: "&cYou must be at least an Officer to claim land!"
+    already_claimed: "&cThis chunk is already claimed by %faction%!"
+    claim_limit_reached: "&cYour faction has reached its claim limit! (%current%/%max%)"
+    success: "&aSuccessfully claimed chunk at X:%x% Z:%z%"
+    error: "&cAn error occurred while claiming this chunk"
+  
+  unclaim:
+    not_in_faction: "&cYou must be in a faction to unclaim land!"
+    no_permission: "&cYou must be at least an Officer to unclaim land!"
+    not_claimed: "&cThis chunk is not claimed by anyone"
+    claimed_by_other: "&cThis chunk is claimed by %faction% and cannot be unclaimed"
+    success: "&aSuccessfully unclaimed chunk at X:%x% Z:%z%"
+    error: "&cAn error occurred while unclaiming this chunk"
+  
   open:
     no_faction: "&cYou are not in a faction"
     o_permission: "&cYou have no permission to open/close your faction"
