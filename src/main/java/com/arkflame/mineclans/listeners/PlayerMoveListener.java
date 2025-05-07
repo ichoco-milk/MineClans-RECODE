@@ -13,6 +13,7 @@ import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.tasks.TeleportScheduler;
+import com.arkflame.mineclans.utils.Titles;
 
 public class PlayerMoveListener implements Listener {
     @EventHandler(ignoreCancelled = true)
@@ -74,7 +75,7 @@ public class PlayerMoveListener implements Listener {
                         String leftMessage = isSameTeam ? "factions.claims.left.message-team"
                                 : "factions.claims.left.message-enemy";
 
-                        player.sendMessage(plugin.getMessages().getText(leftMessage,
+                        Titles.sendActionBar(player, plugin.getMessages().getText(leftMessage,
                                 "%x%", String.valueOf(fromX),
                                 "%z%", String.valueOf(fromZ),
                                 "%owner%", fromFactionName));
