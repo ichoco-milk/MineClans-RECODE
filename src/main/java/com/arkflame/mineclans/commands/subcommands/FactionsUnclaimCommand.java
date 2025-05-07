@@ -38,14 +38,15 @@ public class FactionsUnclaimCommand {
         Chunk chunk = player.getLocation().getChunk();
         int chunkX = chunk.getX();
         int chunkZ = chunk.getZ();
+        String worldName = chunk.getWorld().getName();
 
         // Check if chunk is claimed by this faction
-        if (!api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ)) {
+        if (!api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ, worldName)) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "not_claimed")));
             return;
         }
 
-        ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ);
+        ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
         if (!claim.getFactionId().equals(faction.getId())) {
             String ownerName = api.getFaction(claim.getFactionId()).getName();
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "claimed_by_other")
@@ -54,7 +55,7 @@ public class FactionsUnclaimCommand {
         }
 
         // Attempt to unclaim the chunk
-        boolean success = api.getClaimedChunks().unclaimChunk(chunkX, chunkZ, true);
+        boolean success = api.getClaimedChunks().unclaimChunk(chunkX, chunkZ, worldName, true);
         
         if (success) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "success")

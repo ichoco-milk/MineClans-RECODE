@@ -175,9 +175,13 @@ public class ConfigWrapper {
     }
 
     public String getString(String key) {
+        return getString(key, "");
+    }
+
+    public String getString(String key, String def) {
         if (!isLoaded())
             return "undefined";
-        return config.getString(key, "");
+        return config.getString(key, def);
     }
 
     public int getInt(String key, int def) {
@@ -232,5 +236,9 @@ public class ConfigWrapper {
 
     public boolean contains(String string) {
         return config.contains(string);
+    }
+
+    public void set(String path, String value) {
+        config.set(path, value);
     }
 }

@@ -84,7 +84,9 @@ public class FactionsClaimsCommand {
 
             claimsList.append(ChatColors.color(claimFormat
                     .replace("%x%", String.valueOf(claim.getX()))
-                    .replace("%z%", String.valueOf(claim.getZ()))))
+                    .replace("%z%", String.valueOf(claim.getZ()))
+                    .replace("%world%", claim.getWorldName())
+                    .replace("%server%", claim.getServerName().substring(0, 5))))
                     .append("\n");
         }
 

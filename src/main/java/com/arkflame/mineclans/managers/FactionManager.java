@@ -284,11 +284,11 @@ public class FactionManager {
         }
     }
 
-    public void updateChunk(UUID factionId, int x, int z, boolean remove) {
+    public void updateChunk(UUID factionId, int x, int z, String worldName, String serverName, boolean remove) {
         if (remove) {
-            MineClans.getInstance().getClaimedChunks().unclaimChunk(x, z, false);
+            MineClans.getInstance().getClaimedChunks().unclaimChunk(x, z, worldName, serverName, false);
         } else {
-            MineClans.getInstance().getClaimedChunks().claimChunk(factionId, x, z, false);
+            MineClans.getInstance().getClaimedChunks().claimChunk(factionId, x, z, worldName, serverName, false);
         }
     }
 }

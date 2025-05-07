@@ -71,8 +71,8 @@ factions:
     header: |
       &6&lClaims of &e&l%faction% &6&l(Page &e%page%/%max_page%&6) &8- &7Total: &f%total%
       &7&m--------------------------------
-    chunk_format: "&8- &7X: &f%x% &7Z: &f%z%"
-    current_chunk_format: "&8- &aX: &f%x% &aZ: &f%z% &8(&aCurrent&8)"
+    chunk_format: "&8- &7X: &f%x% &7Z: &f%z% &7World: &f%world% &7Server: &f%server%"
+    current_chunk_format: "&8- &aX: &f%x% &aZ: &f%z% &aWorld: &f%world% &aServer: &f%server%"
     footer: "&7Use &f%command% <page> &7to view other pages. &8(Page %page%/%max_page%)"
 
   claim:

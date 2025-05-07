@@ -54,10 +54,11 @@ public class PlayerMoveListener implements Listener {
                 int fromZ = event.getFrom().getChunk().getZ();
                 int toX = event.getTo().getChunk().getX();
                 int toZ = event.getTo().getChunk().getZ();
+                String worldName = event.getTo().getWorld().getName();
 
                 // Get chunk claim data
-                ChunkCoordinate fromChunk = plugin.getClaimedChunks().getChunkAt(fromX, fromZ);
-                ChunkCoordinate toChunk = plugin.getClaimedChunks().getChunkAt(toX, toZ);
+                ChunkCoordinate fromChunk = plugin.getClaimedChunks().getChunkAt(fromX, fromZ, worldName);
+                ChunkCoordinate toChunk = plugin.getClaimedChunks().getChunkAt(toX, toZ, worldName);
 
                 // Get faction IDs (may be null if chunk is not claimed)
                 UUID fromFactionId = fromChunk != null ? fromChunk.getFactionId() : null;

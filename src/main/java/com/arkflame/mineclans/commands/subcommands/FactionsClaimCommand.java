@@ -38,20 +38,20 @@ public class FactionsClaimCommand {
 
         // Get current chunk
         Chunk chunk = player.getLocation().getChunk();
-        int chunkX = chunk.getX();
-        int chunkZ = chunk.getZ();
 
         // Attempt to claim the chunk
-        ClaimResult result = api.claimChunk(faction.getId(), chunkX, chunkZ, true);
-        handleClaimResult(player, result, chunkX, chunkZ);
+        ClaimResult result = api.claimChunk(faction.getId(), chunk, true);
+        handleClaimResult(player, result, chunk);
     }
 
-    public static void handleClaimResult(Player player, ClaimResult result, int chunkX, int chunkZ) {
+    public static void handleClaimResult(Player player, ClaimResult result, Chunk chunk) {
         MineClans mineClans = MineClans.getInstance();
         ConfigWrapper messages = mineClans.getMessages();
         MineClansAPI api = mineClans.getAPI();
         String message = messages.getText(result.getMessagePath());
-        ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ);
+        int chunkX = chunk.getX();
+        int chunkZ = chunk.getZ();
+        ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunk);
         String ownerName = existingClaim != null ? api.getFactionName(existingClaim.getFactionId()) : "Unknown";
 
         message = message

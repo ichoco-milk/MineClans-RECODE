@@ -1,5 +1,6 @@
 package com.arkflame.mineclans;
 
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
@@ -46,6 +47,29 @@ import com.arkflame.mineclans.utils.BungeeUtil;
 import net.milkbowl.vault.economy.Economy;
 
 public class MineClans extends JavaPlugin {
+    private static MineClans instance;
+    private static String serverId;
+
+    public static void setInstance(MineClans instance) {
+        MineClans.instance = instance;
+    }
+
+    public static MineClans getInstance() {
+        return MineClans.instance;
+    }
+
+    public static String getServerId() {
+        return MineClans.serverId;
+    }
+
+    public static void runAsync(Runnable runnable) {
+        Bukkit.getScheduler().runTaskAsynchronously(MineClans.getInstance(), runnable);
+    }
+
+    public static void runSync(Runnable runnable) {
+        Bukkit.getScheduler().runTask(MineClans.getInstance(), runnable);
+    }
+
     private ConfigWrapper config;
     private ConfigWrapper messages;
 
@@ -178,6 +202,9 @@ public class MineClans extends JavaPlugin {
             config = new ConfigWrapper(this, "config.yml").saveDefault().load();
             messages = new ConfigWrapper(this, "messages.yml").saveDefault().load();
 
+            config.set("serverId", MineClans.serverId = config.getString("serverId", UUID.randomUUID().toString()));
+            config.save();
+
             try {
                 mySQLProvider = new MySQLProvider(
                         config.getBoolean("mysql.enabled"),
@@ -301,23 +328,5 @@ public class MineClans extends JavaPlugin {
         }
 
         getServer().getScheduler().cancelTasks(this);
-    }
-
-    private static MineClans instance;
-
-    public static void setInstance(MineClans instance) {
-        MineClans.instance = instance;
-    }
-
-    public static MineClans getInstance() {
-        return MineClans.instance;
-    }
-
-    public static void runAsync(Runnable runnable) {
-        Bukkit.getScheduler().runTaskAsynchronously(MineClans.getInstance(), runnable);
-    }
-
-    public static void runSync(Runnable runnable) {
-        Bukkit.getScheduler().runTask(MineClans.getInstance(), runnable);
     }
 }

@@ -34,6 +34,7 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
         int centerX = centerChunk.getX();
         int centerZ = centerChunk.getZ();
         double y = playerLoc.getY() + 1; // Player's Y position +1
+        String worldName = centerChunk.getWorld().getName();
 
         // Check all 9 chunks in 3x3 grid around player
         for (int xOffset = -1; xOffset <= 1; xOffset++) {
@@ -42,8 +43,8 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
                 int chunkZ = centerZ + zOffset;
 
                 // Check if chunk is claimed
-                if (api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ)) {
-                    ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ);
+                if (api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ, worldName)) {
+                    ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
                     if (claim != null) {
                         Faction faction = api.getFaction(player);
                         boolean isSameFaction = faction != null && claim.getFactionId().equals(faction.getId());

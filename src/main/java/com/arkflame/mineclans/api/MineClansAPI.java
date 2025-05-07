@@ -3,6 +3,7 @@ package com.arkflame.mineclans.api;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -1125,18 +1126,18 @@ public class MineClansAPI {
         return toFactionId.equals(faction.getId());
     }
 
-    public ClaimResult claimChunk(UUID claimingFaction, int x, int z, boolean publishUpdate) {
-        ClaimResult claimResult = canBeClaimed(claimingFaction, x, z);
+    public ClaimResult claimChunk(UUID claimingFaction, Chunk chunk, boolean publishUpdate) {
+        ClaimResult claimResult = canBeClaimed(claimingFaction, chunk);
 
         if (claimResult.isSuccess()) {
-            MineClans.getInstance().getClaimedChunks().claimChunk(claimingFaction, x, z, publishUpdate);
+            MineClans.getInstance().getClaimedChunks().claimChunk(claimingFaction, chunk, publishUpdate);
             return claimResult;
         }
 
         return claimResult;
     }
 
-    public ClaimResult canBeClaimed(UUID claimingFactionId, int x, int z) {
+    public ClaimResult canBeClaimed(UUID claimingFactionId, Chunk chunk) {
         MineClansAPI api = MineClans.getInstance().getAPI();
     
         // 1. Check if claiming faction exists
@@ -1154,14 +1155,14 @@ public class MineClansAPI {
         }
         
         // 3. Check if original faction still exists
-        UUID chunkFactionId = MineClans.getInstance().getClaimedChunks().getClaimingFactionId(x, z);
+        UUID chunkFactionId = MineClans.getInstance().getClaimedChunks().getClaimingFactionId(chunk);
         Faction chunkFaction = api.getFaction(chunkFactionId);
         if (chunkFaction == null) {
             return ClaimResult.CHUNK_FACTION_GONE;
         }
     
         // 4. Check if chunk is already claimed
-        if (!MineClans.getInstance().getClaimedChunks().isChunkClaimed(x, z)) {
+        if (!MineClans.getInstance().getClaimedChunks().isChunkClaimed(chunk)) {
             return ClaimResult.SUCCESS;
         }
 
@@ -1171,11 +1172,14 @@ public class MineClansAPI {
     
         // 5. Check adjacent claims for raiding
         boolean hasAdjacentClaim = false;
+        int x = chunk.getX();
+        int z = chunk.getZ();
+        String worldName = chunk.getWorld().getName();
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 if (dx == 0 && dz == 0) continue;
                 
-                ChunkCoordinate adjacent = MineClans.getInstance().getClaimedChunks().getChunkAt(x + dx, z + dz);
+                ChunkCoordinate adjacent = MineClans.getInstance().getClaimedChunks().getChunkAt(x + dx, z + dz, worldName);
                 if (adjacent != null && adjacent.getFactionId().equals(claimingFactionId)) {
                     hasAdjacentClaim = true; // Has adjacent claim from claiming faction
                     break;
