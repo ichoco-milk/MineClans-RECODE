@@ -83,7 +83,6 @@ factions:
     not_raidable: "&cThe faction %faction% has enough power to keep this territory"
     not_in_faction: "&cYou must be in a faction to claim land!"
     no_permission: "&cYou must be at least a Co-Leader to claim land!"
-    unclaimed_all: "&aSuccessfully unclaimed all claims in your faction"
   
   unclaim:
     not_in_faction: "&cYou must be in a faction to unclaim land!"
@@ -92,6 +91,7 @@ factions:
     claimed_by_other: "&cThis chunk is claimed by %faction% and cannot be unclaimed"
     success: "&aSuccessfully unclaimed chunk at X:%x% Z:%z%"
     error: "&cAn error occurred while unclaiming this chunk"
+    unclaimed_all: "&aSuccessfully unclaimed all claims in your faction"
   
   open:
     no_faction: "&cYou are not in a faction"
