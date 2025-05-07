@@ -74,8 +74,10 @@ public class FactionsClaimsCommand {
 
         for (ChunkCoordinate claim : pageClaims) {
             String claimFormat;
-            boolean isCurrentChunk = (claim.getX() == playerChunk.getX() && claim.getZ() == playerChunk.getZ());
-            
+            boolean isCurrentChunk = (claim.getX() == playerChunk.getX() && claim.getZ() == playerChunk.getZ()
+                    && claim.getWorldName().equals(playerChunk.getWorld().getName()))
+                    && claim.getServerName().equals(MineClans.getServerId());
+
             if (isCurrentChunk) {
                 claimFormat = messages.getText(BASE_PATH + "current_chunk_format");
             } else {
