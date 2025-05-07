@@ -76,16 +76,17 @@ factions:
     footer: "&7Use &f%command% <page> &7to view other pages. &8(Page %page%/%max_page%)"
 
   claim:
+    success: "&aSuccessfully claimed territory at X:%x% Z:%z%"
+    already_claimed: "&cThis chunk at X:%x% Z:%z% is already claimed by %faction%"
+    limit_reached: "&cClaim limit reached! You have %current%/%max% claims"
+    no_adjacent: "&cYou need claims nearby to claim territory claimed by %faction%"
+    not_raidable: "&cThe faction %faction% has enough power to keep this territory"
     not_in_faction: "&cYou must be in a faction to claim land!"
-    no_permission: "&cYou must be at least an Officer to claim land!"
-    already_claimed: "&cThis chunk is already claimed by %faction%!"
-    claim_limit_reached: "&cYour faction has reached its claim limit! (%current%/%max%)"
-    success: "&aSuccessfully claimed chunk at X:%x% Z:%z%"
-    error: "&cAn error occurred while claiming this chunk"
+    no_permission: "&cYou must be at least a Co-Leader to claim land!"
   
   unclaim:
     not_in_faction: "&cYou must be in a faction to unclaim land!"
-    no_permission: "&cYou must be at least an Officer to unclaim land!"
+    no_permission: "&cYou must be at least a Co-Leader to unclaim land!"
     not_claimed: "&cThis chunk is not claimed by anyone"
     claimed_by_other: "&cThis chunk is claimed by %faction% and cannot be unclaimed"
     success: "&aSuccessfully unclaimed chunk at X:%x% Z:%z%"
@@ -398,7 +399,7 @@ factions:
     subtitle: "&fYou created the faction %faction%."
     usage: "&cUsage: /factions create <factionName>"
     success: "&aFaction %faction% created successfully!"
-    error: "&cAn error occurred while creating the faction."
+    error: "&cAn error occurred while creating the faction. (Invalid name?)"
     already_have_faction: "&cYou already have a faction. Disband it or leave first."
     faction_exists: "&cThe faction already exists."
   chest:

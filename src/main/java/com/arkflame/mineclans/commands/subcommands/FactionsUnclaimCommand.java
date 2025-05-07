@@ -20,14 +20,10 @@ public class FactionsUnclaimCommand {
         MineClansAPI api = mineClans.getAPI();
         ConfigWrapper messages = mineClans.getMessages();
 
-        // Debug: Start of command execution
-        mineClans.getLogger().info("[UnclaimCommand] Unclaim command executed by " + player.getName());
-
         // Check if player is in a faction
         Faction faction = api.getFaction(player);
         if (faction == null) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "not_in_faction")));
-            mineClans.getLogger().info("[UnclaimCommand] Player not in a faction");
             return;
         }
 
@@ -35,7 +31,6 @@ public class FactionsUnclaimCommand {
         FactionPlayer factionPlayer = api.getFactionPlayer(player);
         if (!factionPlayer.getRank().isEqualOrHigherThan(Rank.COLEADER)) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "no_permission")));
-            mineClans.getLogger().info("[UnclaimCommand] Player lacks permission to unclaim");
             return;
         }
 
@@ -44,13 +39,9 @@ public class FactionsUnclaimCommand {
         int chunkX = chunk.getX();
         int chunkZ = chunk.getZ();
 
-        // Debug: Chunk coordinates
-        mineClans.getLogger().info("[UnclaimCommand] Attempting to unclaim chunk at X:" + chunkX + " Z:" + chunkZ);
-
         // Check if chunk is claimed by this faction
         if (!api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ)) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "not_claimed")));
-            mineClans.getLogger().info("[UnclaimCommand] Chunk not claimed by anyone");
             return;
         }
 
@@ -59,21 +50,18 @@ public class FactionsUnclaimCommand {
             String ownerName = api.getFaction(claim.getFactionId()).getName();
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "claimed_by_other")
                     .replace("%faction%", ownerName)));
-            mineClans.getLogger().info("[UnclaimCommand] Chunk claimed by other faction: " + ownerName);
             return;
         }
 
         // Attempt to unclaim the chunk
-        boolean success = api.getClaimedChunks().unclaimChunk(faction.getId(), chunkX, chunkZ, true);
+        boolean success = api.getClaimedChunks().unclaimChunk(chunkX, chunkZ, true);
         
         if (success) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "success")
                     .replace("%x%", String.valueOf(chunkX))
                     .replace("%z%", String.valueOf(chunkZ))));
-            mineClans.getLogger().info("[UnclaimCommand] Successfully unclaimed chunk for faction " + faction.getName());
         } else {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "error")));
-            mineClans.getLogger().warning("[UnclaimCommand] Failed to unclaim chunk for unknown reason");
         }
     }
 }

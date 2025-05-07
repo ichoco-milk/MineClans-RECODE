@@ -13,7 +13,7 @@ public class ClaimedChunks {
     private final Map<UUID, Set<ChunkCoordinate>> claimedChunksByFaction = new ConcurrentHashMap<>();
     private final Map<Integer, Map<Integer, ChunkCoordinate>> claimedChunksMap = new ConcurrentHashMap<>();
     private final Set<ChunkCoordinate> claimedChunks = ConcurrentHashMap.newKeySet();
-    
+
     private final ClaimedChunksDAO claimedChunksDAO;
 
     public ClaimedChunks(ClaimedChunksDAO claimedChunksDAO) {
@@ -29,10 +29,10 @@ public class ClaimedChunks {
         claimedChunksByFaction.clear();
         claimedChunksMap.clear();
         claimedChunks.clear();
-        
+
         // Load all chunks from the database
         Map<UUID, Set<ChunkCoordinate>> allChunks = claimedChunksDAO.getAllClaimedChunks();
-        
+
         // Populate the data structures
         for (Map.Entry<UUID, Set<ChunkCoordinate>> entry : allChunks.entrySet()) {
             claimedChunksByFaction.put(entry.getKey(), entry.getValue());
@@ -44,6 +44,7 @@ public class ClaimedChunks {
 
     /**
      * Loads claimed chunks for a specific faction
+     * 
      * @param factionId The faction ID to load chunks for
      */
     public void loadClaimedChunks(UUID factionId) {
@@ -57,7 +58,7 @@ public class ClaimedChunks {
     private void addChunkToMaps(ChunkCoordinate chunk) {
         claimedChunks.add(chunk);
         claimedChunksMap.computeIfAbsent(chunk.getX(), k -> new ConcurrentHashMap<>())
-                        .put(chunk.getZ(), chunk);
+                .put(chunk.getZ(), chunk);
     }
 
     private void removeChunkFromMaps(ChunkCoordinate chunk) {
@@ -71,34 +72,30 @@ public class ClaimedChunks {
         }
     }
 
-    public boolean claimChunk(UUID factionId, int x, int z, boolean publishUpdate) {
-        if (isChunkClaimed(x, z)) {
-            return false;
-        }
-        
-        ChunkCoordinate chunk = new ChunkCoordinate(factionId, x, z);
-        claimedChunksDAO.claimChunk(factionId, x, z);
-        
-        claimedChunksByFaction.computeIfAbsent(factionId, k -> ConcurrentHashMap.newKeySet())
-                             .add(chunk);
+    public void claimChunk(UUID claimingFaction, int x, int z, boolean publishUpdate) {
+        unclaimChunk(x, z, publishUpdate);
+        ChunkCoordinate chunk = new ChunkCoordinate(claimingFaction, x, z);
+        claimedChunksDAO.claimChunk(claimingFaction, x, z);
+
+        claimedChunksByFaction.computeIfAbsent(claimingFaction, k -> ConcurrentHashMap.newKeySet())
+                .add(chunk);
         addChunkToMaps(chunk);
 
         if (publishUpdate) {
-            MineClans.getInstance().getMySQLProvider().getClaimedChunksDAO().claimChunk(factionId, x, z);
-            MineClans.getInstance().getRedisProvider().updateChunk(factionId, x, z, false);
+            MineClans.getInstance().getMySQLProvider().getClaimedChunksDAO().claimChunk(claimingFaction, x, z);
+            MineClans.getInstance().getRedisProvider().updateChunk(claimingFaction, x, z, false);
         }
-        
-        return true;
     }
 
-    public boolean unclaimChunk(UUID factionId, int x, int z, boolean publishUpdate) {
+    public boolean unclaimChunk(int x, int z, boolean publishUpdate) {
         ChunkCoordinate chunk = getChunkAt(x, z);
-        if (chunk == null || !chunk.getFactionId().equals(factionId)) {
+        if (chunk == null) {
             return false;
         }
-        
-        claimedChunksDAO.unclaimChunk(factionId, x, z);
-        
+
+        claimedChunksDAO.unclaimChunk(x, z);
+
+        UUID factionId = chunk.getFactionId();
         Set<ChunkCoordinate> factionChunks = claimedChunksByFaction.get(factionId);
         if (factionChunks != null) {
             factionChunks.remove(chunk);
@@ -109,17 +106,19 @@ public class ClaimedChunks {
         removeChunkFromMaps(chunk);
 
         if (publishUpdate) {
-            MineClans.getInstance().getMySQLProvider().getClaimedChunksDAO().unclaimChunk(factionId, x, z);
+            MineClans.getInstance().getMySQLProvider().getClaimedChunksDAO().unclaimChunk(x, z);
             MineClans.getInstance().getRedisProvider().updateChunk(factionId, x, z, true);
         }
-        
+
         return true;
     }
 
     public void unclaimAllChunks(UUID factionId) {
         Set<ChunkCoordinate> chunks = claimedChunksByFaction.remove(factionId);
         if (chunks != null) {
-            unclaimChunk(factionId, 0, 0, true);
+            for (ChunkCoordinate chunk : chunks) {
+                unclaimChunk(chunk.getX(), chunk.getZ(), false);
+            }
         }
     }
 
@@ -157,5 +156,10 @@ public class ClaimedChunks {
 
     public Set<ChunkCoordinate> getAllClaimedChunks() {
         return claimedChunks;
+    }
+
+    public UUID getClaimingFactionId(int x, int z) {
+        ChunkCoordinate chunk = getChunkAt(x, z);
+        return chunk == null ? null : chunk.getFactionId();
     }
 }

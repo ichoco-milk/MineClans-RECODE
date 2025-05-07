@@ -13,6 +13,7 @@ import com.arkflame.mineclans.api.results.AddEventsWonResult.AddEventsWonResultT
 import com.arkflame.mineclans.api.results.AddKillResult;
 import com.arkflame.mineclans.api.results.AddKillResult.AddKillResultType;
 import com.arkflame.mineclans.api.results.AnnouncementResult;
+import com.arkflame.mineclans.api.results.ClaimResult;
 import com.arkflame.mineclans.api.results.CreateResult;
 import com.arkflame.mineclans.api.results.CreateResult.CreateResultState;
 import com.arkflame.mineclans.api.results.DepositResult;
@@ -54,6 +55,7 @@ import com.arkflame.mineclans.enums.RelationType;
 import com.arkflame.mineclans.events.ClanEvent;
 import com.arkflame.mineclans.managers.FactionManager;
 import com.arkflame.mineclans.managers.FactionPlayerManager;
+import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
 import com.arkflame.mineclans.models.Relation;
@@ -1121,5 +1123,83 @@ public class MineClansAPI {
             return false;
         }
         return toFactionId.equals(faction.getId());
+    }
+
+    public ClaimResult claimChunk(UUID claimingFaction, int x, int z, boolean publishUpdate) {
+        ClaimResult claimResult = canBeClaimed(claimingFaction, x, z);
+
+        if (claimResult.isSuccess()) {
+            MineClans.getInstance().getClaimedChunks().claimChunk(claimingFaction, x, z, publishUpdate);
+            return claimResult;
+        }
+
+        return claimResult;
+    }
+
+    public ClaimResult canBeClaimed(UUID claimingFactionId, int x, int z) {
+        MineClansAPI api = MineClans.getInstance().getAPI();
+    
+        // 1. Check if claiming faction exists
+        Faction claimingFaction = api.getFaction(claimingFactionId);
+        if (claimingFaction == null) {
+            return ClaimResult.FACTION_NOT_FOUND;
+        }
+
+        // 2. Check claim limits
+        int currentClaims = claimingFaction.getClaimedLandCount();
+        int maxClaims = (int) claimingFaction.getPower();
+
+        if (currentClaims >= maxClaims) {
+            return ClaimResult.CLAIM_LIMIT_REACHED;
+        }
+        
+        // 3. Check if original faction still exists
+        UUID chunkFactionId = MineClans.getInstance().getClaimedChunks().getClaimingFactionId(x, z);
+        Faction chunkFaction = api.getFaction(chunkFactionId);
+        if (chunkFaction == null) {
+            return ClaimResult.CHUNK_FACTION_GONE;
+        }
+    
+        // 4. Check if chunk is already claimed
+        if (!MineClans.getInstance().getClaimedChunks().isChunkClaimed(x, z)) {
+            return ClaimResult.SUCCESS;
+        }
+
+        if (chunkFaction.equals(claimingFaction)) {
+            return ClaimResult.ALREADY_CLAIMED;
+        }
+    
+        // 5. Check adjacent claims for raiding
+        boolean hasAdjacentClaim = false;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                if (dx == 0 && dz == 0) continue;
+                
+                ChunkCoordinate adjacent = MineClans.getInstance().getClaimedChunks().getChunkAt(x + dx, z + dz);
+                if (adjacent != null && adjacent.getFactionId().equals(claimingFactionId)) {
+                    hasAdjacentClaim = true; // Has adjacent claim from claiming faction
+                    break;
+                }
+            }
+        }
+    
+        if (!hasAdjacentClaim) {
+            return ClaimResult.NO_ADJACENT_CLAIM;
+        }
+    
+        // 6. Check if enemy chunk is raidable
+        if (!chunkFaction.canBeRaided()) {
+            return ClaimResult.NOT_RAIDABLE;
+        }
+    
+        return ClaimResult.SUCCESS;
+    }
+
+    public String getFactionName(UUID factionId) {
+        Faction faction = getFaction(factionId);
+        if (faction == null) {
+            return "Unknown";
+        }
+        return faction.getName();
     }
 }

@@ -36,9 +36,9 @@ public class ClaimedChunksDAO {
         mySQLProvider.executeUpdateQuery(query, factionId.toString(), chunkX, chunkZ);
     }
 
-    public void unclaimChunk(UUID factionId, int chunkX, int chunkZ) {
-        String query = "DELETE FROM mineclans_claimed_chunks WHERE faction_id = ? AND chunk_x = ? AND chunk_z = ?";
-        mySQLProvider.executeUpdateQuery(query, factionId.toString(), chunkX, chunkZ);
+    public void unclaimChunk(int chunkX, int chunkZ) {
+        String query = "DELETE FROM mineclans_claimed_chunks WHERE chunk_x = ? AND chunk_z = ?";
+        mySQLProvider.executeUpdateQuery(query, chunkX, chunkZ);
     }
 
     public void unclaimAllChunks(UUID factionId) {

@@ -192,7 +192,7 @@ public class FactionPlayer {
         if (power == null) {
             power = MineClans.getInstance().getMySQLProvider().getPowerDAO().getPower(playerId);
         }
-        return Math.round((power * 10)) / 10;
+        return power;
     }
 
     public boolean setPower(double power) {

@@ -34,8 +34,8 @@ public class FactionsPowerCommand {
         }
 
         String formattedMessage = messages.getText(BASE_PATH + "self")
-                .replace("%power%", NumberUtil.formatBalance(factionPlayer.getPower()))
-                .replace("%max_power%", NumberUtil.formatBalance(factionPlayer.getMaxPower()));
+                .replace("%power%", NumberUtil.formatPower(factionPlayer.getPower()))
+                .replace("%max_power%", NumberUtil.formatPower(factionPlayer.getMaxPower()));
         player.sendMessage(ChatColors.color(formattedMessage));
     }
 
@@ -58,14 +58,14 @@ public class FactionsPowerCommand {
         if (sender.getUniqueId().equals(targetPlayer.getUniqueId())) {
             // Same as showing own power
             formattedMessage = messages.getText(BASE_PATH + "self")
-                    .replace("%power%", NumberUtil.formatBalance(factionPlayer.getPower()))
-                    .replace("%max_power%", NumberUtil.formatBalance(factionPlayer.getMaxPower()));
+                    .replace("%power%", NumberUtil.formatPower(factionPlayer.getPower()))
+                    .replace("%max_power%", NumberUtil.formatPower(factionPlayer.getMaxPower()));
         } else {
             // Show other player's power
             formattedMessage = messages.getText(BASE_PATH + "other")
                     .replace("%player%", targetName)
-                    .replace("%power%", NumberUtil.formatBalance(factionPlayer.getPower()))
-                    .replace("%max_power%", NumberUtil.formatBalance(factionPlayer.getMaxPower()));
+                    .replace("%power%", NumberUtil.formatPower(factionPlayer.getPower()))
+                    .replace("%max_power%", NumberUtil.formatPower(factionPlayer.getMaxPower()));
         }
 
         sender.sendMessage(ChatColors.color(formattedMessage));

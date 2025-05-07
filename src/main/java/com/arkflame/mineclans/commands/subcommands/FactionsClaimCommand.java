@@ -4,6 +4,7 @@ import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;
+import com.arkflame.mineclans.api.results.ClaimResult;
 import com.arkflame.mineclans.enums.Rank;
 import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
@@ -11,6 +12,7 @@ import com.arkflame.mineclans.models.FactionPlayer;
 import com.arkflame.mineclans.modernlib.commands.ModernArguments;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.utils.ChatColors;
+import com.arkflame.mineclans.utils.NumberUtil;
 
 public class FactionsClaimCommand {
     private static final String BASE_PATH = "factions.claim.";
@@ -39,36 +41,34 @@ public class FactionsClaimCommand {
         int chunkX = chunk.getX();
         int chunkZ = chunk.getZ();
 
-        // Check if chunk is already claimed
-        if (api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ)) {
-            ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ);
-            String ownerName = api.getFaction(existingClaim.getFactionId()).getName();
-            player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "already_claimed")
-                    .replace("%faction%", ownerName)));
-            return;
-        }
-
-        // Check faction score/claim limit
-        int currentClaims = api.getClaimedChunks().getClaimedChunkCount(faction.getId());
-        int maxClaims = (int) faction.getScore() + 10; // Assuming score determines max claims
-
-        if (currentClaims >= maxClaims) {
-            player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "claim_limit_reached")
-                    .replace("%current%", String.valueOf(currentClaims))
-                    .replace("%max%", String.valueOf(maxClaims))));
-            return;
-        }
-
         // Attempt to claim the chunk
-        boolean success = api.getClaimedChunks().claimChunk(faction.getId(), chunkX, chunkZ, true);
-        
-        if (success) {
-            player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "success")
-                    .replace("%x%", String.valueOf(chunkX))
-                    .replace("%z%", String.valueOf(chunkZ))));
-        } else {
-            player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "error")));
-            mineClans.getLogger().warning("[ClaimCommand] Failed to claim chunk for unknown reason");
+        ClaimResult result = api.claimChunk(faction.getId(), chunkX, chunkZ, true);
+        handleClaimResult(player, result, chunkX, chunkZ);
+    }
+
+    public static void handleClaimResult(Player player, ClaimResult result, int chunkX, int chunkZ) {
+        MineClans mineClans = MineClans.getInstance();
+        ConfigWrapper messages = mineClans.getMessages();
+        MineClansAPI api = mineClans.getAPI();
+        String message = messages.getText(result.getMessagePath());
+        ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ);
+        String ownerName = existingClaim != null ? api.getFactionName(existingClaim.getFactionId()) : "Unknown";
+
+        message = message
+                .replace("%faction%", ownerName)
+                .replace("%x%", String.valueOf(chunkX))
+                .replace("%z%", String.valueOf(chunkZ));
+
+        switch (result) {
+            case CLAIM_LIMIT_REACHED:
+                Faction faction = api.getFaction(player);
+                player.sendMessage(ChatColors.color(message
+                        .replace("%current%", NumberUtil.formatPower(faction.getClaimedLandCount()))
+                        .replace("%max%", NumberUtil.formatPower(faction.getPower()))));
+                break;
+            default:
+                player.sendMessage(ChatColors.color(message));
+                break;
         }
     }
 }

@@ -524,7 +524,7 @@ public class Faction implements InventoryHolder {
     }
 
     public int getPower() {
-        return Math.round((power * 10)) / 10;
+        return power;
     }
 
     public void updatePower() {
@@ -539,5 +539,13 @@ public class Faction implements InventoryHolder {
 
     public int getMaxPower() {
         return members.size() * 10;
+    }
+
+    public boolean canBeRaided() {
+        return MineClans.getInstance().getClaimedChunks().getClaimedChunkCount(id) > getPower();
+    }
+
+    public int getClaimedLandCount() {
+        return MineClans.getInstance().getClaimedChunks().getClaimedChunkCount(id);
     }
 }

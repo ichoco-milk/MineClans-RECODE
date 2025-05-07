@@ -16,4 +16,8 @@ public class NumberUtil {
             return FORMAT.format(balance);
         }
     }
+
+    public static String formatPower(double power) {
+        return String.valueOf(Math.round(power * 10) / 10);
+    }
 }

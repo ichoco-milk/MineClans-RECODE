@@ -21,23 +21,16 @@ public class FactionsClaimsCommand {
         MineClansAPI api = mineClans.getAPI();
         ConfigWrapper messages = mineClans.getMessages();
 
-        // Debug: Start of command execution
-        mineClans.getLogger().info("[ClaimsCommand] Claims command executed by " + player.getName());
-
         // Check if player is in a faction
         Faction faction = api.getFaction(player);
         if (faction == null) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "not_in_faction")));
-            mineClans.getLogger().info("[ClaimsCommand] Player not in a faction");
             return;
         }
 
         // Get all claims for the faction
         Set<ChunkCoordinate> claims = api.getClaimedChunks().getClaimedChunks(faction.getId());
         int totalClaims = claims.size();
-
-        // Debug: Claims count
-        mineClans.getLogger().info("[ClaimsCommand] Found " + totalClaims + " claims for faction " + faction.getName());
 
         if (totalClaims == 0) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "no_claims")));
@@ -53,9 +46,6 @@ public class FactionsClaimsCommand {
                 // Invalid page number, default to 1
             }
         }
-
-        // Debug: Pagination info
-        mineClans.getLogger().info("[ClaimsCommand] Displaying page " + page + " of claims");
 
         // Create paginator
         Paginator<ChunkCoordinate> paginator = new Paginator<>(claims, CLAIMS_PER_PAGE);

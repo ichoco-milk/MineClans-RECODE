@@ -286,7 +286,7 @@ public class FactionManager {
 
     public void updateChunk(UUID factionId, int x, int z, boolean remove) {
         if (remove) {
-            MineClans.getInstance().getClaimedChunks().unclaimChunk(factionId, x, z, false);
+            MineClans.getInstance().getClaimedChunks().unclaimChunk(x, z, false);
         } else {
             MineClans.getInstance().getClaimedChunks().claimChunk(factionId, x, z, false);
         }
