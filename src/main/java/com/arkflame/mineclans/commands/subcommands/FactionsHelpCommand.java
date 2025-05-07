@@ -19,6 +19,9 @@ public class FactionsHelpCommand {
         helpCommands.add(new HelpCommand("leave", "/f leave"));
         helpCommands.add(new HelpCommand("home", "/f home"));
         helpCommands.add(new HelpCommand("sethome", "/f sethome"));
+        helpCommands.add(new HelpCommand("claim", "/f claim"));
+        helpCommands.add(new HelpCommand("unclaim", "/f unclaim"));
+        helpCommands.add(new HelpCommand("claims", "/f claims"));
         helpCommands.add(new HelpCommand("focus", "/f focus"));
         helpCommands.add(new HelpCommand("unfocus", "/f unfocus"));
         helpCommands.add(new HelpCommand("deposit", "/f deposit <amount:all>"));
