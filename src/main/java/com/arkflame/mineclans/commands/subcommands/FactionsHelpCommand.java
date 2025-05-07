@@ -3,17 +3,20 @@ package com.arkflame.mineclans.commands.subcommands;
 import org.bukkit.command.CommandSender;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
+import com.arkflame.mineclans.utils.Paginator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FactionsHelpCommand {
     private static final String basePath = "factions.help.";
     private static final int commandsPerPage = 5; // Number of commands per page
-    private static final List<HelpCommand> helpCommands = new ArrayList<>();
+    private static Paginator<HelpCommand> helpCommands;
 
     static {
-        // Populate the helpCommands list with command objects
+        Set<HelpCommand> helpCommands = ConcurrentHashMap.newKeySet();
         helpCommands.add(new HelpCommand("create", "/f create <factionName>"));
         helpCommands.add(new HelpCommand("join", "/f join <factionName>"));
         helpCommands.add(new HelpCommand("leave", "/f leave"));
@@ -50,19 +53,16 @@ public class FactionsHelpCommand {
         helpCommands.add(new HelpCommand("events", "/f events"));
         helpCommands.add(new HelpCommand("list", "/f list"));
         helpCommands.add(new HelpCommand("transfer", "/f transfer <player>"));
+
+        FactionsHelpCommand.helpCommands = new Paginator<>(helpCommands, 5);
     }
 
     public static void onCommand(CommandSender sender, int page) {
-        int totalCommands = helpCommands.size();
-        int maxPages = (int) Math.ceil((double) totalCommands / commandsPerPage);
-
-        // Handle page boundaries
-        if (page < 1) {
+        if (page == -1) {
             page = 1;
-        } else if (page > maxPages) {
-            page = maxPages;
         }
-
+        Set<HelpCommand> commands = helpCommands.getPage(page);
+        int maxPages = helpCommands.getTotalPages();
         ConfigWrapper messages = MineClans.getInstance().getMessages();
         StringBuilder messageBuilder = new StringBuilder();
 
@@ -71,11 +71,7 @@ public class FactionsHelpCommand {
                 .replace("{maxPages}", String.valueOf(maxPages)))
                 .append("\n");
 
-        int startIndex = (page - 1) * commandsPerPage;
-        int endIndex = Math.min(startIndex + commandsPerPage, totalCommands);
-
-        for (int i = startIndex; i < endIndex; i++) {
-            HelpCommand command = helpCommands.get(i);
+        for (HelpCommand command : commands) {
             messageBuilder.append(command.getHelpLine()).append("\n");
         }
 
