@@ -21,6 +21,7 @@ import com.arkflame.mineclans.commands.FactionsCommand;
 import com.arkflame.mineclans.events.ClanEventManager;
 import com.arkflame.mineclans.events.ClanEventScheduler;
 import com.arkflame.mineclans.listeners.ChatListener;
+import com.arkflame.mineclans.listeners.ChunkProtectionListener;
 import com.arkflame.mineclans.listeners.ClanEventListener;
 import com.arkflame.mineclans.listeners.FactionFriendlyFireListener;
 import com.arkflame.mineclans.listeners.InventoryClickListener;
@@ -254,6 +255,7 @@ public class MineClans extends JavaPlugin {
             // Register Listeners
             PluginManager pluginManager = server.getPluginManager();
             pluginManager.registerEvents(new ChatListener(), this);
+            pluginManager.registerEvents(new ChunkProtectionListener(this), this);
             pluginManager.registerEvents(new ClanEventListener(), this);
             pluginManager.registerEvents(new FactionFriendlyFireListener(), this);
             pluginManager.registerEvents(new InventoryClickListener(), this);
