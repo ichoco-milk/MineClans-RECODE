@@ -34,6 +34,13 @@ public class FactionsUnclaimCommand {
             return;
         }
 
+        // Check if want to unclaim all
+        if (args.hasArg(1) && args.getText(1).equalsIgnoreCase("all")) {
+            api.getClaimedChunks().unclaimAllChunks(faction.getId());
+            player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "unclaimed_all")));
+            return;
+        }
+
         // Get current chunk
         Chunk chunk = player.getLocation().getChunk();
         int chunkX = chunk.getX();
