@@ -52,6 +52,12 @@ menus:
         lore: "&7Enter specific amount to withdraw"
 
 factions:
+  power:
+    self: "&aYour current power: &f%power%&7/&f%max_power%"
+    other: "&a%player%'s current power: &f%power%&7/&f%max_power%"
+    not_in_faction_other: "&c%player% is not in a faction"
+    invalid_player: "&cPlayer not found"
+    error: "&cAn error occurred while checking your power"
   claims:
     entered:
       message-team: "&7Entering claim %x%, %z% owned by &a%owner%."

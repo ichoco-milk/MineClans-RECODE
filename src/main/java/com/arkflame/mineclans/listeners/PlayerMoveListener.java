@@ -93,7 +93,7 @@ public class PlayerMoveListener implements Listener {
                     String enteredMessage = isSameTeam ? "factions.claims.entered.message-team"
                             : "factions.claims.entered.message-enemy";
 
-                    player.sendMessage(plugin.getMessages().getText(enteredMessage,
+                    Titles.sendActionBar(player, plugin.getMessages().getText(enteredMessage,
                             "%x%", String.valueOf(toX),
                             "%z%", String.valueOf(toZ),
                             "%owner%", toFactionName));

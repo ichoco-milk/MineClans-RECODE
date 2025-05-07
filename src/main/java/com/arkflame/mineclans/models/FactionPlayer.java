@@ -212,4 +212,8 @@ public class FactionPlayer {
         }
         return true;
     }
+
+    public double getMaxPower() {
+        return 10;
+    }
 }
