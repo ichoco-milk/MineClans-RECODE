@@ -256,10 +256,10 @@ factions:
     null_name: "&cYou have to enter a name."
     error: "&cThe name is not valid."
   list:
-    header: "&6Faction List:"
-    entry: "&e%faction% &7(%members%/%max_members%) [Level %faction_level%]"
-    footer: "&6You are currently on Page &e%current_page%&6/&e%total_pages%&6."
-    invalid_page: "&cInvalid page number. Please try again."
+    header: "&6Faction List: &e(Page %current_page%/%total_pages%)"
+    entry: "&e%faction% &7(%online%/%total%) [Score: %level%] [Power: %power%/%max_power%]"
+    footer: "&6You are currently on Page &e%current_page%&6/&e%total_pages%&6. Use &e%command% <page>&6 to view other pages."
+    invalid_page: "&cInvalid page number. Maximum page is &e%max_page%&c."
   melody:
     usage: "&cUsage: /f melody <melody>"
     available: "&cAvailable melodies: %melodies%"

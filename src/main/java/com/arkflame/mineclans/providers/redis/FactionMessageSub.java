@@ -37,7 +37,11 @@ public class FactionMessageSub extends JedisPubSub {
 
     @Override
     public void onMessage(String channel, String message) {
-        if (channel.equals(channelName) && !message.startsWith(instanceId)) {
+        if (channel.equals(channelName)) {
+            String instanceId = message.substring(0, message.indexOf(":"));
+            if (instanceId.equals(this.instanceId)) {
+                return;
+            }
             processMessage(message.substring(instanceId.length() + 1));
         }
     }

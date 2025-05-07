@@ -10,6 +10,8 @@ import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.commands.ModernArguments;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
+import com.arkflame.mineclans.utils.NumberUtil;
+import com.arkflame.mineclans.utils.Paginator;
 
 public class FactionsListCommand {
     private static final int FACTIONS_PER_PAGE = 10;
@@ -27,7 +29,7 @@ public class FactionsListCommand {
             }
         }
 
-        // Get factions and member counts
+        // Get factions and their online member counts
         Map<Faction, Integer> factionCountMap = new HashMap<>();
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             Faction faction = MineClans.getInstance().getAPI().getFaction(onlinePlayer);
@@ -36,48 +38,52 @@ public class FactionsListCommand {
             }
         }
 
-        // Sort factions by size (member count) and convert to list
-        List<Map.Entry<Faction, Integer>> sortedFactions = factionCountMap.entrySet().stream()
-                .sorted((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()))
+        // Sort factions by online member count (descending)
+        List<Faction> sortedFactions = factionCountMap.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
-        // Determine the total number of pages
-        int totalPages = (int) Math.ceil((double) sortedFactions.size() / FACTIONS_PER_PAGE);
-        totalPages = Math.max(1, totalPages);  // Ensure at least one page exists
+        // Create paginator
+        Paginator<Faction> paginator = new Paginator<>(new HashSet<>(sortedFactions), FACTIONS_PER_PAGE);
+        int totalPages = paginator.getTotalPages();
 
-        // Validate the requested page number
-        if (page > totalPages) {
-            player.sendMessage(messages.getText("factions.list.invalid_page"));
+        // Validate page number
+        if (page < 1 || page > totalPages) {
+            player.sendMessage(messages.getText("factions.list.invalid_page")
+                    .replace("%max_page%", String.valueOf(totalPages)));
             return;
         }
 
         // Display header
-        player.sendMessage(messages.getText("factions.list.header"));
+        player.sendMessage(messages.getText("factions.list.header")
+                .replace("%current_page%", String.valueOf(page))
+                .replace("%total_pages%", String.valueOf(totalPages)));
 
-        // Paginate and display factions
-        int startIndex = (page - 1) * FACTIONS_PER_PAGE;
-        int endIndex = Math.min(startIndex + FACTIONS_PER_PAGE, sortedFactions.size());
+        // Display paginated factions
+        Set<Faction> pageFactions = paginator.getPage(page);
+        for (Faction faction : pageFactions) {
+            int onlineCount = factionCountMap.getOrDefault(faction, 0);
+            int totalMembers = faction.getMembers().size();
+            String score = NumberUtil.formatScore(faction.getScore());
+            int power = faction.getPower();
+            int maxPower = faction.getMaxPower();
 
-        for (int i = startIndex; i < endIndex; i++) {
-            Map.Entry<Faction, Integer> entry = sortedFactions.get(i);
-            Faction faction = entry.getKey();
-            int memberCount = faction.getOnlineMembers().size();
-            int maxMembers = faction.getMembers().size();  // Assuming this method exists
-
-            String entryMessage = messages.getText("factions.list.entry")
+            player.sendMessage(messages.getText("factions.list.entry")
                     .replace("%faction%", faction.getName())
-                    .replace("%members%", String.valueOf(memberCount))
-                    .replace("%max_members%", String.valueOf(maxMembers))
-                    .replace("%faction_level%", String.valueOf(faction.getScore()));  // Assuming faction level exists
-
-            player.sendMessage(entryMessage);
+                    .replace("%online%", String.valueOf(onlineCount))
+                    .replace("%total%", String.valueOf(totalMembers))
+                    .replace("%level%", score)
+                    .replace("%power%", String.valueOf(power))
+                    .replace("%max_power%", String.valueOf(maxPower)));
         }
 
-        // Display footer with pagination info
-        String footerMessage = messages.getText("factions.list.footer")
-                .replace("%current_page%", String.valueOf(page))
-                .replace("%total_pages%", String.valueOf(totalPages));
-
-        player.sendMessage(footerMessage);
+        // Display footer
+        if (totalPages > 1) {
+            player.sendMessage(messages.getText("factions.list.footer")
+                    .replace("%current_page%", String.valueOf(page))
+                    .replace("%total_pages%", String.valueOf(totalPages))
+                    .replace("%command%", "/f list"));
+        }
     }
 }

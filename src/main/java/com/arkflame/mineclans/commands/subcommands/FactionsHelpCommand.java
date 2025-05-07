@@ -5,14 +5,11 @@ import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.utils.Paginator;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FactionsHelpCommand {
     private static final String basePath = "factions.help.";
-    private static final int commandsPerPage = 5; // Number of commands per page
     private static Paginator<HelpCommand> helpCommands;
 
     static {
