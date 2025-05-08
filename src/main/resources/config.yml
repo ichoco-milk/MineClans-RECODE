@@ -149,7 +149,7 @@ bungee: true
 
 # Store faction data in MySQL
 mysql:
-  enabled: true
+  enabled: false
   url: jdbc:mysql://localhost:3306/db
   username: root
   password: password
