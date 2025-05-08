@@ -1,4 +1,4 @@
-package com.arkflame.mineclans.providers.daos;
+package com.arkflame.mineclans.providers.daos.mysql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +10,24 @@ import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
 
 public class FactionPlayerDAO {
+    protected String CREATE_TABLES_QUERY = "CREATE TABLE IF NOT EXISTS mineclans_players ("
+            + "player_id TEXT NOT NULL PRIMARY KEY,"
+            + "faction_id TEXT,"
+            + "join_date TIMESTAMP,"
+            + "last_active TIMESTAMP,"
+            + "kills INT DEFAULT 0,"
+            + "deaths INT DEFAULT 0,"
+            + "name TEXT,"
+            + "FOREIGN KEY (faction_id) REFERENCES mineclans_factions(faction_id) ON DELETE SET NULL"
+            + ")";
+    protected String INSERT_PLAYER_QUERY = "INSERT INTO mineclans_players (player_id, faction_id, join_date, last_active, kills, deaths, name) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?) "
+            + "ON DUPLICATE KEY UPDATE "
+            + "faction_id = VALUES(faction_id), join_date = VALUES(join_date), last_active = VALUES(last_active), "
+            + "kills = VALUES(kills), deaths = VALUES(deaths), name = VALUES(name)";
+    protected String SELECT_BY_ID_QUERY = "SELECT * FROM mineclans_players WHERE player_id = ?";
+    protected String SELECT_BY_NAME_QUERY = "SELECT * FROM mineclans_players WHERE name = ?";
+    protected String DELETE_PLAYER_QUERY = "DELETE FROM mineclans_players WHERE player_id = ?";
     private MySQLProvider mySQLProvider;
 
     public FactionPlayerDAO(MySQLProvider mySQLProvider) {
@@ -17,25 +35,12 @@ public class FactionPlayerDAO {
     }
 
     public void createTable() {
-        mySQLProvider.executeUpdateQuery("CREATE TABLE IF NOT EXISTS mineclans_players ("
-                + "player_id CHAR(36) NOT NULL PRIMARY KEY,"
-                + "faction_id CHAR(36),"
-                + "join_date TIMESTAMP,"
-                + "last_active TIMESTAMP,"
-                + "kills INT DEFAULT 0,"
-                + "deaths INT DEFAULT 0,"
-                + "name VARCHAR(16),"
-                + "FOREIGN KEY (faction_id) REFERENCES mineclans_factions(faction_id) ON DELETE SET NULL"
-                + ")");
+        mySQLProvider.executeUpdateQuery(CREATE_TABLES_QUERY);
     }
 
     public void insertOrUpdatePlayer(FactionPlayer player) {
         mySQLProvider.executeUpdateQuery(
-                "INSERT INTO mineclans_players (player_id, faction_id, join_date, last_active, kills, deaths, name) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?) "
-                        + "ON DUPLICATE KEY UPDATE "
-                        + "faction_id = VALUES(faction_id), join_date = VALUES(join_date), last_active = VALUES(last_active), "
-                        + "kills = VALUES(kills), deaths = VALUES(deaths), name = VALUES(name)",
+                INSERT_PLAYER_QUERY,
                 player.getPlayerId(),
                 player.getFactionId(),
                 player.getJoinDate(),
@@ -47,7 +52,7 @@ public class FactionPlayerDAO {
 
     public FactionPlayer getPlayerById(UUID playerId) {
         AtomicReference<FactionPlayer> player = new AtomicReference<>(null);
-        mySQLProvider.executeSelectQuery("SELECT * FROM mineclans_players WHERE player_id = ?",
+        mySQLProvider.executeSelectQuery(SELECT_BY_ID_QUERY,
                 new ResultSetProcessor() {
                     @Override
                     public void run(ResultSet resultSet) throws SQLException {
@@ -61,7 +66,7 @@ public class FactionPlayerDAO {
 
     public FactionPlayer getPlayerByName(String name) {
         AtomicReference<FactionPlayer> player = new AtomicReference<>(null);
-        mySQLProvider.executeSelectQuery("SELECT * FROM mineclans_players WHERE name = ?",
+        mySQLProvider.executeSelectQuery(SELECT_BY_NAME_QUERY,
                 new ResultSetProcessor() {
                     public void run(ResultSet resultSet) throws SQLException {
                         if (resultSet != null && resultSet.next()) {
@@ -85,6 +90,6 @@ public class FactionPlayerDAO {
     }
 
     public void deletePlayer(UUID playerId) {
-        mySQLProvider.executeUpdateQuery("DELETE FROM mineclans_players WHERE player_id = ?", playerId);
+        mySQLProvider.executeUpdateQuery(DELETE_PLAYER_QUERY, playerId);
     }
 }

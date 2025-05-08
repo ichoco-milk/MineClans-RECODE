@@ -2,7 +2,7 @@ package com.arkflame.mineclans.managers;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.Faction;
-import com.arkflame.mineclans.providers.daos.ScoreDAO;
+import com.arkflame.mineclans.providers.daos.mysql.ScoreDAO;
 
 import java.util.Map;
 import java.util.UUID;

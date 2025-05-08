@@ -1,5 +1,6 @@
 package com.arkflame.mineclans.providers;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,16 +10,26 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 
 import com.arkflame.mineclans.MineClans;
-import com.arkflame.mineclans.providers.daos.ChestDAO;
-import com.arkflame.mineclans.providers.daos.ClaimedChunksDAO;
-import com.arkflame.mineclans.providers.daos.FactionDAO;
-import com.arkflame.mineclans.providers.daos.FactionPlayerDAO;
-import com.arkflame.mineclans.providers.daos.InvitedDAO;
-import com.arkflame.mineclans.providers.daos.MemberDAO;
-import com.arkflame.mineclans.providers.daos.PowerDAO;
-import com.arkflame.mineclans.providers.daos.ScoreDAO;
-import com.arkflame.mineclans.providers.daos.RanksDAO;
-import com.arkflame.mineclans.providers.daos.RelationsDAO;
+import com.arkflame.mineclans.providers.daos.mysql.ChestDAO;
+import com.arkflame.mineclans.providers.daos.mysql.ClaimedChunksDAO;
+import com.arkflame.mineclans.providers.daos.mysql.FactionDAO;
+import com.arkflame.mineclans.providers.daos.mysql.FactionPlayerDAO;
+import com.arkflame.mineclans.providers.daos.mysql.InvitedDAO;
+import com.arkflame.mineclans.providers.daos.mysql.MemberDAO;
+import com.arkflame.mineclans.providers.daos.mysql.PowerDAO;
+import com.arkflame.mineclans.providers.daos.mysql.RanksDAO;
+import com.arkflame.mineclans.providers.daos.mysql.RelationsDAO;
+import com.arkflame.mineclans.providers.daos.mysql.ScoreDAO;
+import com.arkflame.mineclans.providers.daos.sqlite.ChestDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.ClaimedChunksDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.FactionDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.FactionPlayerDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.InvitedDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.MemberDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.PowerDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.RanksDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.RelationsDAOSQLite;
+import com.arkflame.mineclans.providers.daos.sqlite.ScoreDAOSQLite;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -39,25 +50,45 @@ public class MySQLProvider {
     private PowerDAO powerDAO;
 
     private boolean connected = false;
+    private boolean sqlite = false;
 
     public MySQLProvider(boolean enabled, String url, String username, String password) {
         if (!enabled || url == null || username == null || password == null) {
             MineClans.getInstance().getLogger().severe("No database information provided.");
-            return;
+            try {
+                String sqliteFile = new File(MineClans.getInstance().getDataFolder(), "mineclans.db").getAbsolutePath();
+                url = "jdbc:sqlite:" + sqliteFile;
+                sqlite = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             MineClans.getInstance().getLogger().info("Using MySQL database for factions.");
         }
 
-        chestDAO = new ChestDAO(this);
-        factionDAO = new FactionDAO(this);
-        factionPlayerDAO = new FactionPlayerDAO(this);
-        invitedDAO = new InvitedDAO(this);
-        memberDAO = new MemberDAO(this);
-        ranksDAO = new RanksDAO(this);
-        relationsDAO = new RelationsDAO(this);
-        scoreDAO = new ScoreDAO(this);
-        claimedChunksDAO = new ClaimedChunksDAO(this);
-        powerDAO = new PowerDAO(this);
+        if (sqlite) {
+            chestDAO = new ChestDAOSQLite(this);
+            factionDAO = new FactionDAOSQLite(this);
+            factionPlayerDAO = new FactionPlayerDAOSQLite(this);
+            invitedDAO = new InvitedDAOSQLite(this);
+            memberDAO = new MemberDAOSQLite(this);
+            ranksDAO = new RanksDAOSQLite(this);
+            relationsDAO = new RelationsDAOSQLite(this);
+            scoreDAO = new ScoreDAOSQLite(this);
+            claimedChunksDAO = new ClaimedChunksDAOSQLite(this);
+            powerDAO = new PowerDAOSQLite(this);
+        } else {
+            chestDAO = new ChestDAO(this);
+            factionDAO = new FactionDAO(this);
+            factionPlayerDAO = new FactionPlayerDAO(this);
+            invitedDAO = new InvitedDAO(this);
+            memberDAO = new MemberDAO(this);
+            ranksDAO = new RanksDAO(this);
+            relationsDAO = new RelationsDAO(this);
+            scoreDAO = new ScoreDAO(this);
+            claimedChunksDAO = new ClaimedChunksDAO(this);
+            powerDAO = new PowerDAO(this);
+        }
 
         // Generate hikari config
         generateHikariConfig(url, username, password);

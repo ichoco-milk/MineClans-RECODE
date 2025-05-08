@@ -1,4 +1,4 @@
-package com.arkflame.mineclans.providers.daos;
+package com.arkflame.mineclans.providers.daos.mysql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +12,18 @@ import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
 
 public class RanksDAO {
+    protected String CREATE_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS mineclans_ranks (" +
+            "player_id VARCHAR(36) PRIMARY KEY," +
+            "player_rank VARCHAR(255) NOT NULL)";
+
+    protected String INSERT_OR_UPDATE_RANK_QUERY = "INSERT INTO mineclans_ranks (player_id, player_rank) VALUES (?, ?) "
+            +
+            "ON DUPLICATE KEY UPDATE player_rank = VALUES(player_rank)";
+
+    protected String SELECT_RANK_BY_PLAYER_ID_QUERY = "SELECT player_rank FROM mineclans_ranks WHERE player_id = ?";
+
+    protected String SELECT_ALL_RANKS_QUERY = "SELECT player_id, player_rank FROM mineclans_ranks";
+
     private MySQLProvider mySQLProvider;
 
     public RanksDAO(MySQLProvider mySQLProvider) {
@@ -19,20 +31,16 @@ public class RanksDAO {
     }
 
     public void createTable() {
-        mySQLProvider.executeUpdateQuery("CREATE TABLE IF NOT EXISTS mineclans_ranks (" +
-                "player_id VARCHAR(36) PRIMARY KEY," +
-                "player_rank VARCHAR(255) NOT NULL)");
+        mySQLProvider.executeUpdateQuery(CREATE_TABLE_QUERY);
     }
 
     public void setRank(UUID playerId, Rank rank) {
-        mySQLProvider.executeUpdateQuery("INSERT INTO mineclans_ranks (player_id, player_rank) VALUES (?, ?) " +
-                "ON DUPLICATE KEY UPDATE player_rank = VALUES(player_rank)", playerId.toString(), rank.toString());
+        mySQLProvider.executeUpdateQuery(INSERT_OR_UPDATE_RANK_QUERY, playerId.toString(), rank.toString());
     }
 
     public Rank getRank(UUID playerId) {
         AtomicReference<Rank> rank = new AtomicReference<>(null);
-        String query = "SELECT player_rank FROM mineclans_ranks WHERE player_id = ?";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(SELECT_RANK_BY_PLAYER_ID_QUERY, new ResultSetProcessor() {
             @Override
             public void run(ResultSet resultSet) throws SQLException {
                 if (resultSet != null && resultSet.next()) {
@@ -46,8 +54,7 @@ public class RanksDAO {
 
     public Map<UUID, Rank> getAllRanks() {
         Map<UUID, Rank> ranks = new ConcurrentHashMap<>();
-        String query = "SELECT player_id, player_rank FROM mineclans_ranks";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(SELECT_ALL_RANKS_QUERY, new ResultSetProcessor() {
             @Override
             public void run(ResultSet resultSet) throws SQLException {
                 if (resultSet != null) {

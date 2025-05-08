@@ -1,8 +1,7 @@
-package com.arkflame.mineclans.providers.daos;
+package com.arkflame.mineclans.providers.daos.mysql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +15,33 @@ import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
 
 public class ClaimedChunksDAO {
+    protected String CREATE_TABLES_QUERY = "CREATE TABLE IF NOT EXISTS mineclans_chunks (" +
+            "faction_id CHAR(36) NOT NULL," +
+            "chunk_x INT NOT NULL," +
+            "chunk_z INT NOT NULL," +
+            "server_name VARCHAR(64) NOT NULL," +
+            "world_name VARCHAR(64) NOT NULL," +
+            "claim_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+            "PRIMARY KEY (faction_id, chunk_x, chunk_z, server_name, world_name)," +
+            "FOREIGN KEY (faction_id) REFERENCES mineclans_factions(faction_id) ON DELETE CASCADE)";
+    protected String CLAIM_CHUNK_QUERY = "INSERT INTO mineclans_chunks (faction_id, chunk_x, chunk_z, server_name, world_name, claim_date) "
+            +
+            "VALUES (?, ?, ?, ?, ?, NOW()) " +
+            "ON DUPLICATE KEY UPDATE faction_id = VALUES(faction_id), claim_date = NOW()";
+
+    protected String UNCLAIM_CHUNK_QUERY = "DELETE FROM mineclans_chunks WHERE chunk_x = ? AND chunk_z = ? AND server_name = ? AND world_name = ?";
+
+    protected String UNCLAIM_ALL_CHUNKS_QUERY = "DELETE FROM mineclans_chunks WHERE faction_id = ?";
+
+    protected String GET_CHUNK_OWNER_QUERY = "SELECT faction_id, chunk_x, chunk_z, server_name, world_name, claim_date FROM mineclans_chunks "
+            +
+            "WHERE chunk_x = ? AND chunk_z = ? AND server_name = ? AND world_name = ?";
+
+    protected String GET_CLAIMED_CHUNKS_QUERY = "SELECT chunk_x, chunk_z, server_name, world_name, claim_date FROM mineclans_chunks WHERE faction_id = ?";
+
+    protected String GET_CLAIMED_CHUNK_COUNT_QUERY = "SELECT COUNT(*) AS count FROM mineclans_chunks WHERE faction_id = ?";
+
+    protected String GET_ALL_CLAIMED_CHUNKS_QUERY = "SELECT faction_id, chunk_x, chunk_z, server_name, world_name, claim_date FROM mineclans_chunks";
     private MySQLProvider mySQLProvider;
 
     public ClaimedChunksDAO(MySQLProvider mySQLProvider) {
@@ -23,39 +49,25 @@ public class ClaimedChunksDAO {
     }
 
     public void createTable() {
-        mySQLProvider.executeUpdateQuery("CREATE TABLE IF NOT EXISTS mineclans_chunks (" +
-                "faction_id CHAR(36) NOT NULL," +
-                "chunk_x INT NOT NULL," +
-                "chunk_z INT NOT NULL," +
-                "server_name VARCHAR(64) NOT NULL," +
-                "world_name VARCHAR(64) NOT NULL," +
-                "claim_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-                "PRIMARY KEY (faction_id, chunk_x, chunk_z, server_name, world_name)," +
-                "FOREIGN KEY (faction_id) REFERENCES mineclans_factions(faction_id) ON DELETE CASCADE)");
+        mySQLProvider.executeUpdateQuery(CREATE_TABLES_QUERY);
     }
 
     public void claimChunk(UUID factionId, int chunkX, int chunkZ, String worldName, String serverName) {
-        String query = "INSERT INTO mineclans_chunks (faction_id, chunk_x, chunk_z, server_name, world_name, claim_date) " +
-                       "VALUES (?, ?, ?, ?, ?, NOW()) " +
-                       "ON DUPLICATE KEY UPDATE faction_id = VALUES(faction_id), claim_date = NOW()";
-        mySQLProvider.executeUpdateQuery(query, factionId.toString(), chunkX, chunkZ, worldName, serverName);
+        mySQLProvider.executeUpdateQuery(CLAIM_CHUNK_QUERY, factionId.toString(), chunkX, chunkZ, worldName,
+                serverName);
     }
 
     public void unclaimChunk(int chunkX, int chunkZ, String worldName, String serverName) {
-        String query = "DELETE FROM mineclans_chunks WHERE chunk_x = ? AND chunk_z = ? AND server_name = ? AND world_name = ?";
-        mySQLProvider.executeUpdateQuery(query, chunkX, chunkZ, worldName, serverName);
+        mySQLProvider.executeUpdateQuery(UNCLAIM_CHUNK_QUERY, chunkX, chunkZ, worldName, serverName);
     }
 
     public void unclaimAllChunks(UUID factionId) {
-        String query = "DELETE FROM mineclans_chunks WHERE faction_id = ?";
-        mySQLProvider.executeUpdateQuery(query, factionId.toString());
+        mySQLProvider.executeUpdateQuery(UNCLAIM_ALL_CHUNKS_QUERY, factionId.toString());
     }
 
     public ChunkCoordinate getChunkOwner(int chunkX, int chunkZ, String worldName, String serverName) {
         AtomicReference<ChunkCoordinate> result = new AtomicReference<>(null);
-        String query = "SELECT faction_id, chunk_x, chunk_z, server_name, world_name, claim_date FROM mineclans_chunks " +
-                       "WHERE chunk_x = ? AND chunk_z = ? AND server_name = ? AND world_name = ?";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(GET_CHUNK_OWNER_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
                 if (resultSet.next()) {
                     UUID factionId = UUID.fromString(resultSet.getString("faction_id"));
@@ -73,8 +85,7 @@ public class ClaimedChunksDAO {
 
     public Set<ChunkCoordinate> getClaimedChunks(UUID factionId) {
         AtomicReference<Set<ChunkCoordinate>> chunks = new AtomicReference<>(new HashSet<>());
-        String query = "SELECT chunk_x, chunk_z, server_name, world_name, claim_date FROM mineclans_chunks WHERE faction_id = ?";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(GET_CLAIMED_CHUNKS_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
                 Set<ChunkCoordinate> chunkSet = new HashSet<>();
                 while (resultSet.next()) {
@@ -93,8 +104,7 @@ public class ClaimedChunksDAO {
 
     public int getClaimedChunkCount(UUID factionId) {
         AtomicReference<Integer> count = new AtomicReference<>(0);
-        String query = "SELECT COUNT(*) AS count FROM mineclans_chunks WHERE faction_id = ?";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(GET_CLAIMED_CHUNK_COUNT_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
                 if (resultSet.next()) {
                     count.set(resultSet.getInt("count"));
@@ -103,11 +113,10 @@ public class ClaimedChunksDAO {
         }, factionId.toString());
         return count.get();
     }
-    
+
     public Map<UUID, Set<ChunkCoordinate>> getAllClaimedChunks() {
         AtomicReference<Map<UUID, Set<ChunkCoordinate>>> result = new AtomicReference<>(new ConcurrentHashMap<>());
-        String query = "SELECT faction_id, chunk_x, chunk_z, server_name, world_name, claim_date FROM mineclans_chunks";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(GET_ALL_CLAIMED_CHUNKS_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
                 Map<UUID, Set<ChunkCoordinate>> chunksMap = new ConcurrentHashMap<>();
                 while (resultSet.next()) {
@@ -117,7 +126,7 @@ public class ClaimedChunksDAO {
                     String server = resultSet.getString("server_name");
                     String world = resultSet.getString("world_name");
                     Date claimDate = resultSet.getTimestamp("claim_date");
-                    
+
                     chunksMap.computeIfAbsent(factionId, k -> ConcurrentHashMap.newKeySet())
                             .add(new ChunkCoordinate(factionId, x, z, server, world, claimDate));
                 }

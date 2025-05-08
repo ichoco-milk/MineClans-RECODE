@@ -8,7 +8,7 @@ import org.bukkit.Chunk;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.ChunkCoordinate;
-import com.arkflame.mineclans.providers.daos.ClaimedChunksDAO;
+import com.arkflame.mineclans.providers.daos.mysql.ClaimedChunksDAO;
 
 public class ClaimedChunks {
     private final FactionChunkMap factionChunkMap;

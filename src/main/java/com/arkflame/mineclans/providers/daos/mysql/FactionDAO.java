@@ -1,4 +1,4 @@
-package com.arkflame.mineclans.providers.daos;
+package com.arkflame.mineclans.providers.daos.mysql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,6 +13,51 @@ import com.arkflame.mineclans.utils.LocationData;
 import com.arkflame.mineclans.utils.LocationUtil;
 
 public class FactionDAO {
+    protected String CREATE_FACTIONS_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS mineclans_factions (" +
+            "faction_id CHAR(36) PRIMARY KEY," +
+            "owner_id CHAR(36) NOT NULL," +
+            "display_name VARCHAR(64) NOT NULL," +
+            "home VARCHAR(255)," +
+            "name VARCHAR(16) UNIQUE," +
+            "balance DOUBLE," +
+            "kills INT," +
+            "events_won INT," +
+            "friendly_fire BOOLEAN," +
+            "open BOOLEAN," +
+            "creation_date TIMESTAMP," +
+            "announcement TEXT," +
+            "discord VARCHAR(255))";
+
+    protected String DELETE_FACTION_BY_NAME_QUERY = "DELETE FROM mineclans_factions WHERE name = ?";
+
+    protected String UPSERT_FACTION_QUERY = "INSERT INTO mineclans_factions (" +
+            "faction_id, owner_id, display_name, home, name, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord) "
+            +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+            "ON DUPLICATE KEY UPDATE " +
+            "owner_id = VALUES(owner_id), " +
+            "display_name = VALUES(display_name), " +
+            "home = VALUES(home), " +
+            "name = VALUES(name), " +
+            "balance = VALUES(balance), " +
+            "kills = VALUES(kills), " +
+            "events_won = VALUES(events_won), " +
+            "friendly_fire = VALUES(friendly_fire), " +
+            "open = VALUES(open), " +
+            "creation_date = VALUES(creation_date), " +
+            "announcement = VALUES(announcement), " +
+            "discord = VALUES(discord)";
+
+    protected String DELETE_FACTION_BY_ID_QUERY = "DELETE FROM mineclans_factions WHERE faction_id = ?";
+
+    protected String SELECT_FACTION_BY_ID_QUERY = "SELECT faction_id, name, owner_id, display_name, home, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord "
+            +
+            "FROM mineclans_factions WHERE faction_id = ?";
+
+    protected String SELECT_FACTION_BY_NAME_QUERY = "SELECT faction_id, name, owner_id, display_name, home, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord "
+            +
+            "FROM mineclans_factions WHERE name = ?";
+
     private MySQLProvider mySQLProvider;
 
     public FactionDAO(MySQLProvider mySQLProvider) {
@@ -20,45 +65,15 @@ public class FactionDAO {
     }
 
     public void createTable() {
-        mySQLProvider.executeUpdateQuery("CREATE TABLE IF NOT EXISTS mineclans_factions (" +
-                "faction_id CHAR(36) PRIMARY KEY," +
-                "owner_id CHAR(36) NOT NULL," +
-                "display_name VARCHAR(64) NOT NULL," +
-                "home VARCHAR(255)," +
-                "name VARCHAR(16) UNIQUE," +
-                "balance DOUBLE," +
-                "kills INT," +
-                "events_won INT," +
-                "friendly_fire BOOLEAN," +
-                "open BOOLEAN," +
-                "creation_date TIMESTAMP," +
-                "announcement TEXT," +
-                "discord VARCHAR(255))");
+        mySQLProvider.executeUpdateQuery(CREATE_FACTIONS_TABLE_QUERY);
     }
 
     public void removeFactionByName(String name) {
-        String query = "DELETE FROM mineclans_factions WHERE name = ?";
-        mySQLProvider.executeUpdateQuery(query, name);
+        mySQLProvider.executeUpdateQuery(DELETE_FACTION_BY_NAME_QUERY, name);
     }
 
     public void insertOrUpdateFaction(Faction faction) {
-        String query = "INSERT INTO mineclans_factions (faction_id, owner_id, display_name, home, name, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord) "
-                +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
-                "ON DUPLICATE KEY UPDATE " +
-                "owner_id = VALUES(owner_id), " +
-                "display_name = VALUES(display_name), " +
-                "home = VALUES(home), " +
-                "name = VALUES(name), " +
-                "balance = VALUES(balance), " +
-                "kills = VALUES(kills), " +
-                "events_won = VALUES(events_won), " +
-                "friendly_fire = VALUES(friendly_fire), " +
-                "open = VALUES(open), " +
-                "creation_date = VALUES(creation_date), " +
-                "announcement = VALUES(announcement), " +
-                "discord = VALUES(discord)";
-        mySQLProvider.executeUpdateQuery(query,
+        mySQLProvider.executeUpdateQuery(UPSERT_FACTION_QUERY,
                 faction.getId(),
                 faction.getOwner(),
                 faction.getDisplayName(),
@@ -75,8 +90,7 @@ public class FactionDAO {
     }
 
     public void removeFaction(UUID factionId) {
-        String query = "DELETE FROM mineclans_factions WHERE faction_id = ?";
-        mySQLProvider.executeUpdateQuery(query, factionId);
+        mySQLProvider.executeUpdateQuery(DELETE_FACTION_BY_ID_QUERY, factionId);
     }
 
     public void disbandFaction(Faction faction) {
@@ -105,7 +119,7 @@ public class FactionDAO {
             Timestamp creationDate = resultSet.getTimestamp("creation_date");
             String announcement = resultSet.getString("announcement");
             String discord = resultSet.getString("discord");
-            
+
             // Create a Faction object and set additional properties
             Faction faction = new Faction(id, ownerId, name, displayName);
             faction.setHome(home);
@@ -114,7 +128,7 @@ public class FactionDAO {
             faction.setOpen(open);
             faction.setCreationDate(creationDate);
             faction.setAnnouncement(announcement);
-            faction.setDiscord(discord);            
+            faction.setDiscord(discord);
 
             // Load other faction stuff
             faction.setMembers(mySQLProvider.getMemberDAO().getMembers(id));
@@ -141,8 +155,7 @@ public class FactionDAO {
 
     public Faction getFactionById(UUID factionId) {
         AtomicReference<Faction> faction = new AtomicReference<>(null);
-        String query = "SELECT faction_id, name, owner_id, display_name, home, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord FROM mineclans_factions WHERE faction_id = ?";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_ID_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
                 faction.set(extractFactionFromResultSet(resultSet));
             };
@@ -152,8 +165,7 @@ public class FactionDAO {
 
     public Faction getFactionByName(String name) {
         AtomicReference<Faction> faction = new AtomicReference<>(null);
-        String query = "SELECT faction_id, name, owner_id, display_name, home, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord FROM mineclans_factions WHERE name = ?";
-        mySQLProvider.executeSelectQuery(query, new ResultSetProcessor() {
+        mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_NAME_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
                 faction.set(extractFactionFromResultSet(resultSet));
             };

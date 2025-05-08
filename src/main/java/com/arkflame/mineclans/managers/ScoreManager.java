@@ -1,6 +1,6 @@
 package com.arkflame.mineclans.managers;
 
-import com.arkflame.mineclans.providers.daos.ScoreDAO;
+import com.arkflame.mineclans.providers.daos.mysql.ScoreDAO;
 
 import java.util.UUID;
 
