@@ -20,6 +20,8 @@ import com.arkflame.mineclans.claims.ClaimedChunks;
 import com.arkflame.mineclans.commands.FactionsCommand;
 import com.arkflame.mineclans.events.ClanEventManager;
 import com.arkflame.mineclans.events.ClanEventScheduler;
+import com.arkflame.mineclans.hooks.DynmapIntegration;
+import com.arkflame.mineclans.hooks.FactionsPlaceholder;
 import com.arkflame.mineclans.listeners.ChatListener;
 import com.arkflame.mineclans.listeners.ChunkProtectionListener;
 import com.arkflame.mineclans.listeners.ClanEventListener;
@@ -36,7 +38,6 @@ import com.arkflame.mineclans.managers.ScoreManager;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.menus.listeners.MenuListener;
-import com.arkflame.mineclans.placeholders.FactionsPlaceholder;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.tasks.BuffExpireTask;
@@ -113,6 +114,8 @@ public class MineClans extends JavaPlugin {
 
     // Claimed Chunks
     private ClaimedChunks claimedChunks;
+
+    private DynmapIntegration dynmapIntegration;
 
     public ConfigWrapper getCfg() {
         return config;
@@ -192,6 +195,10 @@ public class MineClans extends JavaPlugin {
         return claimedChunks;
     }
 
+    public DynmapIntegration getDynmapIntegration() {
+        return dynmapIntegration;
+    }
+
     @Override
     public void onEnable() {
         Logger logger = getLogger();
@@ -205,6 +212,8 @@ public class MineClans extends JavaPlugin {
 
             config.set("serverId", MineClans.serverId = config.getString("serverId", UUID.randomUUID().toString()));
             config.save();
+
+            dynmapIntegration = new DynmapIntegration(this);
 
             try {
                 mySQLProvider = new MySQLProvider(
@@ -264,6 +273,7 @@ public class MineClans extends JavaPlugin {
             pluginManager.registerEvents(new PlayerMoveListener(), this);
             pluginManager.registerEvents(new PlayerQuitListener(factionPlayerManager), this);
             pluginManager.registerEvents(new MenuListener(), this);
+            pluginManager.registerEvents(dynmapIntegration, this);
 
             // Register Commands
             factionsCommand = new FactionsCommand();
@@ -296,6 +306,10 @@ public class MineClans extends JavaPlugin {
     @Override
     public void onDisable() {
         HandlerList.unregisterAll(this);
+
+        if (dynmapIntegration != null) {
+            dynmapIntegration.cleanup();
+        }
 
         if (factionsCommand != null) {
             factionsCommand.unregisterBukkitCommand();

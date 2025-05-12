@@ -59,14 +59,16 @@ public class ClaimedChunks {
         claimChunk(claimingFaction, x, z, worldName, MineClans.getServerId(), publishUpdate);
     }
 
-    public void claimChunk(UUID claimingFaction, int x, int z, String worldName, String serverName, boolean publishUpdate) {
+    public void claimChunk(UUID claimingFaction, int x, int z, String worldName, String serverName,
+            boolean publishUpdate) {
         unclaimChunk(x, z, worldName, publishUpdate);
-        
+
         // Current time is handled by the DAO
         ChunkCoordinate chunk = new ChunkCoordinate(claimingFaction, x, z, worldName, serverName, null);
-        
+
         factionChunkMap.addChunk(claimingFaction, chunk);
         worldChunkMap.addChunk(chunk);
+        MineClans.getInstance().getDynmapIntegration().updateFactionClaim(x, z, worldName, claimingFaction);
 
         if (publishUpdate) {
             claimedChunksDAO.claimChunk(claimingFaction, x, z, worldName, serverName);
@@ -88,6 +90,7 @@ public class ClaimedChunks {
         UUID factionId = chunk.getFactionId();
         factionChunkMap.removeChunk(factionId, chunk);
         worldChunkMap.removeChunk(chunk);
+        MineClans.getInstance().getDynmapIntegration().removeFactionClaim(x, z, worldName);
 
         if (publishUpdate) {
             claimedChunksDAO.unclaimChunk(x, z, worldName, serverName);
@@ -112,16 +115,16 @@ public class ClaimedChunks {
         if (chunk == null) {
             return false;
         }
-        
+
         UUID factionId = chunk.getFactionId();
         if (factionId == null) {
             return false;
         }
-        
+
         if (MineClans.getInstance().getFactionManager().getFaction(factionId) == null) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -148,16 +151,16 @@ public class ClaimedChunks {
         ChunkCoordinate chunk = getChunkAt(x, z, worldName, serverName);
         return chunk == null ? null : chunk.getFactionId();
     }
-    
+
     // Convenience methods that use current server and world
     public boolean isChunkClaimed(int x, int z, String worldName) {
         return isChunkClaimed(x, z, worldName, MineClans.getServerId());
     }
-    
+
     public ChunkCoordinate getChunkAt(int x, int z, String worldName) {
         return getChunkAt(x, z, worldName, MineClans.getServerId());
     }
-    
+
     public UUID getClaimingFactionId(int x, int z, String worldName) {
         return getClaimingFactionId(x, z, worldName, MineClans.getServerId());
     }

@@ -1,4 +1,4 @@
-package com.arkflame.mineclans.placeholders;
+package com.arkflame.mineclans.hooks;
 
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
