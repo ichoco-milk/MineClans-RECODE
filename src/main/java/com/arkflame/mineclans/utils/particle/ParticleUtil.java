@@ -1,4 +1,4 @@
-package com.arkflame.mineclans.utils;
+package com.arkflame.mineclans.utils.particle;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
@@ -25,21 +25,29 @@ public class ParticleUtil {
         });
     }
 
-    public static void spawnParticle(Player player, Location location, String name, int count, double offsetX,
+    public static boolean spawnParticle(Player player, Location location, String name, int count, double offsetX,
             double offsetY,
             double offsetZ, int extra) {
+        if (PacketParticleUtil.spawnParticle(player, location, name, count, offsetX, offsetY, offsetZ, extra)) {
+            return true;
+        }
+
         Object particleOrEffect = getParticleOrEffect(name);
 
-        if (particleOrEffect == null)
-            return;
+        if (particleOrEffect == null) {
+            return false;
+        }
 
         if (particleOrEffect.getClass().getSimpleName().equals("Particle")) {
             player.spawnParticle((Particle) particleOrEffect, location, count, offsetX, offsetY, offsetZ, extra);
+            return true;
         } else if (particleOrEffect.getClass().getSimpleName().equals("Effect")) {
             for (int i = 0; i < count; i++) {
                 player.playEffect(location, (Effect) particleOrEffect, extra);
             }
+            return true;
         }
+        return false;
     }
 
     public static void spawnParticle(Location location, String name, int count, double offsetX, double offsetY,
@@ -164,5 +172,13 @@ public class ParticleUtil {
         }
 
         return null; // Return null if no valid name is found
+    }
+
+    public static void spawnParticle(Player player, Location loc, int count, String... particleTypes) {
+        for (String particleType : particleTypes) {
+            if (spawnParticle(player, loc, particleType, count, 0, 0, 0, 0)) {
+                break;
+            }
+        }
     }
 }
