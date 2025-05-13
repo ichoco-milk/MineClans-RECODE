@@ -74,6 +74,7 @@ factions:
     chunk_format: "&8- &7X: &f%x% &7Z: &f%z% &7World: &f%world% &7Server: &f%server%"
     current_chunk_format: "&8- &aX: &f%x% &aZ: &f%z% &aWorld: &f%world% &aServer: &f%server%"
     footer: "&7Use &f%command% <page> &7to view other pages. &8(Page %page%/%max_page%)"
+    disabled: "&cViewing claims is disabled in your faction"
 
   claim:
     success: "&aSuccessfully claimed territory at X:%x% Z:%z%"
@@ -84,6 +85,7 @@ factions:
     not_in_faction: "&cYou must be in a faction to claim land!"
     no_permission: "&cYou must be at least a Co-Leader to claim land!"
     overlaps_region: "&cThis claim overlaps a WorldGuard region!"
+    disabled: "&cClaiming is disabled in your faction"
   
   unclaim:
     not_in_faction: "&cYou must be in a faction to unclaim land!"
@@ -93,6 +95,7 @@ factions:
     success: "&aSuccessfully unclaimed chunk at X:%x% Z:%z%"
     error: "&cAn error occurred while unclaiming this chunk"
     unclaimed_all: "&aSuccessfully unclaimed all claims in your faction"
+    disabled: "&cUnclaiming is disabled in your faction"
   
   open:
     no_faction: "&cYou are not in a faction"

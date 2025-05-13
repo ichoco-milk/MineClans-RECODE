@@ -21,6 +21,11 @@ public class FactionsClaimsCommand {
         MineClansAPI api = mineClans.getAPI();
         ConfigWrapper messages = mineClans.getMessages();
 
+        if (!mineClans.getCfg().getBoolean("claims.enabled")) {
+            player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "disabled")));
+            return;
+        }
+
         // Check if player is in a faction
         Faction faction = api.getFaction(player);
         if (faction == null) {

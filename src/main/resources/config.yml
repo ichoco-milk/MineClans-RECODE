@@ -147,6 +147,10 @@ events:
 # Make homes work cross-server
 bungee: true
 
+claims:
+# Allow claiming of land
+  enabled: true
+
 # Store faction data in MySQL
 mysql:
   enabled: false
