@@ -195,9 +195,13 @@ public class ConfigWrapper {
     }
 
     public boolean getBoolean(String key) {
+        return getBoolean(key, false);
+    }
+
+    public boolean getBoolean(String key, boolean def) {
         if (!isLoaded())
             return false;
-        return config.getBoolean(key);
+        return config.getBoolean(key, def);
     }
 
     public ConfigWrapper getSection(String key) {

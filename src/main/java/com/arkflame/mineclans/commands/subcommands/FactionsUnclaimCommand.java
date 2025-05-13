@@ -20,7 +20,7 @@ public class FactionsUnclaimCommand {
         MineClansAPI api = mineClans.getAPI();
         ConfigWrapper messages = mineClans.getMessages();
 
-        if (!mineClans.getCfg().getBoolean("claims.enabled")) {
+        if (!mineClans.getCfg().getBoolean("claims.enabled", true)) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "disabled")));
             return;
         }
