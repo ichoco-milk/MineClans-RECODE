@@ -47,7 +47,7 @@ public class FactionsPlaceholder extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, String identifier) {
-        if (player == null || !player.isOnline()) {
+        if (player == null) {
             return null;
         }
 
