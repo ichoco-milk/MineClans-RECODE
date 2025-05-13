@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 
@@ -53,48 +54,66 @@ public class MySQLProvider {
     private boolean sqlite = false;
 
     public MySQLProvider(boolean enabled, String url, String username, String password) {
-        if (!enabled || url == null || username == null || password == null) {
-            MineClans.getInstance().getLogger().severe("No database information provided.");
-            try {
-                String sqliteFile = new File(MineClans.getInstance().getDataFolder(), "mineclans.db").getAbsolutePath();
-                url = "jdbc:sqlite:" + sqliteFile;
-                sqlite = true;
-            } catch (Exception e) {
-                e.printStackTrace();
+        Logger logger = MineClans.getInstance().getLogger();
+        try {
+            if (!enabled || url == null || username == null || password == null) {
+                MineClans.getInstance().getLogger().severe("No database information provided.");
+                try {
+                    String sqliteFile = new File(MineClans.getInstance().getDataFolder(), "mineclans.db")
+                            .getAbsolutePath();
+                    url = "jdbc:sqlite:" + sqliteFile;
+                    sqlite = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                MineClans.getInstance().getLogger().info("Using MySQL database for factions.");
             }
-        } else {
-            MineClans.getInstance().getLogger().info("Using MySQL database for factions.");
+
+            if (sqlite) {
+                chestDAO = new ChestDAOSQLite(this);
+                factionDAO = new FactionDAOSQLite(this);
+                factionPlayerDAO = new FactionPlayerDAOSQLite(this);
+                invitedDAO = new InvitedDAOSQLite(this);
+                memberDAO = new MemberDAOSQLite(this);
+                ranksDAO = new RanksDAOSQLite(this);
+                relationsDAO = new RelationsDAOSQLite(this);
+                scoreDAO = new ScoreDAOSQLite(this);
+                claimedChunksDAO = new ClaimedChunksDAOSQLite(this);
+                powerDAO = new PowerDAOSQLite(this);
+            } else {
+                chestDAO = new ChestDAO(this);
+                factionDAO = new FactionDAO(this);
+                factionPlayerDAO = new FactionPlayerDAO(this);
+                invitedDAO = new InvitedDAO(this);
+                memberDAO = new MemberDAO(this);
+                ranksDAO = new RanksDAO(this);
+                relationsDAO = new RelationsDAO(this);
+                scoreDAO = new ScoreDAO(this);
+                claimedChunksDAO = new ClaimedChunksDAO(this);
+                powerDAO = new PowerDAO(this);
+            }
+
+            // Generate hikari config
+            generateHikariConfig(url, username, password);
+
+            // Initialize
+            initialize();
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.severe("An error occurred while connecting to the database.");
+        } finally {
+            if (!isConnected()) {
+                logger.severe("=============== DATABASE CONNECTION ERROR ================");
+                logger.severe("MineClans is unable to connect to the database.");
+                logger.severe("To fix this, please configure the database settings in the 'config.yml' file.");
+                logger.severe("You need a MySQL database for the plugin to work properly.");
+                logger.severe("You can also set MySQL to false in the 'config.yml' file to use SQLite.");
+                logger.severe("=============== DATABASE CONNECTION ERROR ================");
+                Bukkit.getPluginManager().disablePlugin(MineClans.getInstance());
+                return;
+            }
         }
-
-        if (sqlite) {
-            chestDAO = new ChestDAOSQLite(this);
-            factionDAO = new FactionDAOSQLite(this);
-            factionPlayerDAO = new FactionPlayerDAOSQLite(this);
-            invitedDAO = new InvitedDAOSQLite(this);
-            memberDAO = new MemberDAOSQLite(this);
-            ranksDAO = new RanksDAOSQLite(this);
-            relationsDAO = new RelationsDAOSQLite(this);
-            scoreDAO = new ScoreDAOSQLite(this);
-            claimedChunksDAO = new ClaimedChunksDAOSQLite(this);
-            powerDAO = new PowerDAOSQLite(this);
-        } else {
-            chestDAO = new ChestDAO(this);
-            factionDAO = new FactionDAO(this);
-            factionPlayerDAO = new FactionPlayerDAO(this);
-            invitedDAO = new InvitedDAO(this);
-            memberDAO = new MemberDAO(this);
-            ranksDAO = new RanksDAO(this);
-            relationsDAO = new RelationsDAO(this);
-            scoreDAO = new ScoreDAO(this);
-            claimedChunksDAO = new ClaimedChunksDAO(this);
-            powerDAO = new PowerDAO(this);
-        }
-
-        // Generate hikari config
-        generateHikariConfig(url, username, password);
-
-        // Initialize
-        initialize();
     }
 
     public void close() {
@@ -179,7 +198,7 @@ public class MySQLProvider {
 
     public void executeUpdateQuery(String query, Object... params) {
         if (Bukkit.isPrimaryThread()) {
-            System.out.println("WARNING: This method should not be called from the main thread.");
+            MineClans.getInstance().getLogger().severe("WARNING: This method should not be called from the main thread.");
             new Exception().printStackTrace();
         }
         if (dataSource == null) {
@@ -200,7 +219,7 @@ public class MySQLProvider {
 
     public void executeSelectQuery(String query, ResultSetProcessor task, Object... params) {
         if (Bukkit.isPrimaryThread()) {
-            System.out.println("WARNING: This method should not be called from the main thread.");
+            MineClans.getInstance().getLogger().severe("WARNING: This method should not be called from the main thread.");
             new Exception().printStackTrace();
         }
         if (dataSource == null) {

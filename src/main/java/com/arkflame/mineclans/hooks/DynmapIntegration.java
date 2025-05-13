@@ -6,6 +6,7 @@ import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
 
 import com.arkflame.mineclans.MineClans;
+import com.arkflame.mineclans.models.ChunkCoordinate;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -89,6 +90,10 @@ public class DynmapIntegration implements Listener {
         }
     }
 
+    public void updateFactionClaim(ChunkCoordinate chunk, UUID factionId) {
+        updateFactionClaim(chunk.getX(), chunk.getZ(), chunk.getWorldName(), factionId);   
+    }
+
     private AreaMarker createMarker(int chunkX, int chunkZ, String worldName, String markerId, String factionName) {
         double[] x = new double[4];
         double[] z = new double[4];
@@ -112,7 +117,6 @@ public class DynmapIntegration implements Listener {
                 x, z,
                 false);
         marker.setCornerLocations(x, z);
-        System.out.println("Created marker " + markerId + " for " + factionName + " at " + x[0] + ", " + z[0] + ", " + x[1] + ", " + z[1] + ", " + x[2] + ", " + z[2] + ", " + x[3] + ", " + z[3]);
         return marker;
     }
 
@@ -130,7 +134,6 @@ public class DynmapIntegration implements Listener {
 
     private boolean isDynmapEnabled() {
         if (dynmap == null || !isPluginEnabled() || markerAPI == null || factionMarkers == null) {
-            System.out.println("Dynmap integration disabled FUCKER MOTHER FUCKER");
             return false;
         }
         return true;

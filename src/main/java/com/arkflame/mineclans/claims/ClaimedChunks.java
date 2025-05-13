@@ -1,5 +1,6 @@
 package com.arkflame.mineclans.claims;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -22,6 +23,24 @@ public class ClaimedChunks {
         loadAllClaimedChunks();
     }
 
+    private void claim(UUID factionId, Set<ChunkCoordinate> chunks) {
+        factionChunkMap.addChunks(factionId, chunks);
+        for (ChunkCoordinate chunk : chunks) {
+            if (chunk.getServerName().equals(MineClans.getServerId())) {
+                worldChunkMap.addChunk(chunk);
+                MineClans.getInstance().getDynmapIntegration().updateFactionClaim(chunk, factionId);
+            }
+        }
+    }
+
+    public void claim(UUID factionId, ChunkCoordinate chunk) {
+        factionChunkMap.addChunk(factionId, chunk);
+        if (chunk.getServerName().equals(MineClans.getServerId())) {
+            worldChunkMap.addChunk(chunk);
+            MineClans.getInstance().getDynmapIntegration().updateFactionClaim(chunk, factionId);
+        }
+    }
+
     /**
      * Loads all claimed chunks from the database into memory
      */
@@ -35,10 +54,7 @@ public class ClaimedChunks {
 
         // Populate the data structures
         for (Map.Entry<UUID, Set<ChunkCoordinate>> entry : allChunks.entrySet()) {
-            factionChunkMap.addChunks(entry.getKey(), entry.getValue());
-            for (ChunkCoordinate chunk : entry.getValue()) {
-                worldChunkMap.addChunk(chunk);
-            }
+            claim(entry.getKey(), entry.getValue());
         }
     }
 
@@ -48,15 +64,7 @@ public class ClaimedChunks {
      * @param factionId The faction ID to load chunks for
      */
     public void loadClaimedChunks(UUID factionId) {
-        Set<ChunkCoordinate> chunks = claimedChunksDAO.getClaimedChunks(factionId);
-        factionChunkMap.addChunks(factionId, chunks);
-        for (ChunkCoordinate chunk : chunks) {
-            worldChunkMap.addChunk(chunk);
-        }
-    }
-
-    public void claimChunk(UUID claimingFaction, int x, int z, String worldName, boolean publishUpdate) {
-        claimChunk(claimingFaction, x, z, worldName, MineClans.getServerId(), publishUpdate);
+        claim(factionId, claimedChunksDAO.getClaimedChunks(factionId));
     }
 
     public void claimChunk(UUID claimingFaction, int x, int z, String worldName, String serverName,
@@ -66,14 +74,16 @@ public class ClaimedChunks {
         // Current time is handled by the DAO
         ChunkCoordinate chunk = new ChunkCoordinate(claimingFaction, x, z, worldName, serverName, null);
 
-        factionChunkMap.addChunk(claimingFaction, chunk);
-        worldChunkMap.addChunk(chunk);
-        MineClans.getInstance().getDynmapIntegration().updateFactionClaim(x, z, worldName, claimingFaction);
+        claim(claimingFaction, chunk);
 
         if (publishUpdate) {
             claimedChunksDAO.claimChunk(claimingFaction, x, z, worldName, serverName);
             MineClans.getInstance().getRedisProvider().updateChunk(claimingFaction, x, z, worldName, serverName, false);
         }
+    }
+
+    public void claimChunk(UUID claimingFaction, int x, int z, String worldName, boolean publishUpdate) {
+        claimChunk(claimingFaction, x, z, worldName, MineClans.getServerId(), publishUpdate);
     }
 
     public boolean unclaimChunk(int x, int z, String worldName, boolean publishUpdate) {

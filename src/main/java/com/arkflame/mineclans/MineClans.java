@@ -219,54 +219,33 @@ public class MineClans extends JavaPlugin {
             config.set("serverId", MineClans.serverId = config.getString("serverId", UUID.randomUUID().toString()));
             config.save();
 
+            // Hooks
             dynmapIntegration = new DynmapIntegration(this);
             worldGuardReflectionUil = new WorldGuardReflectionUtil();
 
-            try {
-                mySQLProvider = new MySQLProvider(
-                        config.getBoolean("mysql.enabled"),
-                        config.getString("mysql.url"),
-                        config.getString("mysql.username"),
-                        config.getString("mysql.password"));
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.severe("An error occurred while connecting to the database.");
-            } finally {
-                if (!mySQLProvider.isConnected()) {
-                    logger.severe("=============== DATABASE CONNECTION ERROR ================");
-                    logger.severe("MineClans is unable to connect to the database.");
-                    logger.severe("To fix this, please configure the database settings in the 'config.yml' file.");
-                    logger.severe("You need a MySQL database for the plugin to work properly.");
-                    logger.severe("Make sure you have the following settings in the 'config.yml':");
-                    logger.severe("mysql:");
-                    logger.severe("  enabled: true");
-                    logger.severe(
-                            "  url: jdbc:mysql://localhost:3306/database  # Replace 'database' with your database name");
-                    logger.severe("  username: root  # Change if your username is different");
-                    logger.severe("  password: password  # Use your actual database password");
-                    logger.severe("After making these changes, save the file and restart your server.");
-                    logger.severe("=============== DATABASE CONNECTION ERROR ================");
-                    Bukkit.getPluginManager().disablePlugin(this);
-                    return;
-                }
-            }
-
-            // Managers
+            // Basic
+            mySQLProvider = new MySQLProvider(
+                    config.getBoolean("mysql.enabled"),
+                    config.getString("mysql.url"),
+                    config.getString("mysql.username"),
+                    config.getString("mysql.password"));
             factionManager = new FactionManager();
             factionPlayerManager = new FactionPlayerManager();
+            redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
+
+            // API
+            api = new MineClansAPI(factionManager, factionPlayerManager, mySQLProvider, redisProvider);
+
+            // Advanced
             clanEventManager = new ClanEventManager(this);
             clanEventScheduler = new ClanEventScheduler(config.getInt("events.interval"),
                     config.getInt("events.time-limit"));
             leaderboardManager = new LeaderboardManager(mySQLProvider.getScoreDAO());
             scoreManager = new ScoreManager(mySQLProvider.getScoreDAO(), leaderboardManager);
             buffManager = new BuffManager(config);
-            redisProvider = new RedisProvider(factionManager, factionPlayerManager, getConfig(), logger);
             bungeeUtil = new BungeeUtil(this);
             teleportScheduler = new TeleportScheduler(this);
             claimedChunks = new ClaimedChunks(mySQLProvider.getClaimedChunksDAO());
-
-            // Initialize API
-            api = new MineClansAPI(factionManager, factionPlayerManager, mySQLProvider, redisProvider);
 
             // Register Listeners
             PluginManager pluginManager = server.getPluginManager();
