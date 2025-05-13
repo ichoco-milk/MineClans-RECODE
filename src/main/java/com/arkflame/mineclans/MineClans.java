@@ -22,6 +22,7 @@ import com.arkflame.mineclans.events.ClanEventManager;
 import com.arkflame.mineclans.events.ClanEventScheduler;
 import com.arkflame.mineclans.hooks.DynmapIntegration;
 import com.arkflame.mineclans.hooks.FactionsPlaceholder;
+import com.arkflame.mineclans.hooks.WorldGuardReflectionUtil;
 import com.arkflame.mineclans.listeners.ChatListener;
 import com.arkflame.mineclans.listeners.ChunkProtectionListener;
 import com.arkflame.mineclans.listeners.ClanEventListener;
@@ -116,6 +117,7 @@ public class MineClans extends JavaPlugin {
     private ClaimedChunks claimedChunks;
 
     private DynmapIntegration dynmapIntegration;
+    private WorldGuardReflectionUtil worldGuardReflectionUil;
 
     public ConfigWrapper getCfg() {
         return config;
@@ -199,6 +201,10 @@ public class MineClans extends JavaPlugin {
         return dynmapIntegration;
     }
 
+    public WorldGuardReflectionUtil getWorldGuardIntegration() {
+        return worldGuardReflectionUil;
+    }
+
     @Override
     public void onEnable() {
         Logger logger = getLogger();
@@ -214,6 +220,7 @@ public class MineClans extends JavaPlugin {
             config.save();
 
             dynmapIntegration = new DynmapIntegration(this);
+            worldGuardReflectionUil = new WorldGuardReflectionUtil();
 
             try {
                 mySQLProvider = new MySQLProvider(

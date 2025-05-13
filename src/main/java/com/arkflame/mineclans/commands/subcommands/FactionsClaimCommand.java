@@ -39,6 +39,12 @@ public class FactionsClaimCommand {
         // Get current chunk
         Chunk chunk = player.getLocation().getChunk();
 
+        // Check if overlaps with WorldGuard region
+        if (MineClans.getInstance().getWorldGuardIntegration().chunkOverlapsRegion(chunk)) {
+            player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "overlaps_region")));
+            return;
+        }
+
         // Attempt to claim the chunk
         ClaimResult result = api.claimChunk(faction.getId(), chunk, true);
         handleClaimResult(player, result, chunk);
