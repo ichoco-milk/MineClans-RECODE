@@ -7,6 +7,7 @@ import org.dynmap.markers.MarkerSet;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.ChunkCoordinate;
+import com.arkflame.mineclans.models.Faction;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -72,26 +73,30 @@ public class DynmapIntegration implements Listener {
     }
 
     public void updateFactionClaim(int x, int z, String worldName, UUID factionId) {
-        if (!isDynmapEnabled())
+        if (!isDynmapEnabled()) {
             return;
-
-        String factionName = MineClans.getInstance().getAPI().getFactionName(factionId);
-
+        }
+        Faction faction = MineClans.getInstance().getAPI().getFaction(factionId);
+        if (faction == null) {
+            return;
+        }
+        String factionName = faction.getName();
         String markerId = "faction_" + x + "_" + z + "_" + worldName;
         AreaMarker marker = factionMarkers.findAreaMarker(markerId);
-
         if (marker == null) {
             marker = createMarker(x, z, worldName, markerId, factionName);
         }
-
         if (marker != null) {
             marker.setFillStyle(0.5, MARKER_FILL_COLOR);
-            marker.setLabel(factionName);
+            marker.setLineStyle(1, 1, MARKER_FILL_COLOR);
+            marker.setDescription("<div>Faction: " + factionName + "</div>" +
+                    "<div>Power: " + faction.getPower() + "/" + faction.getMaxPower() + "</div>" +
+                    "<div>Owner: " + faction.getOwnerName() + "</div>");
         }
     }
 
     public void updateFactionClaim(ChunkCoordinate chunk, UUID factionId) {
-        updateFactionClaim(chunk.getX(), chunk.getZ(), chunk.getWorldName(), factionId);   
+        updateFactionClaim(chunk.getX(), chunk.getZ(), chunk.getWorldName(), factionId);
     }
 
     private AreaMarker createMarker(int chunkX, int chunkZ, String worldName, String markerId, String factionName) {
