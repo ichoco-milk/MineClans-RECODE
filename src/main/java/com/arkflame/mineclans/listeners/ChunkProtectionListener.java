@@ -84,8 +84,8 @@ public class ChunkProtectionListener implements Listener {
         }
 
         // Get chunk and world information
-        int chunkX = block.getChunk().getX();
-        int chunkZ = block.getChunk().getZ();
+        int chunkX = block.getX() >> 4;
+        int chunkZ = block.getZ() >> 4;
         String worldName = block.getWorld().getName();
         String serverName = MineClans.getServerId();
 

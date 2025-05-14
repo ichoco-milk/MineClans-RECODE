@@ -12,6 +12,7 @@ import com.arkflame.mineclans.models.FactionPlayer;
 import com.arkflame.mineclans.modernlib.commands.ModernArguments;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.utils.ChatColors;
+import com.arkflame.mineclans.utils.LocationUtil;
 import com.arkflame.mineclans.utils.NumberUtil;
 
 public class FactionsClaimCommand {
@@ -41,28 +42,31 @@ public class FactionsClaimCommand {
             return;
         }
 
-        // Get current chunk
-        Chunk chunk = player.getLocation().getChunk();
+        if (!LocationUtil.isChunkLoaded(player.getLocation())) {
+            return;
+        }
+
+        int chunkX = player.getLocation().getBlockX() >> 4;
+        int chunkZ = player.getLocation().getBlockZ() >> 4;
+        String worldName = player.getLocation().getWorld().getName();
 
         // Check if overlaps with WorldGuard region
-        if (MineClans.getInstance().getWorldGuardIntegration().chunkOverlapsRegion(chunk)) {
+        if (MineClans.getInstance().getWorldGuardIntegration().chunkOverlapsRegion(chunkX, chunkZ, worldName)) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "overlaps_region")));
             return;
         }
 
         // Attempt to claim the chunk
-        ClaimResult result = api.claimChunk(faction.getId(), chunk, true);
-        handleClaimResult(player, result, chunk);
+        ClaimResult result = api.claimChunk(faction.getId(), chunkX, chunkZ, worldName, true);
+        handleClaimResult(player, result, chunkX, chunkZ, worldName);
     }
 
-    public static void handleClaimResult(Player player, ClaimResult result, Chunk chunk) {
+    public static void handleClaimResult(Player player, ClaimResult result, int chunkX, int chunkZ, String worldName) {
         MineClans mineClans = MineClans.getInstance();
         ConfigWrapper messages = mineClans.getMessages();
         MineClansAPI api = mineClans.getAPI();
         String message = messages.getText(result.getMessagePath());
-        int chunkX = chunk.getX();
-        int chunkZ = chunk.getZ();
-        ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunk);
+        ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
         String ownerName = existingClaim != null ? api.getFactionName(existingClaim.getFactionId()) : "Unknown";
 
         message = message

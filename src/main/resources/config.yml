@@ -148,8 +148,10 @@ events:
 bungee: true
 
 claims:
-# Allow claiming of land
+  # Allow claiming of land
   enabled: true
+  # Time for teleporting to claims
+  warmup: 10
 
 # Store faction data in MySQL
 mysql:

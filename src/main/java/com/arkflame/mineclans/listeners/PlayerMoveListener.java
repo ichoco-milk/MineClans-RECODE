@@ -44,16 +44,17 @@ public class PlayerMoveListener implements Listener {
                 }
             }
 
+            int fromX = event.getFrom().getBlockX() >> 4;
+            int fromZ = event.getFrom().getBlockZ() >> 4;
+            int toX = event.getTo().getBlockX() >> 4;
+            int toZ = event.getTo().getBlockZ() >> 4;
+
             // Player changes chunks
-            if (event.getFrom().getChunk() != event.getTo().getChunk()) {
+            if (fromX != toX || fromZ != toZ || event.getFrom().getWorld() != event.getTo().getWorld()) {
                 // Get plugin instance once to avoid repeated calls
                 MineClans plugin = MineClans.getInstance();
 
                 // Get chunk coordinates
-                int fromX = event.getFrom().getChunk().getX();
-                int fromZ = event.getFrom().getChunk().getZ();
-                int toX = event.getTo().getChunk().getX();
-                int toZ = event.getTo().getChunk().getZ();
                 String worldName = event.getTo().getWorld().getName();
 
                 // Get chunk claim data

@@ -71,8 +71,8 @@ factions:
     header: |
       &6&lClaims of &e&l%faction% &6&l(Page &e%page%/%max_page%&6) &8- &7Total: &f%total%
       &7&m--------------------------------
-    chunk_format: "&8- &7X: &f%x% &7Z: &f%z% &7World: &f%world% &7Server: &f%server%"
-    current_chunk_format: "&8- &aX: &f%x% &aZ: &f%z% &aWorld: &f%world% &aServer: &f%server%"
+    chunk_format: "&8%index%. &7X: &f%x% &7Z: &f%z% &7World: &f%world% &7Server: &f%server%"
+    current_chunk_format: "&8%index%. &aX: &f%x% &aZ: &f%z% &aWorld: &f%world% &aServer: &f%server%"
     footer: "&7Use &f%command% <page> &7to view other pages. &8(Page %page%/%max_page%)"
     disabled: "&cViewing claims is disabled in your faction"
 
@@ -341,8 +341,20 @@ factions:
     error: "&cAn error occurred while toggling friendly fire."
     unknown_error: "&cAn unknown error occurred."
     cannot_attack: "&cYou cannot attack faction members. If you want to allow friendly fire, type /f ff."
+  teleport:
+    success: "&aTeleporting..."
+  tpclaim:
+    not_in_faction: "&cYou are not in a faction."
+    no_claims: "&cYour faction has no claimed chunks."
+    invalid_claim_number: "&cInvalid claim number. You have {max} claim(s)."
+    invalid_number: "&cPlease enter a valid number."
+    invalid_world: "&cThe world for this claim does not exist."
+    teleporting: "&aTeleporting to claim #{claim} at &e({x}, {z})&a in {time} seconds..."
+    help:
+      title: "&6Teleport to Claim"
+      usage: "&eUsage: /f tpclaim [number]"
+      description: "&7Teleport to one of your faction's claimed chunks."
   home:
-    success: "&aTeleporting home..."
     no_home_set: "&cYou haven't set a home yet."
     teleporting: "&aTeleporting. &7Please don't move for {time} seconds!"
     error: "&cAn error occurred while teleporting home."

@@ -34,7 +34,7 @@ public class TeleportScheduler {
      * @param delayInSeconds the delay before teleporting
      */
     public void schedule(Player player, LocationData locationData, int delayInSeconds) {
-        if (player == null || locationData == null || delayInSeconds <= 0)
+        if (player == null || locationData == null)
             return;
         UUID playerId = player.getUniqueId();
         long scheduledTime = System.currentTimeMillis() + (delayInSeconds * 1000L);
@@ -130,7 +130,7 @@ public class TeleportScheduler {
         public void teleport() {
             if (player != null && player.isOnline()) {
                 MineClans.runSync(() -> {
-                    String basePath = "factions.home.";
+                    String basePath = "factions.teleport.";
                     locationData.teleport(player);
                     player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "success"));
                 });

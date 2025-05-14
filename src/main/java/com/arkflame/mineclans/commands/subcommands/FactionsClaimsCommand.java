@@ -1,7 +1,6 @@
 package com.arkflame.mineclans.commands.subcommands;
 
 import java.util.Set;
-import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;
@@ -14,7 +13,7 @@ import com.arkflame.mineclans.utils.Paginator;
 
 public class FactionsClaimsCommand {
     private static final String BASE_PATH = "factions.claims.";
-    private static final int CLAIMS_PER_PAGE = 10;
+    private static final int CLAIMS_PER_PAGE = 5;
 
     public static void onCommand(Player player, ModernArguments args) {
         MineClans mineClans = MineClans.getInstance();
@@ -75,12 +74,14 @@ public class FactionsClaimsCommand {
 
         // Build claims list
         StringBuilder claimsList = new StringBuilder();
-        Chunk playerChunk = player.getLocation().getChunk();
+        int chunkX = player.getLocation().getBlockX() >> 4;
+        int chunkZ = player.getLocation().getBlockZ() >> 4;
+        int index = (page - 1) * CLAIMS_PER_PAGE;
 
         for (ChunkCoordinate claim : pageClaims) {
             String claimFormat;
-            boolean isCurrentChunk = (claim.getX() == playerChunk.getX() && claim.getZ() == playerChunk.getZ()
-                    && claim.getWorldName().equals(playerChunk.getWorld().getName()))
+            boolean isCurrentChunk = (claim.getX() == chunkX && claim.getZ() == chunkZ
+                    && claim.getWorldName().equals(player.getWorld().getName()))
                     && claim.getServerName().equals(MineClans.getServerId());
 
             if (isCurrentChunk) {
@@ -90,11 +91,13 @@ public class FactionsClaimsCommand {
             }
 
             claimsList.append(ChatColors.color(claimFormat
+                    .replace("%index%", String.valueOf(index))
                     .replace("%x%", String.valueOf(claim.getX()))
                     .replace("%z%", String.valueOf(claim.getZ()))
                     .replace("%world%", claim.getWorldName())
                     .replace("%server%", claim.getServerName().substring(0, 5))))
                     .append("\n");
+            index++;
         }
 
         // Send formatted message

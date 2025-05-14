@@ -9,6 +9,7 @@ import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;
 import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
+import com.arkflame.mineclans.utils.LocationUtil;
 import com.arkflame.mineclans.utils.particle.ParticleUtil;
 
 public class ClaimedChunksParticleTask extends BukkitRunnable {
@@ -23,49 +24,50 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
     @Override
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-        if (player == null || !player.isOnline()) {
-            this.cancel();
-            return;
-        }
+            if (player == null || !player.isOnline()) {
+                this.cancel();
+                return;
+            }
 
-        // Get player's current chunk and location
-        Location playerLoc = player.getLocation();
-        Chunk centerChunk = playerLoc.getChunk();
-        int centerX = centerChunk.getX();
-        int centerZ = centerChunk.getZ();
-        double y = playerLoc.getY() + 1; // Player's Y position +1
-        String worldName = centerChunk.getWorld().getName();
+            // Get player's current chunk and location
+            Location playerLoc = player.getLocation();
+            int centerX = playerLoc.getBlockX() >> 4;
+            int centerZ = playerLoc.getBlockZ() >> 4;
+            double y = playerLoc.getY() + 1; // Player's Y position +1
+            String worldName = playerLoc.getWorld().getName();
 
-        // Check all 9 chunks in 3x3 grid around player
-        for (int xOffset = -1; xOffset <= 1; xOffset++) {
-            for (int zOffset = -1; zOffset <= 1; zOffset++) {
-                int chunkX = centerX + xOffset;
-                int chunkZ = centerZ + zOffset;
+            // Check all 9 chunks in 3x3 grid around player
+            for (int xOffset = -1; xOffset <= 1; xOffset++) {
+                for (int zOffset = -1; zOffset <= 1; zOffset++) {
+                    int chunkX = centerX + xOffset;
+                    int chunkZ = centerZ + zOffset;
 
-                // Check if chunk is claimed
-                if (api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ, worldName)) {
-                    ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
-                    if (claim != null) {
-                        Faction faction = api.getFaction(player);
-                        boolean isSameFaction = faction != null && claim.getFactionId().equals(faction.getId());
-                        String[] factionParticle = isSameFaction ? SAME_FACTION_PARTICLE : ENEMY_FACTION_PARTICLE;
-                        
-                        // Show particles around chunk borders
-                        for (int i = -1; i <= 1; i++) {
-                            showChunkBorders(player, chunkX, chunkZ, y + i, factionParticle);
+                    // Check if chunk is claimed
+                    if (api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ, worldName)) {
+                        ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
+                        if (claim != null) {
+                            Faction faction = api.getFaction(player);
+                            boolean isSameFaction = faction != null && claim.getFactionId().equals(faction.getId());
+                            String[] factionParticle = isSameFaction ? SAME_FACTION_PARTICLE
+                                    : ENEMY_FACTION_PARTICLE;
+
+                            // Show particles around chunk borders
+                            for (int i = -1; i <= 1; i++) {
+                                showChunkBorders(player, chunkX, chunkZ, y + i, factionParticle);
+                            }
                         }
                     }
                 }
             }
         }
     }
-    }
 
-    private void showChunkBorders(Player player, int chunkX, int chunkZ, double y, String ...particleType) {
-        if (particleType == null || particleType.length == 0) return;
+    private void showChunkBorders(Player player, int chunkX, int chunkZ, double y, String... particleType) {
+        if (particleType == null || particleType.length == 0)
+            return;
 
-        Location worldLoc = player.getWorld().getBlockAt(chunkX << 4, (int)y, chunkZ << 4).getLocation();
-        
+        Location worldLoc = player.getWorld().getBlockAt(chunkX << 4, (int) y, chunkZ << 4).getLocation();
+
         // Calculate chunk corners
         double minX = worldLoc.getX();
         double maxX = minX + 16;
@@ -103,6 +105,6 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
 
     public static void start(long interval) {
         new ClaimedChunksParticleTask()
-            .runTaskTimerAsynchronously(MineClans.getInstance(), 0L, interval);
+                .runTaskTimerAsynchronously(MineClans.getInstance(), 0L, interval);
     }
 }

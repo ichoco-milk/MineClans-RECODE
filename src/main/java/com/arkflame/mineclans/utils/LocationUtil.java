@@ -95,4 +95,10 @@ public class LocationUtil {
         
         return builder.toString();
     }
+
+    public static boolean isChunkLoaded(Location playerLoc) {
+        int chunkX = playerLoc.getBlockX() >> 4;
+        int chunkZ = playerLoc.getBlockZ() >> 4;
+        return playerLoc.getWorld().isChunkLoaded(chunkX, chunkZ);
+    }
 }

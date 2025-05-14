@@ -34,6 +34,9 @@ public class FactionsCommand extends ModernCommand {
                 case "power":
                     FactionsPowerCommand.onCommand(player, args);
                     break;
+                case "tpclaim":
+                    FactionsTPClaimCommand.onCommand(player, args);
+                    break;
                 case "claim":
                     FactionsClaimCommand.onCommand(player, args);
                     break;

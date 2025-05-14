@@ -47,10 +47,9 @@ public class FactionsUnclaimCommand {
         }
 
         // Get current chunk
-        Chunk chunk = player.getLocation().getChunk();
-        int chunkX = chunk.getX();
-        int chunkZ = chunk.getZ();
-        String worldName = chunk.getWorld().getName();
+        int chunkX = player.getLocation().getBlockX() >> 4;
+        int chunkZ = player.getLocation().getBlockZ() >> 4;
+        String worldName = player.getLocation().getWorld().getName();
 
         // Check if chunk is claimed by this faction
         if (!api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ, worldName)) {
