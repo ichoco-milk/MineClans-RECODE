@@ -59,6 +59,21 @@ factions:
     invalid_player: "&cPlayer not found"
     error: "&cAn error occurred while checking your power"
   claims:
+    menu:
+      title: "&e%faction% Claims &7(Page %page%/%max_page%)"
+      previous_page: "&c← Previous Page"
+      next_page: "&aNext Page →"
+      chunk_material:
+        - GRASS
+        - GRASS_BLOCK
+      current_chunk_material: 
+        - EMERALD_BLOCK
+      claim_item_name: "&aClaim #%index% &7(%x%, %z%)"
+      claim_item_lore:
+        - "&7World: &f%world%"
+        - "&7Server: &f%server%"
+        - "&7Coordinates: &f%x%, %z%"
+      click_to_teleport: "&eClick to teleport to this claim"
     entered:
       message-team: "&7Entering claim %x%, %z% owned by &a%owner%."
       message-enemy: "&7Entering claim %x%, %z% owned by &c%owner%."

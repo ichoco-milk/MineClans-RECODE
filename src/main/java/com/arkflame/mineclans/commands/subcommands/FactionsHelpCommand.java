@@ -5,6 +5,7 @@ import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.utils.Paginator;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,7 +62,7 @@ public class FactionsHelpCommand {
         if (page == -1) {
             page = 1;
         }
-        Set<HelpCommand> commands = helpCommands.getPage(page);
+        Collection<HelpCommand> commands = helpCommands.getPage(page);
         int maxPages = helpCommands.getTotalPages();
         ConfigWrapper messages = MineClans.getInstance().getMessages();
         StringBuilder messageBuilder = new StringBuilder();

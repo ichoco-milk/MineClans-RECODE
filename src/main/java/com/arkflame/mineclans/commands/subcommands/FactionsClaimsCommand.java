@@ -1,9 +1,13 @@
 package com.arkflame.mineclans.commands.subcommands;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.bukkit.entity.Player;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;
+import com.arkflame.mineclans.menu.FactionsClaimsInventoryMenu;
 import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.commands.ModernArguments;
@@ -41,6 +45,25 @@ public class FactionsClaimsCommand {
             return;
         }
 
+        // Convert set to list for indexed access
+        List<ChunkCoordinate> claimsList = new ArrayList<>(claims);
+        
+        // Check if we should use the GUI menu or console output
+        if (player.isConversing() || "true".equals(System.getProperty("mineclans.force_console_output"))) {
+            // Console-style text output (original functionality)
+            showTextOutput(player, claimsList, faction, args, mineClans, messages);
+        } else {
+            // Open the inventory menu
+            FactionsClaimsInventoryMenu menu = new FactionsClaimsInventoryMenu(player, faction, claimsList);
+            menu.open();
+        }
+    }
+    
+    /**
+     * Show the original text-based claims list (for console or forced text mode)
+     */
+    private static void showTextOutput(Player player, List<ChunkCoordinate> claimsList, Faction faction, 
+            ModernArguments args, MineClans mineClans, ConfigWrapper messages) {
         // Get current page (default to 1 if not specified)
         int page = 1;
         if (args.hasArg(1)) {
@@ -52,7 +75,7 @@ public class FactionsClaimsCommand {
         }
 
         // Create paginator
-        Paginator<ChunkCoordinate> paginator = new Paginator<>(claims, CLAIMS_PER_PAGE);
+        Paginator<ChunkCoordinate> paginator = new Paginator<>(claimsList, CLAIMS_PER_PAGE);
         int maxPage = paginator.getTotalPages();
 
         // Validate page number
@@ -63,17 +86,17 @@ public class FactionsClaimsCommand {
         }
 
         // Get current page of claims
-        Set<ChunkCoordinate> pageClaims = paginator.getPage(page);
+        Collection<ChunkCoordinate> pageClaims = paginator.getPage(page);
 
         // Build header
         String header = ChatColors.color(messages.getText(BASE_PATH + "header")
                 .replace("%faction%", faction.getName())
                 .replace("%page%", String.valueOf(page))
                 .replace("%max_page%", String.valueOf(maxPage))
-                .replace("%total%", String.valueOf(totalClaims)));
+                .replace("%total%", String.valueOf(claimsList.size())));
 
         // Build claims list
-        StringBuilder claimsList = new StringBuilder();
+        StringBuilder claimsOutput = new StringBuilder();
         int chunkX = player.getLocation().getBlockX() >> 4;
         int chunkZ = player.getLocation().getBlockZ() >> 4;
         int index = (page - 1) * CLAIMS_PER_PAGE;
@@ -90,7 +113,7 @@ public class FactionsClaimsCommand {
                 claimFormat = messages.getText(BASE_PATH + "chunk_format");
             }
 
-            claimsList.append(ChatColors.color(claimFormat
+            claimsOutput.append(ChatColors.color(claimFormat
                     .replace("%index%", String.valueOf(index))
                     .replace("%x%", String.valueOf(claim.getX()))
                     .replace("%z%", String.valueOf(claim.getZ()))
@@ -102,7 +125,7 @@ public class FactionsClaimsCommand {
 
         // Send formatted message
         player.sendMessage(header);
-        player.sendMessage(claimsList.toString());
+        player.sendMessage(claimsOutput.toString());
 
         // Add footer with pagination help if there are multiple pages
         if (maxPage > 1) {

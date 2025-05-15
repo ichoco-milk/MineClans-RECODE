@@ -27,6 +27,7 @@ import com.arkflame.mineclans.listeners.ChatListener;
 import com.arkflame.mineclans.listeners.ChunkProtectionListener;
 import com.arkflame.mineclans.listeners.ClanEventListener;
 import com.arkflame.mineclans.listeners.FactionFriendlyFireListener;
+import com.arkflame.mineclans.listeners.FactionsClaimsMenuListener;
 import com.arkflame.mineclans.listeners.InventoryClickListener;
 import com.arkflame.mineclans.listeners.PlayerJoinListener;
 import com.arkflame.mineclans.listeners.PlayerKillListener;
@@ -115,6 +116,7 @@ public class MineClans extends JavaPlugin {
 
     // Claimed Chunks
     private ClaimedChunks claimedChunks;
+    private FactionsClaimsMenuListener claimsMenuListener;
 
     private DynmapIntegration dynmapIntegration;
     private WorldGuardReflectionUtil worldGuardReflectionUil;
@@ -204,6 +206,9 @@ public class MineClans extends JavaPlugin {
     public WorldGuardReflectionUtil getWorldGuardIntegration() {
         return worldGuardReflectionUil;
     }
+    public FactionsClaimsMenuListener getClaimsMenuListener() {
+        return claimsMenuListener;
+    }
 
     @Override
     public void onEnable() {
@@ -260,6 +265,9 @@ public class MineClans extends JavaPlugin {
             pluginManager.registerEvents(new PlayerQuitListener(factionPlayerManager), this);
             pluginManager.registerEvents(new MenuListener(), this);
             pluginManager.registerEvents(dynmapIntegration, this);
+        
+            // Initialize the claims menu listener
+            claimsMenuListener = new FactionsClaimsMenuListener(this);
 
             // Register Commands
             factionsCommand = new FactionsCommand();

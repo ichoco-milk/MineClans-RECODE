@@ -61,7 +61,7 @@ public class FactionsListCommand {
                 .replace("%total_pages%", String.valueOf(totalPages)));
 
         // Display paginated factions
-        Set<Faction> pageFactions = paginator.getPage(page);
+        Collection<Faction> pageFactions = paginator.getPage(page);
         for (Faction faction : pageFactions) {
             int onlineCount = factionCountMap.getOrDefault(faction, 0);
             int totalMembers = faction.getMembers().size();
