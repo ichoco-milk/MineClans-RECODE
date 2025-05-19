@@ -31,7 +31,7 @@ public class FactionPlayer {
     private EnteringType enteringType = EnteringType.DEPOSIT;
     private long enteringTime = 0;
     private long lastHomeRequest = 0;
-    private Double power = null;
+    private double power = 0;
     private int maxPower = 10;
 
     public FactionPlayer(UUID playerId) {
@@ -200,9 +200,6 @@ public class FactionPlayer {
     }
 
     public boolean setPower(double power) {
-        if (this.power == null) {
-            return false;
-        }
         double oldPower = this.power;
         this.power = power;
         if (this.power > 10) {
