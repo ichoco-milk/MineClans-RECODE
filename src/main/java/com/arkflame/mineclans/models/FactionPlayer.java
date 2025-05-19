@@ -202,8 +202,8 @@ public class FactionPlayer {
     public boolean setPower(double power) {
         double oldPower = this.power;
         this.power = power;
-        if (this.power > 10) {
-            this.power = 10D;
+        if (this.power > this.maxPower) {
+            this.power = this.maxPower;
         }
         if (this.power < -10) {
             this.power = -10D;
