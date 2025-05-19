@@ -538,7 +538,14 @@ public class Faction implements InventoryHolder {
     }
 
     public int getMaxPower() {
-        return members.size() * 10;
+        int maxPower = 0;
+        for (UUID uuid : getMembers()) {
+            FactionPlayer player = MineClans.getInstance().getAPI().getFactionPlayer(uuid);
+            if (player != null) {
+                maxPower += player.getMaxPower();
+            }
+        }
+        return maxPower;
     }
 
     public boolean canBeRaided() {

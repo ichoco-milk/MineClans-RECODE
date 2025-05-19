@@ -17,18 +17,32 @@ public class FactionPlayerDAO {
             + "last_active TIMESTAMP,"
             + "kills INT DEFAULT 0,"
             + "deaths INT DEFAULT 0,"
+            + "power INT DEFAULT 10,"
+            + "max_power INT DEFAULT 10,"
             + "name TEXT,"
             + "FOREIGN KEY (faction_id) REFERENCES mineclans_factions(faction_id) ON DELETE SET NULL"
             + ")";
-    protected String INSERT_PLAYER_QUERY = "INSERT INTO mineclans_players (player_id, faction_id, join_date, last_active, kills, deaths, name) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?) "
+    
+    protected String CHECK_COLUMNS_QUERY = "SELECT COUNT(*) AS column_count FROM information_schema.columns "
+            + "WHERE table_name = 'mineclans_players' AND table_schema = DATABASE()";
+    
+    protected String INSERT_PLAYER_QUERY = "INSERT INTO mineclans_players (player_id, faction_id, join_date, last_active, kills, deaths, power, max_power, name) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
             + "ON DUPLICATE KEY UPDATE "
             + "faction_id = VALUES(faction_id), join_date = VALUES(join_date), last_active = VALUES(last_active), "
-            + "kills = VALUES(kills), deaths = VALUES(deaths), name = VALUES(name)";
+            + "kills = VALUES(kills), deaths = VALUES(deaths), name = VALUES(name), "
+            + "power = VALUES(power), max_power = VALUES(max_power)";
+    
     protected String SELECT_BY_ID_QUERY = "SELECT * FROM mineclans_players WHERE player_id = ?";
     protected String SELECT_BY_NAME_QUERY = "SELECT * FROM mineclans_players WHERE name = ?";
     protected String DELETE_PLAYER_QUERY = "DELETE FROM mineclans_players WHERE player_id = ?";
+    
+    // Queries to add new columns if they don't exist
+    protected String ADD_POWER_COLUMN_QUERY = "ALTER TABLE mineclans_players ADD COLUMN IF NOT EXISTS power INT DEFAULT 10";
+    protected String ADD_MAX_POWER_COLUMN_QUERY = "ALTER TABLE mineclans_players ADD COLUMN IF NOT EXISTS max_power INT DEFAULT 10";
+    
     private MySQLProvider mySQLProvider;
+    private boolean schemaChecked = false;
 
     public FactionPlayerDAO(MySQLProvider mySQLProvider) {
         this.mySQLProvider = mySQLProvider;
@@ -38,7 +52,25 @@ public class FactionPlayerDAO {
         mySQLProvider.executeUpdateQuery(CREATE_TABLES_QUERY);
     }
 
+    private void checkAndUpdateSchema() {
+        if (schemaChecked) return;
+        
+        try {
+            // Check if the table exists and has all columns
+            mySQLProvider.executeUpdateQuery(ADD_POWER_COLUMN_QUERY);
+            mySQLProvider.executeUpdateQuery(ADD_MAX_POWER_COLUMN_QUERY);
+            
+            schemaChecked = true;
+        } catch (Exception e) {
+            // If there's an error, the table might not exist yet
+            createTable();
+            schemaChecked = true;
+        }
+    }
+
     public void insertOrUpdatePlayer(FactionPlayer player) {
+        checkAndUpdateSchema();
+        
         mySQLProvider.executeUpdateQuery(
                 INSERT_PLAYER_QUERY,
                 player.getPlayerId(),
@@ -47,10 +79,14 @@ public class FactionPlayerDAO {
                 player.getLastActive(),
                 player.getKills(),
                 player.getDeaths(),
+                player.getPower(),
+                player.getMaxPower(),
                 player.getName());
     }
 
     public FactionPlayer getPlayerById(UUID playerId) {
+        checkAndUpdateSchema();
+        
         AtomicReference<FactionPlayer> player = new AtomicReference<>(null);
         mySQLProvider.executeSelectQuery(SELECT_BY_ID_QUERY,
                 new ResultSetProcessor() {
@@ -65,6 +101,8 @@ public class FactionPlayerDAO {
     }
 
     public FactionPlayer getPlayerByName(String name) {
+        checkAndUpdateSchema();
+        
         AtomicReference<FactionPlayer> player = new AtomicReference<>(null);
         mySQLProvider.executeSelectQuery(SELECT_BY_NAME_QUERY,
                 new ResultSetProcessor() {
@@ -86,10 +124,22 @@ public class FactionPlayerDAO {
         player.setKills(resultSet.getInt("kills"));
         player.setDeaths(resultSet.getInt("deaths"));
         player.setName(resultSet.getString("name"));
+        
+        try {
+            // Try to get the new columns, fall back to defaults if they don't exist
+            player.setPower(resultSet.getInt("power"));
+            player.setMaxPower(resultSet.getInt("max_power"));
+        } catch (SQLException e) {
+            // Columns don't exist, use defaults
+            player.setPower(10);
+            player.setMaxPower(10);
+        }
+        
         return player;
     }
 
     public void deletePlayer(UUID playerId) {
+        checkAndUpdateSchema();
         mySQLProvider.executeUpdateQuery(DELETE_PLAYER_QUERY, playerId);
     }
 }

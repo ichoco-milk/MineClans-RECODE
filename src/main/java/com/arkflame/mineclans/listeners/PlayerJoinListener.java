@@ -38,6 +38,7 @@ public class PlayerJoinListener implements Listener {
             Faction faction = mineClans.getAPI().getFaction(player);
             if (faction != null) {
                 FactionPlayer factionPlayer = factionPlayerManager.getOrLoad(id);
+                factionPlayer.updateMaxPower();
                 MineClans.runSync(() -> {
                     // Update Buffs
                     for (ActiveBuff activeBuff : faction.getBuffs()) {

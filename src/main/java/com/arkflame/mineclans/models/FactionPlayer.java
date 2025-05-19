@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 import com.arkflame.mineclans.MineClans;
@@ -29,6 +30,7 @@ public class FactionPlayer {
     private long enteringTime = 0;
     private long lastHomeRequest = 0;
     private Double power = null;
+    private int maxPower = 10;
 
     public FactionPlayer(UUID playerId) {
         this.playerId = playerId;
@@ -213,7 +215,31 @@ public class FactionPlayer {
         return true;
     }
 
+    public int getMaxPowerMultiplier() {
+        Player player = getPlayer();
+        if (player == null) {
+            return maxPower; // Default multiplier if player is not online
+        }
+        Configuration config = MineClans.getInstance().getConfig();
+        for (String permission : config.getConfigurationSection("max_power_permissions").getKeys(false)) {
+            int value = config.getInt("max_power_permissions." + permission);
+            if (player.hasPermission(permission)) {
+                return value;
+            }
+        }
+    
+        return maxPower;
+    }
+
     public double getMaxPower() {
-        return 10;
+        return maxPower;
+    }
+
+    public void setMaxPower(int maxPower) {
+        this.maxPower = maxPower;
+    }
+
+    public void updateMaxPower() {
+        maxPower = getMaxPowerMultiplier();
     }
 }

@@ -1,3 +1,10 @@
+max_power_permissions:
+  "mineclans.power.multiplier.1.5": 15
+  "mineclans.power.multiplier.2.0": 20
+  "mineclans.power.multiplier.2.5": 25
+  "mineclans.power.multiplier.3.0": 30
+  "mineclans.power.multiplier.4.0": 40
+
 # How much score is earned from this actions
 weights:
   kill: 0.5
