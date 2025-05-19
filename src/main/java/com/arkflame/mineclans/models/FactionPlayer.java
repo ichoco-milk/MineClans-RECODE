@@ -14,7 +14,9 @@ import com.arkflame.mineclans.enums.Rank;
 import com.arkflame.mineclans.menus.EnteringType;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 public class FactionPlayer {
     private UUID playerId;
@@ -82,7 +84,7 @@ public class FactionPlayer {
         }
         return faction.getRank(playerId);
     }
-    
+
     public void setJoinDate(Date joinDate) {
         this.joinDate = joinDate;
     }
@@ -148,7 +150,10 @@ public class FactionPlayer {
     }
 
     public ToggleChatResult.ToggleChatState getChatMode() {
-        return getFactionId() != null ? (chat == ToggleChatResult.ToggleChatState.NOT_IN_FACTION ? ToggleChatResult.ToggleChatState.DISABLED : chat) : ToggleChatResult.ToggleChatState.NOT_IN_FACTION;
+        return getFactionId() != null
+                ? (chat == ToggleChatResult.ToggleChatState.NOT_IN_FACTION ? ToggleChatResult.ToggleChatState.DISABLED
+                        : chat)
+                : ToggleChatResult.ToggleChatState.NOT_IN_FACTION;
     }
 
     public boolean isOnline() {
@@ -173,7 +178,7 @@ public class FactionPlayer {
 
     public EnteringType getEnteringTypeIfValid() {
         long currentTime = System.currentTimeMillis();
-        
+
         // Check if less than 30 seconds (30,000 milliseconds) have passed
         if (currentTime - enteringTime <= 30_000) {
             return enteringType;
@@ -184,7 +189,7 @@ public class FactionPlayer {
 
     public boolean shouldTeleportHome() {
         return System.currentTimeMillis() - lastHomeRequest < 2000;
-    }    
+    }
 
     public void requestHome() {
         this.lastHomeRequest = System.currentTimeMillis();
@@ -215,22 +220,6 @@ public class FactionPlayer {
         return true;
     }
 
-    public int getMaxPowerMultiplier() {
-        Player player = getPlayer();
-        if (player == null) {
-            return maxPower; // Default multiplier if player is not online
-        }
-        Configuration config = MineClans.getInstance().getConfig();
-        for (String permission : config.getConfigurationSection("max_power_permissions").getKeys(false)) {
-            int value = config.getInt("max_power_permissions." + permission);
-            if (player.hasPermission(permission)) {
-                return value;
-            }
-        }
-    
-        return maxPower;
-    }
-
     public double getMaxPower() {
         return maxPower;
     }
@@ -240,6 +229,21 @@ public class FactionPlayer {
     }
 
     public void updateMaxPower() {
-        maxPower = getMaxPowerMultiplier();
+        Player player = getPlayer();
+        if (player == null) {
+            return;
+        }
+        Configuration config = MineClans.getInstance().getConfig();
+        List<Integer> perms = config.getIntegerList("max_power_permissions");
+        if (perms != null) {
+            Collections.sort(perms, Collections.reverseOrder());
+            for (int value : perms) {
+                String permission = "mineclans.power." + value;
+                if (player.hasPermission(permission)) {
+                    this.maxPower = value;
+                    break;
+                }
+            }
+        }
     }
 }
