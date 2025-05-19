@@ -196,9 +196,6 @@ public class FactionPlayer {
     }
 
     public double getPower() {
-        if (power == null) {
-            power = MineClans.getInstance().getMySQLProvider().getPowerDAO().getPower(playerId);
-        }
         return power;
     }
 
@@ -228,10 +225,10 @@ public class FactionPlayer {
         this.maxPower = maxPower;
     }
 
-    public void updateMaxPower() {
+    public boolean updateMaxPower() {
         Player player = getPlayer();
         if (player == null) {
-            return;
+            return false;
         }
         Configuration config = MineClans.getInstance().getConfig();
         List<Integer> perms = config.getIntegerList("max_power_permissions");
@@ -240,10 +237,14 @@ public class FactionPlayer {
             for (int value : perms) {
                 String permission = "mineclans.power." + value;
                 if (player.hasPermission(permission)) {
-                    this.maxPower = value;
+                    if (this.maxPower != value) {
+                        this.maxPower = value;
+                        return true;
+                    }
                     break;
                 }
             }
         }
+        return false;
     }
 }

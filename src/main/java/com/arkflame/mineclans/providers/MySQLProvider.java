@@ -17,7 +17,6 @@ import com.arkflame.mineclans.providers.daos.mysql.FactionDAO;
 import com.arkflame.mineclans.providers.daos.mysql.FactionPlayerDAO;
 import com.arkflame.mineclans.providers.daos.mysql.InvitedDAO;
 import com.arkflame.mineclans.providers.daos.mysql.MemberDAO;
-import com.arkflame.mineclans.providers.daos.mysql.PowerDAO;
 import com.arkflame.mineclans.providers.daos.mysql.RanksDAO;
 import com.arkflame.mineclans.providers.daos.mysql.RelationsDAO;
 import com.arkflame.mineclans.providers.daos.mysql.ScoreDAO;
@@ -27,7 +26,6 @@ import com.arkflame.mineclans.providers.daos.sqlite.FactionDAOSQLite;
 import com.arkflame.mineclans.providers.daos.sqlite.FactionPlayerDAOSQLite;
 import com.arkflame.mineclans.providers.daos.sqlite.InvitedDAOSQLite;
 import com.arkflame.mineclans.providers.daos.sqlite.MemberDAOSQLite;
-import com.arkflame.mineclans.providers.daos.sqlite.PowerDAOSQLite;
 import com.arkflame.mineclans.providers.daos.sqlite.RanksDAOSQLite;
 import com.arkflame.mineclans.providers.daos.sqlite.RelationsDAOSQLite;
 import com.arkflame.mineclans.providers.daos.sqlite.ScoreDAOSQLite;
@@ -48,7 +46,6 @@ public class MySQLProvider {
     private RelationsDAO relationsDAO;
     private ScoreDAO scoreDAO;
     private ClaimedChunksDAO claimedChunksDAO;
-    private PowerDAO powerDAO;
 
     private boolean connected = false;
     private boolean sqlite = false;
@@ -80,7 +77,6 @@ public class MySQLProvider {
                 relationsDAO = new RelationsDAOSQLite(this);
                 scoreDAO = new ScoreDAOSQLite(this);
                 claimedChunksDAO = new ClaimedChunksDAOSQLite(this);
-                powerDAO = new PowerDAOSQLite(this);
             } else {
                 chestDAO = new ChestDAO(this);
                 factionDAO = new FactionDAO(this);
@@ -91,7 +87,6 @@ public class MySQLProvider {
                 relationsDAO = new RelationsDAO(this);
                 scoreDAO = new ScoreDAO(this);
                 claimedChunksDAO = new ClaimedChunksDAO(this);
-                powerDAO = new PowerDAO(this);
             }
 
             // Generate hikari config
@@ -182,7 +177,6 @@ public class MySQLProvider {
         factionPlayerDAO.createTable();
         scoreDAO.createTable();
         claimedChunksDAO.createTable();
-        powerDAO.createTable();
     }
 
     public void initialize() {
@@ -244,9 +238,5 @@ public class MySQLProvider {
 
     public ClaimedChunksDAO getClaimedChunksDAO() {
         return claimedChunksDAO;
-    }
-
-    public PowerDAO getPowerDAO() {
-        return powerDAO;
     }
 }

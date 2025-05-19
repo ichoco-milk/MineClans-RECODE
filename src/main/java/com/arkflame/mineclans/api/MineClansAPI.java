@@ -871,7 +871,7 @@ public class MineClansAPI {
             boolean changed = player.setPower(player.getPower() + amount);
             if (changed) {
                 if (publishUpdate) {
-                    mySQLProvider.getPowerDAO().setPower(player.getPlayerId(), player.getPower());
+                    factionPlayerManager.save(player);
                     redisProvider.updatePower(player.getPlayerId(), amount);
                 }
                 Faction faction = player.getFaction();
