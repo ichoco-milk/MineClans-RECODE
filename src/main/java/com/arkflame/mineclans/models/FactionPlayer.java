@@ -34,6 +34,11 @@ public class FactionPlayer {
     private double power = 0;
     private int maxPower = 10;
 
+    // Rank Benefits
+    // Enabled by commands, effectively applied or not if condition is met
+    private boolean flying = false;
+    private boolean godMode = false;
+
     public FactionPlayer(UUID playerId) {
         this.playerId = playerId;
         this.name = null;
@@ -243,5 +248,21 @@ public class FactionPlayer {
             }
         }
         return false;
+    }
+
+    public boolean isFlying() {
+        return flying;
+    }
+
+    public void setFlying(boolean flying) {
+        this.flying = flying;
+    }
+
+    public boolean isGodMode() {
+        return godMode;
+    }
+
+    public void setGodMode(boolean godMode) {
+        this.godMode = godMode;
     }
 }

@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.managers.FactionPlayerManager;
+import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
 
 public class PlayerQuitListener implements Listener {
@@ -29,6 +30,7 @@ public class PlayerQuitListener implements Listener {
             if (faction != null) {
                 faction.removeEffects(player);
             }
+            MineClans.getInstance().getFactionBenefitsManager().updateChunks(player);
         });
     }
 }

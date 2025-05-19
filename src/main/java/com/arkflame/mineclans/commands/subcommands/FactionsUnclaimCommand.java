@@ -58,7 +58,7 @@ public class FactionsUnclaimCommand {
         }
 
         ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
-        if (!claim.getFactionId().equals(faction.getId())) {
+        if (claim != null && !faction.getId().equals(claim.getFactionId())) {
             String ownerName = api.getFaction(claim.getFactionId()).getName();
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "claimed_by_other")
                     .replace("%faction%", ownerName)));

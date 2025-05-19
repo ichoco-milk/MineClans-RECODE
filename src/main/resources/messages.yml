@@ -52,6 +52,22 @@ menus:
         lore: "&7Enter specific amount to withdraw"
 
 factions:
+  fly:
+    not_in_faction: "&cYou must be in a faction to use fly!"
+    no_permission: "&cYou don't have permission to use faction fly!"
+    no_permission_node: "&cYou don't have the required permission node!"
+    enabled: "&aFaction fly has been enabled! It will activate when you're in your faction's territory without enemies nearby."
+    disabled: "&cFaction fly has been disabled!"
+    activated: "&aFly mode activated!"
+    enabled_but_conditions_not_met: "&eFlying enabled but conditions not met. Move to your faction's territory without enemies."
+  god:
+    not_in_faction: "&cYou must be in a faction to use god mode!"
+    no_permission: "&cYou don't have permission to use faction god mode!"
+    no_permission_node: "&cYou don't have the required permission node!"
+    enabled: "&aFaction god mode has been enabled! It will activate when you're in your faction's territory without enemies nearby."
+    disabled: "&cFaction god mode has been disabled!"
+    activated: "&aGod mode activated!"
+    enabled_but_conditions_not_met: "&eGod mode enabled but conditions not met. Move to your faction's territory without enemies."
   power:
     self: "&aYour current power: &f%power%&7/&f%max_power%"
     other: "&a%player%'s current power: &f%power%&7/&f%max_power%"

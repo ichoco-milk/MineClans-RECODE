@@ -1176,7 +1176,7 @@ public class MineClansAPI {
                 if (dx == 0 && dz == 0) continue;
                 
                 ChunkCoordinate adjacent = MineClans.getInstance().getClaimedChunks().getChunkAt(x + dx, z + dz, worldName);
-                if (adjacent != null && adjacent.getFactionId().equals(claimingFactionId)) {
+                if (adjacent != null && claimingFactionId.equals(adjacent.getFactionId())) {
                     hasAdjacentClaim = true; // Has adjacent claim from claiming faction
                     break;
                 }
@@ -1196,6 +1196,9 @@ public class MineClansAPI {
     }
 
     public String getFactionName(UUID factionId) {
+        if (factionId == null) {
+            return "Unknown";
+        }
         Faction faction = getFaction(factionId);
         if (faction == null) {
             return "Unknown";

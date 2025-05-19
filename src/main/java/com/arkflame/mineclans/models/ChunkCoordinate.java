@@ -12,7 +12,6 @@ public class ChunkCoordinate {
     private final String worldName;
     private final Date claimDate;
 
-    // New constructor with all fields
     public ChunkCoordinate(UUID factionId, int x, int z, String worldName, String serverName, Date claimDate) {
         this.factionId = factionId;
         this.x = x;

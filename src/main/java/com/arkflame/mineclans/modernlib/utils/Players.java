@@ -2,10 +2,17 @@ package com.arkflame.mineclans.modernlib.utils;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import com.arkflame.mineclans.MineClans;
 
 public class Players {
     public static void setFlying(Player player, boolean flying) {
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(MineClans.getInstance(), () -> setFlying(player, flying));
+            return;
+        }
         if (player.getAllowFlight() != flying) {
             player.setAllowFlight(flying);
         }

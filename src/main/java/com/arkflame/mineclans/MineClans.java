@@ -26,6 +26,7 @@ import com.arkflame.mineclans.hooks.WorldGuardReflectionUtil;
 import com.arkflame.mineclans.listeners.ChatListener;
 import com.arkflame.mineclans.listeners.ChunkProtectionListener;
 import com.arkflame.mineclans.listeners.ClanEventListener;
+import com.arkflame.mineclans.listeners.FactionBenefitsListener;
 import com.arkflame.mineclans.listeners.FactionFriendlyFireListener;
 import com.arkflame.mineclans.listeners.FactionsClaimsMenuListener;
 import com.arkflame.mineclans.listeners.InventoryClickListener;
@@ -33,6 +34,7 @@ import com.arkflame.mineclans.listeners.PlayerJoinListener;
 import com.arkflame.mineclans.listeners.PlayerKillListener;
 import com.arkflame.mineclans.listeners.PlayerMoveListener;
 import com.arkflame.mineclans.listeners.PlayerQuitListener;
+import com.arkflame.mineclans.managers.FactionBenefitsManager;
 import com.arkflame.mineclans.managers.FactionManager;
 import com.arkflame.mineclans.managers.FactionPlayerManager;
 import com.arkflame.mineclans.managers.LeaderboardManager;
@@ -68,6 +70,10 @@ public class MineClans extends JavaPlugin {
 
     public static void runAsync(Runnable runnable) {
         Bukkit.getScheduler().runTaskAsynchronously(MineClans.getInstance(), runnable);
+    }
+
+    public static void runAsync(Runnable runnable, long delay) {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(MineClans.getInstance(), runnable, delay);
     }
 
     public static void runSync(Runnable runnable) {
@@ -120,6 +126,8 @@ public class MineClans extends JavaPlugin {
 
     private DynmapIntegration dynmapIntegration;
     private WorldGuardReflectionUtil worldGuardReflectionUil;
+
+    private FactionBenefitsManager benefitsManager;
 
     public ConfigWrapper getCfg() {
         return config;
@@ -251,6 +259,7 @@ public class MineClans extends JavaPlugin {
             bungeeUtil = new BungeeUtil(this);
             teleportScheduler = new TeleportScheduler(this);
             claimedChunks = new ClaimedChunks(mySQLProvider.getClaimedChunksDAO());
+            benefitsManager = new FactionBenefitsManager();
 
             // Register Listeners
             PluginManager pluginManager = server.getPluginManager();
@@ -265,6 +274,7 @@ public class MineClans extends JavaPlugin {
             pluginManager.registerEvents(new PlayerQuitListener(factionPlayerManager), this);
             pluginManager.registerEvents(new MenuListener(), this);
             pluginManager.registerEvents(dynmapIntegration, this);
+            pluginManager.registerEvents(new FactionBenefitsListener(), this);
         
             // Initialize the claims menu listener
             claimsMenuListener = new FactionsClaimsMenuListener(this);
@@ -338,5 +348,9 @@ public class MineClans extends JavaPlugin {
         }
 
         getServer().getScheduler().cancelTasks(this);
+    }
+
+    public FactionBenefitsManager getFactionBenefitsManager() {
+        return benefitsManager;
     }
 }

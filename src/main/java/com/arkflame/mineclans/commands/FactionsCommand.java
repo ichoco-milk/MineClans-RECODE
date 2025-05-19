@@ -157,6 +157,12 @@ public class FactionsCommand extends ModernCommand {
                 case "bank":
                     FactionsBankCommand.onCommand(player, args);
                     break;
+                case "god":
+                    FactionsGodCommand.onCommand(player, args);
+                    break;
+                case "fly":
+                    FactionsFlyCommand.onCommand(player, args);
+                    break;
                 default:
                     FactionsHelpCommand.onCommand(sender, 1);
                     break;

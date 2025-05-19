@@ -47,7 +47,7 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
                         ChunkCoordinate claim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
                         if (claim != null) {
                             Faction faction = api.getFaction(player);
-                            boolean isSameFaction = faction != null && claim.getFactionId().equals(faction.getId());
+                            boolean isSameFaction = faction != null && faction.getId().equals(claim.getFactionId());
                             String[] factionParticle = isSameFaction ? SAME_FACTION_PARTICLE
                                     : ENEMY_FACTION_PARTICLE;
 

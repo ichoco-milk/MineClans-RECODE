@@ -39,7 +39,7 @@ public class WorldChunkMap {
                 .computeIfAbsent(worldName, w -> new ConcurrentHashMap<>())
                 .computeIfAbsent(x, xCoord -> new ConcurrentHashMap<>())
                 .put(z, chunk);
-        
+
         allChunks.add(chunk);
     }
     
