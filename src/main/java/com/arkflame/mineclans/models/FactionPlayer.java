@@ -38,6 +38,7 @@ public class FactionPlayer {
     // Enabled by commands, effectively applied or not if condition is met
     private boolean flying = false;
     private boolean godMode = false;
+    private boolean canReceiveDamage = true;
 
     public FactionPlayer(UUID playerId) {
         this.playerId = playerId;
@@ -264,5 +265,13 @@ public class FactionPlayer {
 
     public void setGodMode(boolean godMode) {
         this.godMode = godMode;
+    }
+
+    public void setCanReceiveDamage(boolean b) {
+        canReceiveDamage = b;
+    }
+
+    public boolean canReceiveDamage() {
+        return canReceiveDamage;
     }
 }

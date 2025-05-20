@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.entity.Player;
+
 public class FactionPlayerManager {
     // Cache for faction players
     private Map<UUID, FactionPlayer> factionPlayerCacheById = new ConcurrentHashMap<>();
@@ -148,6 +150,14 @@ public class FactionPlayerManager {
             if (faction != null) {
                 faction.setRank(playerId, rank);
             }
+        }
+    }
+
+    public FactionPlayer get(Player player) {
+        if (this.factionPlayerCacheById.containsKey(player.getUniqueId())) {
+            return this.factionPlayerCacheById.get(player.getUniqueId());
+        } else {
+            return null;
         }
     }
 }

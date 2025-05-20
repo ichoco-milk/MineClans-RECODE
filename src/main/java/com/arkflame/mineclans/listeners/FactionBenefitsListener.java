@@ -2,12 +2,13 @@ package com.arkflame.mineclans.listeners;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.managers.FactionBenefitsManager;
+import com.arkflame.mineclans.models.FactionPlayer;
 
 public class FactionBenefitsListener implements Listener {
     private final FactionBenefitsManager benefitsManager;
@@ -63,5 +64,27 @@ public class FactionBenefitsListener implements Listener {
             // Update all remaining players since an enemy might have left
             benefitsManager.updateNearbyPlayersBenefits(event.getPlayer());
         });
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            if (player != null && player.isOnline()) {
+                FactionPlayer factionPlayer = MineClans.getInstance().getFactionPlayerManager().get(player);
+                if (factionPlayer != null && !factionPlayer.canReceiveDamage()) {
+                    event.setCancelled(true);
+                } else {
+                    System.out.println("FactionPlayer is null or player is not online.");
+                    System.out.println("FactionPlayer: " + factionPlayer);
+                    System.out.println("Player: " + player);
+                    System.out.println("Player is online: " + player.isOnline());
+                    System.out.println("FactionPlayer can receive damage: " + (factionPlayer != null ? factionPlayer.canReceiveDamage() : "N/A"));
+                    System.out.println("FactionPlayer Name: " + (factionPlayer != null ? factionPlayer.getName() : "N/A"));
+                    System.out.println("FactionPlayer Faction: " + (factionPlayer != null ? factionPlayer.getFaction() : "N/A"));
+                    System.out.println("FactionPlayer Rank: " + (factionPlayer != null ? factionPlayer.getRank() : "N/A"));
+                }
+            }
+        }
     }
 }

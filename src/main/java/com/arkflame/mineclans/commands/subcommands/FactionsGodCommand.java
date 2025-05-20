@@ -51,16 +51,14 @@ public class FactionsGodCommand {
             
             // Check if can currently use benefits
             if (benefitsManager.canUseRankBenefits(player)) {
-                // Apply god mode effect - this would depend on your god mode implementation
-                // For example, you might set player invulnerable or add a metadata tag
+                factionPlayer.setCanReceiveDamage(false);
                 player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "activated")));
             } else {
                 player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "enabled_but_conditions_not_met")));
             }
         } else {
-            // Player disabled god mode
             factionPlayer.setGodMode(false);
-            // Remove god mode effect - depends on your implementation
+            factionPlayer.setCanReceiveDamage(true);
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "disabled")));
         }
 

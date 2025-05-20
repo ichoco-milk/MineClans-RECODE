@@ -1,6 +1,5 @@
 package com.arkflame.mineclans.commands.subcommands;
 
-import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;

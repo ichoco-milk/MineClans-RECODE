@@ -157,12 +157,9 @@ public class FactionBenefitsManager {
         // Handle god mode
         if (factionPlayer.isGodMode()) {
             if (canUseBenefits) {
-                // God mode is enabled in benefit object, actual implementation
-                // would depend on how god mode is handled in your plugin
-                // This is just the status tracking
+                factionPlayer.setCanReceiveDamage(false);
             } else {
-                // God mode should be disabled due to conditions
-                // Actual implementation would depend on your god mode system
+                factionPlayer.setCanReceiveDamage(true);
             }
         }
     }
