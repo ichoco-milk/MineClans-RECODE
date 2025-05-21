@@ -74,15 +74,6 @@ public class FactionBenefitsListener implements Listener {
                 FactionPlayer factionPlayer = MineClans.getInstance().getFactionPlayerManager().get(player);
                 if (factionPlayer != null && !factionPlayer.canReceiveDamage()) {
                     event.setCancelled(true);
-                } else {
-                    System.out.println("FactionPlayer is null or player is not online.");
-                    System.out.println("FactionPlayer: " + factionPlayer);
-                    System.out.println("Player: " + player);
-                    System.out.println("Player is online: " + player.isOnline());
-                    System.out.println("FactionPlayer can receive damage: " + (factionPlayer != null ? factionPlayer.canReceiveDamage() : "N/A"));
-                    System.out.println("FactionPlayer Name: " + (factionPlayer != null ? factionPlayer.getName() : "N/A"));
-                    System.out.println("FactionPlayer Faction: " + (factionPlayer != null ? factionPlayer.getFaction() : "N/A"));
-                    System.out.println("FactionPlayer Rank: " + (factionPlayer != null ? factionPlayer.getRank() : "N/A"));
                 }
             }
         }
