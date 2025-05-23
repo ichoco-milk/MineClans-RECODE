@@ -32,6 +32,7 @@ public class FactionsLeaveCommand {
                         10, 20, 10);
                 MelodyUtil.playMelody(MineClans.getInstance(), player, Melody.FACTION_LEAVE_MELODY);
                 player.sendMessage(messages.getText(basePath + "success"));
+                faction.sendMessage(messages.getText(basePath + "faction_left").replace("%player%", player.getName()));
                 break;
             default:
                 break;

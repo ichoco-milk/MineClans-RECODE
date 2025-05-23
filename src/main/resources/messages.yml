@@ -153,6 +153,7 @@ factions:
     no_permission: "&cYou do not have permission to update the announcement."
     no_faction: "&cYou are not part of any faction."
     invalid_announcement: "&cThe announcement provided is invalid or empty. The announcement was now cleared."
+    faction_joined: "&b%player%&a has joined your faction."
   discord:
     invalid_discord: "&cThe Discord link you provided is invalid. Please try again with a valid link. Discord link was just resetted to be empty."
     no_permission: "&cYou do not have permission to set the Discord link for your faction."
@@ -356,6 +357,7 @@ factions:
     faction_owner: "&cYou are the owner. Disband your faction or transfer ownership instead."
     no_faction: "&cYou are not in a faction."
     success: "&cYou left your faction."
+    faction_left: "&7%player%&c has left the faction."
   focus:
     usage: "&c/f focus <faction>"
     success: "&aSuccessfully focused on faction: %faction%"

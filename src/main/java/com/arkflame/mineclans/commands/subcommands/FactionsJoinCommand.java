@@ -40,6 +40,7 @@ public class FactionsJoinCommand {
                 MelodyUtil.playMelody(MineClans.getInstance(), player, Melody.FACTION_JOIN_MELODY);
                 player.sendMessage(messages.getText(basePath + "success")
                         .replace("%faction%", factionName));
+                faction.sendMessage(messages.getText(basePath + "faction_join").replace("%player%", player.getName()));
                 break;
             default:
                 break;
