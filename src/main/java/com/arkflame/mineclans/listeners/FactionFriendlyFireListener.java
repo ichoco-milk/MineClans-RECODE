@@ -1,9 +1,12 @@
 package com.arkflame.mineclans.listeners;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.projectiles.ProjectileSource;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.Faction;
@@ -13,12 +16,21 @@ public class FactionFriendlyFireListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player) || !(event.getEntity() instanceof Player)) {
+        Entity damager = event.getDamager();
+        if (damager instanceof Projectile) {
+            Projectile projectile = (Projectile) damager;
+            ProjectileSource shooter = projectile.getShooter();
+            if (shooter instanceof Entity) {
+                damager = (Entity) shooter;
+            }
+        }
+        Entity entity = event.getEntity();
+        if (!(damager instanceof Player) || !(entity instanceof Player)) {
             return;
         }
 
-        Player attacker = (Player) event.getDamager();
-        Player victim = (Player) event.getEntity();
+        Player attacker = (Player) damager;
+        Player victim = (Player) entity;
 
         FactionPlayer attackerFP = MineClans.getInstance().getAPI().getFactionPlayer(attacker.getUniqueId());
         FactionPlayer victimFP = MineClans.getInstance().getAPI().getFactionPlayer(victim.getUniqueId());
