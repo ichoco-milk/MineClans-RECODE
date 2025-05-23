@@ -84,7 +84,6 @@ public class FactionMessageSub extends JedisPubSub {
         Faction faction = factionManager.getFaction(factionId);
         if (faction == null)
             return;
-        String factionName = faction.getName();
 
         switch (parts[0]) {
             case "deposit":
@@ -93,16 +92,16 @@ public class FactionMessageSub extends JedisPubSub {
                 updateFactionBalance(faction, amount, parts[0].equals("deposit"));
                 break;
             case "updateHome":
-                factionManager.updateHome(factionName, LocationUtil.parseLocationData(parts[2]));
+                factionManager.updateHome(factionId, LocationUtil.parseLocationData(parts[2]));
                 break;
             case "updateFriendlyFire":
-                factionManager.updateFriendlyFire(factionName, Boolean.parseBoolean(parts[2]));
+                factionManager.updateFriendlyFire(factionId, Boolean.parseBoolean(parts[2]));
                 break;
             case "invite":
-                factionManager.invitePlayerToFaction(factionName, parseUUID(parts[2]));
+                factionManager.invitePlayerToFaction(factionId, parseUUID(parts[2]));
                 break;
             case "uninvite":
-                factionManager.uninvitePlayerFromFaction(factionName, parseUUID(parts[2]));
+                factionManager.uninvitePlayerFromFaction(factionId, parseUUID(parts[2]));
                 break;
             case "focus":
                 faction.setFocusedFaction(parseUUID(parts[2]));
@@ -111,10 +110,10 @@ public class FactionMessageSub extends JedisPubSub {
                 faction.setAnnouncement(parts.length > 2 ? parts[2] : null);
                 break;
             case "removePlayer":
-                factionManager.removePlayer(factionName, parseUUID(parts[2]));
+                factionManager.removePlayer(factionId, parseUUID(parts[2]));
                 break;
             case "addPlayer":
-                factionManager.addPlayer(factionName, parseUUID(parts[2]));
+                factionManager.addPlayer(factionId, parseUUID(parts[2]));
                 break;
             case "startChestUpdate":
                 faction.setEditingChest(true);
@@ -136,22 +135,22 @@ public class FactionMessageSub extends JedisPubSub {
             case "updateRelation":
                 UUID otherFactionId = parseUUID(parts[2]);
                 String relationName = parts[3];
-                factionManager.updateFactionRelation(factionName, otherFactionId, relationName);
+                factionManager.updateFactionRelation(factionId, otherFactionId, relationName);
                 break;
             case "updateDisplayName":
                 String displayName = parts[2];
-                factionManager.updateFactionDisplayName(factionName, displayName);
+                factionManager.updateFactionDisplayName(factionId, displayName);
                 break;
             case "updateName":
                 String name = parts[2];
-                factionManager.updateFactionDisplayName(factionName, name);
+                factionManager.updateFactionDisplayName(factionId, name);
                 break;
             case "updateFactionOwner":
                 UUID newOwnerId = parseUUID(parts[2]);
-                factionManager.updateFactionOwner(factionName, newOwnerId);
+                factionManager.updateFactionOwner(factionId, newOwnerId);
                 break;
             case "removeFaction":
-                factionManager.disbandFaction(faction.getName());
+                factionManager.disbandFaction(factionId);
                 factionManager.removeFactionFromDatabase(faction);
                 MineClans.getInstance().getLeaderboardManager().removeFaction(faction.getId());
                 break;
@@ -177,7 +176,7 @@ public class FactionMessageSub extends JedisPubSub {
 
     private void updateFactionBalance(Faction faction, double amount, boolean isDeposit) {
         factionManager.setFactionBalance(
-                faction.getName(),
+                faction.getId(),
                 faction.getBalance() + (isDeposit ? amount : -amount));
     }
 

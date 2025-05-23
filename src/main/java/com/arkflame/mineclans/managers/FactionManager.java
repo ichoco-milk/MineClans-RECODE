@@ -85,9 +85,10 @@ public class FactionManager {
     }
 
     // Create a new faction
-    public Faction createFaction(UUID playerId, String factionName, UUID uuid) {
-        Faction newFaction = new Faction(uuid, playerId, factionName, factionName);
+    public Faction createFaction(UUID playerId, String factionName, UUID factionId) {
+        Faction newFaction = new Faction(factionId, playerId, factionName, factionName);
         factionCacheByName.put(factionName, newFaction);
+        factionCacheByID.put(factionId, newFaction);
         return newFaction;
     }
 
@@ -97,27 +98,27 @@ public class FactionManager {
     }
 
     // Add a player to a faction
-    public void addPlayer(String factionName, UUID playerId) {
-        Faction faction = getFaction(factionName);
+    public void addPlayer(UUID factionId, UUID playerId) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.addMember(playerId);
         }
     }
 
     // Remove a player from a faction
-    public void removePlayer(String factionName, UUID playerId) {
-        Faction faction = getFaction(factionName);
+    public void removePlayer(UUID factionId, UUID playerId) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.removeMember(playerId);
         }
     }
 
     // Disband a faction
-    public void disbandFaction(String factionName) {
-        Faction faction = getFaction(factionName);
+    public void disbandFaction(UUID factionId) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.disbandFaction();
-            factionCacheByName.remove(factionName);
+            factionCacheByName.remove(faction.getName());
             factionCacheByID.remove(faction.getId());
         }
     }
@@ -129,82 +130,82 @@ public class FactionManager {
     }
 
     // Set a faction's balance
-    public void setFactionBalance(String factionName, double balance) {
-        Faction faction = getFaction(factionName);
+    public void setFactionBalance(UUID factionId, double balance) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.setBalance(balance);
         }
     }
 
     // Update a faction's relation with another faction
-    public void updateFactionRelation(String factionName, UUID targetFactionId, String relation) {
-        Faction faction = getFaction(factionName);
+    public void updateFactionRelation(UUID factionId, UUID targetFactionId, String relation) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.setRelation(targetFactionId, new Relation(faction.getId(), targetFactionId, relation));
         }
     }
 
     // Set chest permissions for a role in a faction
-    public void setFactionChestPermission(String factionName, String role, boolean permission) {
-        Faction faction = getFaction(factionName);
+    public void setFactionChestPermission(UUID factionId, String role, boolean permission) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.setChestPermission(role, permission);
         }
     }
 
     // Add an invitation to join a faction
-    public void invitePlayerToFaction(String factionName, UUID playerId) {
-        Faction faction = getFaction(factionName);
+    public void invitePlayerToFaction(UUID factionId, UUID playerId) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.invitePlayer(playerId);
         }
     }
 
     // Remove an invitation to join a faction
-    public void uninvitePlayerFromFaction(String factionName, UUID playerId) {
-        Faction faction = getFaction(factionName);
+    public void uninvitePlayerFromFaction(UUID factionId, UUID playerId) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.uninvitePlayer(playerId);
         }
     }
 
-    public void updateFactionOwner(String factionName, UUID ownerId) {
-        Faction faction = getFaction(factionName);
+    public void updateFactionOwner(UUID factionId, UUID ownerId) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.setOwner(ownerId);
         }
     }
 
-    public void updateFactionName(String factionName, String newName) {
-        Faction faction = getFaction(factionName);
+    public void updateFactionName(UUID factionId, String newName) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             Faction existingFaction = getFaction(newName);
             if (existingFaction == null) {
+                faction.setRenameCooldown();
+                factionCacheByName.remove(faction.getName());
                 faction.setName(newName);
                 faction.setDisplayName(newName);
-                faction.setRenameCooldown();
-                factionCacheByName.remove(factionName);
                 factionCacheByName.put(newName, faction);
             }
         }
     }
 
-    public void updateFactionDisplayName(String factionName, String displayName) {
-        Faction faction = getFaction(factionName);
+    public void updateFactionDisplayName(UUID factionId, String displayName) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.setDisplayName(displayName);
         }
     }
 
-    public void updateFriendlyFire(String factionName, boolean friendlyFire) {
-        Faction faction = getFaction(factionName);
+    public void updateFriendlyFire(UUID factionId, boolean friendlyFire) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.setFriendlyFire(friendlyFire);
         }
     }
 
-    public void updateHome(String factionName, LocationData location) {
-        Faction faction = getFaction(factionName);
+    public void updateHome(UUID factionId, LocationData location) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             faction.setHome(location);
         }
@@ -230,8 +231,8 @@ public class FactionManager {
         }
     }
     
-    public boolean deposit(String factionName, double amount) {
-        Faction faction = getFaction(factionName);
+    public boolean deposit(UUID factionId, double amount) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             double currentBalance = faction.getBalance();
             double newBalance = currentBalance + amount;
@@ -241,8 +242,8 @@ public class FactionManager {
         return false;
     }
 
-    public boolean withdraw(String factionName, double amount) {
-        Faction faction = getFaction(factionName);
+    public boolean withdraw(UUID factionId, double amount) {
+        Faction faction = getFaction(factionId);
         if (faction != null) {
             double currentBalance = faction.getBalance();
             double newBalance = currentBalance - amount;

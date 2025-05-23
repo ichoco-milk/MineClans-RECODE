@@ -142,7 +142,7 @@ public class MineClansAPI {
             return new InviteResult(InviteResult.InviteResultState.ALREADY_INVITED, targetPlayer, faction);
         }
 
-        factionManager.invitePlayerToFaction(faction.getName(), targetPlayerId);
+        factionManager.invitePlayerToFaction(faction.getId(), targetPlayerId);
         mySQLProvider.getInvitedDAO().addInvitedMember(faction.getId(), targetPlayerId);
         redisProvider.invite(faction.getId(), targetPlayerId);
         return new InviteResult(InviteResult.InviteResultState.SUCCESS, targetPlayer, faction);
@@ -176,7 +176,7 @@ public class MineClansAPI {
             return new UninviteResult(UninviteResult.UninviteResultState.NOT_INVITED);
         }
 
-        factionManager.uninvitePlayerFromFaction(faction.getName(), targetPlayerId);
+        factionManager.uninvitePlayerFromFaction(faction.getId(), targetPlayerId);
         mySQLProvider.getInvitedDAO().removeInvitedMember(faction.getId(), targetPlayerId);
         redisProvider.uninvite(faction.getId(), player.getUniqueId());
         return new UninviteResult(UninviteResult.UninviteResultState.SUCCESS);
@@ -203,7 +203,7 @@ public class MineClansAPI {
             redisProvider.createFaction(faction.getId(), player.getUniqueId(), factionName);
 
             // Add player to faction
-            factionManager.addPlayer(factionName, player.getUniqueId());
+            factionManager.addPlayer(faction.getId(), player.getUniqueId());
             redisProvider.addPlayer(faction.getId(), player.getUniqueId());
 
             // Save to database
@@ -248,7 +248,7 @@ public class MineClansAPI {
             redisProvider.updateRank(uuid, Rank.RECRUIT);
             redisProvider.updateFaction(uuid, null);
         }
-        factionManager.disbandFaction(faction.getName());
+        factionManager.disbandFaction(faction.getId());
         factionManager.removeFactionFromDatabase(faction);
         MineClans.getInstance().getLeaderboardManager().removeFaction(faction.getId());
         redisProvider.removeFaction(faction.getId());
@@ -281,7 +281,7 @@ public class MineClansAPI {
 
         UUID newOwnerId = newOwnerPlayer.getPlayerId();
 
-        factionManager.updateFactionOwner(faction.getName(), newOwnerId);
+        factionManager.updateFactionOwner(faction.getId(), newOwnerId);
         factionManager.saveFactionToDatabase(faction);
         redisProvider.updateFactionOwner(faction.getId(), newOwnerId);
         factionPlayerManager.updateRank(newOwnerId, Rank.LEADER);
@@ -323,7 +323,7 @@ public class MineClansAPI {
         }
 
         try {
-            factionManager.updateFactionName(playerFaction.getName(), newName);
+            factionManager.updateFactionName(playerFaction.getId(), newName);
             playerFaction.setRenameCooldown();
             factionManager.saveFactionToDatabase(playerFaction);
             redisProvider.updateName(playerFaction.getId(), newName);
@@ -341,7 +341,7 @@ public class MineClansAPI {
             Faction playerFaction = factionPlayer.getFaction();
             if (playerFaction != null) {
                 try {
-                    factionManager.updateFactionDisplayName(playerFaction.getName(), displayName);
+                    factionManager.updateFactionDisplayName(playerFaction.getId(), displayName);
                     factionManager.saveFactionToDatabase(playerFaction);
                     redisProvider.updateDisplayName(playerFaction.getId(), displayName);
                 } catch (IllegalArgumentException ex) {
@@ -425,7 +425,7 @@ public class MineClansAPI {
 
         Faction faction = factionPlayer.getFaction();
         boolean friendlyFire = !faction.isFriendlyFire();
-        factionManager.updateFriendlyFire(faction.getName(), friendlyFire);
+        factionManager.updateFriendlyFire(faction.getId(), friendlyFire);
         factionManager.saveFactionToDatabase(faction);
 
         // Send redis update
@@ -446,8 +446,7 @@ public class MineClansAPI {
         }
 
         Faction faction = factionPlayer.getFaction();
-        String factionName = faction.getName();
-        factionManager.updateHome(factionName, homeLocation);
+        factionManager.updateHome(faction.getId(), homeLocation);
         redisProvider.updateHome(faction.getId(), homeLocation);
 
         // Save changes to the faction
@@ -507,7 +506,7 @@ public class MineClansAPI {
                     otherFaction, relationType, otherRelation);
         }
 
-        factionManager.updateFactionRelation(faction.getName(), otherFactionId, relationName);
+        factionManager.updateFactionRelation(faction.getId(), otherFactionId, relationName);
         mySQLProvider.getRelationsDAO().insertOrUpdateRelation(factionId, otherFactionId, relationName);
 
         // Send update to redis
@@ -637,8 +636,8 @@ public class MineClansAPI {
                 factionPlayerManager.save(factionPlayer);
 
                 // Update Player
-                factionManager.addPlayer(factionName, playerId);
-                factionManager.uninvitePlayerFromFaction(factionName, playerId);
+                factionManager.addPlayer(factionId, playerId);
+                factionManager.uninvitePlayerFromFaction(factionId, playerId);
                 factionManager.saveFactionToDatabase(faction);
 
                 // Update Rank/Members
@@ -715,11 +714,9 @@ public class MineClansAPI {
             return new KickResult(KickResultType.SUPERIOR_RANK, faction, playerToKick);
         }
 
-        String factionName = faction.getName();
         UUID playerToKickId = playerToKick.getPlayerId();
         // Remove player from faction
-        factionManager.removePlayer(factionName, playerToKickId);
-        factionManager.saveFactionToDatabase(faction);
+        faction.removeMember(playerToKickId);
         // Remove faction from player
         factionPlayerManager.updateFaction(playerToKickId, null);
         factionPlayerManager.save(playerToKick);
@@ -824,12 +821,12 @@ public class MineClansAPI {
         }
 
         // Assuming your FactionManager class has a method to withdraw currency
-        boolean withdrawn = factionManager.withdraw(faction.getName(), amount);
+        boolean withdrawn = factionManager.withdraw(faction.getId(), amount);
         if (!withdrawn)
             return new WithdrawResult(WithdrawResultType.ERROR, 0);
         boolean deposited = economy.depositPlayer(player, amount).type == EconomyResponse.ResponseType.SUCCESS;
         if (!deposited) {
-            factionManager.deposit(faction.getName(), amount);
+            factionManager.deposit(faction.getId(), amount);
             return new WithdrawResult(WithdrawResultType.ERROR, 0);
         }
         // Save to database
@@ -869,7 +866,7 @@ public class MineClansAPI {
         boolean withdrawn = economy.withdrawPlayer(player, amount).type == EconomyResponse.ResponseType.SUCCESS;
         if (!withdrawn)
             return new DepositResult(DepositResultType.ERROR, 0);
-        boolean deposited = factionManager.deposit(faction.getName(), amount);
+        boolean deposited = factionManager.deposit(faction.getId(), amount);
         if (!deposited) {
             economy.depositPlayer(player, amount);
             return new DepositResult(DepositResultType.ERROR, 0);
