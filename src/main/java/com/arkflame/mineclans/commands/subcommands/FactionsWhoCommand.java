@@ -82,6 +82,8 @@ public class FactionsWhoCommand {
                 .replace("%score%", score)
                 .replace("%founded_date%", foundedDate)
                 .replace("%power%", NumberUtil.formatPower(faction.getPower()))
+                .replace("%claims%", String.valueOf(faction.getClaimedLandCount()))
+                .replace("%raidable%", faction.canBeRaided() ? messages.getText(BASE_PATH + "raidable") : messages.getText(BASE_PATH + "safe"))
                 .replace("%max_power%", NumberUtil.formatPower(faction.getMaxPower()));
     }
     

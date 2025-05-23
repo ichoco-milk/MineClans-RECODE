@@ -549,7 +549,7 @@ public class Faction implements InventoryHolder {
     }
 
     public boolean canBeRaided() {
-        return MineClans.getInstance().getClaimedChunks().getClaimedChunkCount(id) > getPower();
+        return getClaimedLandCount() > getPower();
     }
 
     public int getClaimedLandCount() {

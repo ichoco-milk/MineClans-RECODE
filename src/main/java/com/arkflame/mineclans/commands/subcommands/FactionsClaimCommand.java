@@ -78,8 +78,8 @@ public class FactionsClaimCommand {
             case CLAIM_LIMIT_REACHED:
                 Faction faction = api.getFaction(player);
                 player.sendMessage(ChatColors.color(message
-                        .replace("%current%", NumberUtil.formatPower(faction.getClaimedLandCount()))
-                        .replace("%max%", NumberUtil.formatPower(faction.getPower()))));
+                        .replace("%needed%", NumberUtil.formatPower(faction.getClaimedLandCount() + 1))
+                        .replace("%faction_power%", NumberUtil.formatPower(faction.getPower()))));
                 break;
             default:
                 player.sendMessage(ChatColors.color(message));
