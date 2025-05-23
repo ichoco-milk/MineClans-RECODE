@@ -1,5 +1,6 @@
 package com.arkflame.mineclans.providers.redis;
 
+import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.enums.Rank;
 import com.arkflame.mineclans.enums.RelationType;
 import com.arkflame.mineclans.managers.FactionManager;
@@ -9,6 +10,8 @@ import com.arkflame.mineclans.utils.LocationData;
 import com.arkflame.mineclans.utils.LocationUtil;
 
 import org.bukkit.configuration.Configuration;
+import org.bukkit.plugin.Plugin;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -17,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RedisProvider {
+    private Plugin plugin = MineClans.getInstance();
     private FactionManager factionManager;
     private FactionPlayerManager factionPlayerManager;
     private final Logger logger;
@@ -77,7 +81,7 @@ public class RedisProvider {
     }
 
     private void subscribeToFactionUpdates() {
-        while (!shutdown) {
+        while (!shutdown && plugin.isEnabled()) {
             try {
                 try {
                     shutdown();
@@ -97,6 +101,7 @@ public class RedisProvider {
                 e.printStackTrace();
             }
         }
+        shutdown();
     }
 
     public void publishUpdate(String actionType, UUID id, String action, String... params) {
