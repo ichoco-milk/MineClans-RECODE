@@ -237,10 +237,13 @@ public class Faction implements InventoryHolder {
     public void addMember(UUID member) {
         this.members.add(member);
         updateScore();
+        updatePower();
     }
 
     public void removeMember(UUID member) {
         this.members.remove(member);
+        updateScore();
+        updatePower();
     }
 
     public void setMembers(Collection<UUID> members) {

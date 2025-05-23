@@ -325,7 +325,7 @@ public class MineClansAPI {
         try {
             factionManager.updateFactionName(playerFaction.getName(), newName);
             playerFaction.setRenameCooldown();
-            factionManager.saveFactionToDatabase(faction);
+            factionManager.saveFactionToDatabase(playerFaction);
             redisProvider.updateName(playerFaction.getId(), newName);
         } catch (IllegalArgumentException ex) {
             return new RenameResult(playerFaction, RenameResultState.ERROR);
@@ -541,7 +541,7 @@ public class MineClansAPI {
             return new RankChangeResult(RankChangeResultType.PLAYER_NOT_FOUND, null);
         }
 
-        if (!sender.getFaction().equals(target.getFaction())) {
+        if (!isSameFaction(sender, target)) {
             return new RankChangeResult(RankChangeResultType.NOT_IN_FACTION, null);
         }
 
@@ -585,7 +585,7 @@ public class MineClansAPI {
             return new RankChangeResult(RankChangeResultType.PLAYER_NOT_FOUND, null);
         }
 
-        if (!sender.getFaction().equals(target.getFaction())) {
+        if (!isSameFaction(sender, target)) {
             return new RankChangeResult(RankChangeResultType.NOT_IN_FACTION, null);
         }
 
@@ -694,7 +694,7 @@ public class MineClansAPI {
         }
 
         // Ensure the faction of kicker (if present) and player to kick are the same
-        if (kicker != null && (faction == null || !faction.equals(playerToKick.getFaction()))) {
+        if (faction != null && !isSameFaction(faction, playerToKick.getFaction())) {
             return new KickResult(KickResultType.PLAYER_NOT_FOUND, faction, playerToKick);
         }
 
@@ -706,7 +706,7 @@ public class MineClansAPI {
         }
 
         // Check if kicker is trying to kick themselves
-        if (kickerFactionPlayer != null && kickerFactionPlayer.equals(playerToKick)) {
+        if (kickerFactionPlayer != null && kickerFactionPlayer.getPlayerId().equals(playerToKick.getPlayerId())) {
             return new KickResult(KickResultType.NOT_YOURSELF, faction, playerToKick);
         }
 
@@ -729,6 +729,20 @@ public class MineClansAPI {
         redisProvider.updateFaction(playerToKick.getPlayerId(), null);
 
         return new KickResult(KickResultType.SUCCESS, faction, playerToKick);
+    }
+
+    private boolean isSameFaction(FactionPlayer factionPlayer, FactionPlayer factionPlayer2) {
+        if (factionPlayer == null || factionPlayer2 == null) {
+            return false;
+        }
+        return isSameFaction(factionPlayer.getFaction(), factionPlayer2.getFaction());
+    }
+
+    private boolean isSameFaction(Faction faction, Faction faction2) {
+        if (faction == null || faction2 == null) {
+            return false;
+        }
+        return faction.getId().equals(faction2.getId());
     }
 
     public OpenChestResult openChest(Player player) {
@@ -905,7 +919,7 @@ public class MineClansAPI {
         Faction killedFaction = killedPlayer.getFaction();
 
         // Ignore kills within the same faction
-        if (faction.equals(killedFaction)) {
+        if (isSameFaction(faction, killedFaction)) {
             return new AddKillResult(AddKillResultType.SAME_FACTION);
         }
 
