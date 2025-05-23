@@ -1,7 +1,6 @@
 package com.arkflame.mineclans.tasks;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -9,7 +8,6 @@ import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;
 import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
-import com.arkflame.mineclans.utils.LocationUtil;
 import com.arkflame.mineclans.utils.particle.ParticleUtil;
 
 public class ClaimedChunksParticleTask extends BukkitRunnable {
