@@ -66,7 +66,7 @@ public class ClaimedChunksParticleTask extends BukkitRunnable {
         if (particleType == null || particleType.length == 0)
             return;
 
-        Location worldLoc = player.getWorld().getBlockAt(chunkX << 4, (int) y, chunkZ << 4).getLocation();
+        Location worldLoc = new Location(player.getWorld(), chunkX << 4, (int) y, chunkZ << 4);
 
         // Calculate chunk corners
         double minX = worldLoc.getX();
