@@ -94,7 +94,7 @@ public class FactionsWhoCommand {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(memberUUID);
             FactionPlayer factionPlayer = api.getFactionPlayer(memberUUID);
     
-            String playerInfo = offlinePlayer.getName() + "[&f" + factionPlayer.getPower() + "/" + factionPlayer.getMaxPower() + "&7]";
+            String playerInfo = offlinePlayer.getName() + "[&f" + NumberUtil.formatPower(factionPlayer.getPower()) + "/" + NumberUtil.formatPower(factionPlayer.getMaxPower()) + "&7]";
             memberLists.computeIfAbsent(rank, k -> new StringBuilder()).append(playerInfo).append(", ");
         }
     
