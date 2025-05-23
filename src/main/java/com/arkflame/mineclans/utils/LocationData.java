@@ -1,6 +1,8 @@
 package com.arkflame.mineclans.utils;
 
 import com.arkflame.mineclans.MineClans;
+import com.arkflame.mineclans.modernlib.utils.Players;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -103,7 +105,7 @@ public class LocationData {
         // Teleport locally if the world is valid
         Location location = getLocation();
         if (location != null) {
-            player.teleport(location);
+            Players.teleport(player, location);
             return true;
         }
         return false;
