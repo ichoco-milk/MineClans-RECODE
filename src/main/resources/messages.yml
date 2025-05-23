@@ -153,7 +153,6 @@ factions:
     no_permission: "&cYou do not have permission to update the announcement."
     no_faction: "&cYou are not part of any faction."
     invalid_announcement: "&cThe announcement provided is invalid or empty. The announcement was now cleared."
-    faction_joined: "&b%player%&a has joined your faction."
   discord:
     invalid_discord: "&cThe Discord link you provided is invalid. Please try again with a valid link. Discord link was just resetted to be empty."
     no_permission: "&cYou do not have permission to set the Discord link for your faction."
@@ -343,6 +342,7 @@ factions:
     no_faction: "&cNo faction with this name."
     usage: "&cUsage: /factions join <faction>"
     success: "&aYou have joined the faction %faction%."
+    faction_joined: "&7%player%&a has joined the faction."
   kick:
     success: "&cPlayer %player% has been kicked from the faction."
     not_in_faction: "&cYou are not in a faction."
