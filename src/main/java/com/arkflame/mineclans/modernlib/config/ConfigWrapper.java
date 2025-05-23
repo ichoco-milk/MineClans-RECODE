@@ -245,4 +245,8 @@ public class ConfigWrapper {
     public void set(String path, String value) {
         config.set(path, value);
     }
+
+    public List<Double> getDoubleList(String string) {
+        return config.getDoubleList(string);
+    }
 }

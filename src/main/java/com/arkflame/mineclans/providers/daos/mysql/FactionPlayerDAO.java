@@ -17,7 +17,7 @@ public class FactionPlayerDAO {
             + "last_active TIMESTAMP,"
             + "kills INT DEFAULT 0,"
             + "deaths INT DEFAULT 0,"
-            + "power INT DEFAULT 10,"
+            + "power INT DEFAULT 1,"
             + "max_power INT DEFAULT 10,"
             + "name TEXT,"
             + "FOREIGN KEY (faction_id) REFERENCES mineclans_factions(faction_id) ON DELETE SET NULL"
@@ -38,7 +38,7 @@ public class FactionPlayerDAO {
     protected String DELETE_PLAYER_QUERY = "DELETE FROM mineclans_players WHERE player_id = ?";
     
     // Queries to add new columns if they don't exist
-    protected String ADD_POWER_COLUMN_QUERY = "ALTER TABLE mineclans_players ADD COLUMN IF NOT EXISTS power INT DEFAULT 10";
+    protected String ADD_POWER_COLUMN_QUERY = "ALTER TABLE mineclans_players ADD COLUMN IF NOT EXISTS power INT DEFAULT 1";
     protected String ADD_MAX_POWER_COLUMN_QUERY = "ALTER TABLE mineclans_players ADD COLUMN IF NOT EXISTS max_power INT DEFAULT 10";
     
     private MySQLProvider mySQLProvider;
@@ -131,7 +131,7 @@ public class FactionPlayerDAO {
             player.setMaxPower(resultSet.getInt("max_power"));
         } catch (SQLException e) {
             // Columns don't exist, use defaults
-            player.setPower(10);
+            player.setPower(1);
             player.setMaxPower(10);
         }
         

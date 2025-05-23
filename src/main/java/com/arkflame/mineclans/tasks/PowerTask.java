@@ -7,16 +7,17 @@ import com.arkflame.mineclans.MineClans;
 
 public class PowerTask implements Runnable {
     private static int POWER_UPDATE_INTERVAL = 20 * 60 * 15; // 15 minutes
-    private static double POWER_PER_HOUR = 2; // Power to give per hour
+    private static double POWER_PER_HOUR = 4; // Power to give per hour
 
-    public static double getPowerPerUpdate() {
+    public static double getPowerPerUpdate(Player player) {
+        double rankMultiplier = MineClans.getInstance().getPowerMultiplier(player);
         double multiplier = (double) POWER_UPDATE_INTERVAL / 20 / 60 / 60;
-        return POWER_PER_HOUR * multiplier;
+        return POWER_PER_HOUR * multiplier * rankMultiplier;
     }
 
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            MineClans.getInstance().getAPI().updatePower(player, getPowerPerUpdate(), true);
+            MineClans.getInstance().getAPI().updatePower(player, getPowerPerUpdate(player), true);
         }
     }
 

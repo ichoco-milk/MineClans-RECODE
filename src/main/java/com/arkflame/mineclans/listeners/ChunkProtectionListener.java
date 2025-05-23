@@ -36,28 +36,6 @@ public class ChunkProtectionListener implements Listener {
     private final MineClans plugin;
     private final ClaimedChunks claimedChunks;
 
-    // Set of interactive blocks that should be protected
-    private static final Set<Material> PROTECTED_INTERACTABLES = new HashSet<>(Arrays.asList(
-            Materials.get("CHEST", "TRAPPED_CHEST"),
-            Materials.get("DISPENSER"),
-            Materials.get("DROPPER"),
-            Materials.get("FURNACE", "BURNING_FURNACE"),
-            Materials.get("BREWING_STAND", "BREWING_STAND_ITEM"),
-            Materials.get("ANVIL"),
-            Materials.get("HOPPER"),
-            Materials.get("BEACON"),
-            Materials.get("ENDER_CHEST"),
-            Materials.get("WORKBENCH", "WORKBENCH", "CRAFTING_TABLE")));
-
-    // Set of materials that can be right-clicked without being prevented
-    private static final Set<Material> ALLOWED_INTERACTIONS = new HashSet<>();/*Arrays.asList(
-            Materials.get("WOOD_DOOR", "WOODEN_DOOR", "OAK_DOOR"),
-            Materials.get("TRAP_DOOR", "TRAPDOOR"),
-            Materials.get("FENCE_GATE", "OAK_FENCE_GATE"),
-            Materials.get("STONE_BUTTON"),
-            Materials.get("WOOD_BUTTON", "WOODEN_BUTTON"),
-            Materials.get("LEVER")));*/
-
     public ChunkProtectionListener(MineClans plugin) {
         this.plugin = plugin;
         this.claimedChunks = plugin.getClaimedChunks();
@@ -147,26 +125,6 @@ public class ChunkProtectionListener implements Listener {
                 ChatColor.YELLOW + factionName + ChatColor.RED + "'s territory.");
     }
 
-    /**
-     * Checks if a block interaction should be protected
-     * 
-     * @param material The material of the block
-     * @return true if the block should be protected, false otherwise
-     */
-    private boolean isProtectedInteractable(Material material) {
-        return PROTECTED_INTERACTABLES.contains(material);
-    }
-
-    /**
-     * Checks if a block interaction is always allowed
-     * 
-     * @param material The material of the block
-     * @return true if the interaction is allowed, false otherwise
-     */
-    private boolean isAllowedInteraction(Material material) {
-        return ALLOWED_INTERACTIONS.contains(material);
-    }
-
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         canPlayerModifyInChunk(event.getPlayer(), event.getBlock(), event, "break blocks");
@@ -194,16 +152,8 @@ public class ChunkProtectionListener implements Listener {
             return;
 
         Block block = event.getClickedBlock();
-        Material material = block.getType();
-
-        // Always allow interactions with doors, buttons, etc.
-        if (isAllowedInteraction(material))
-            return;
-
-        // Only check protected interactables
-        if (isProtectedInteractable(material)) {
-            canPlayerModifyInChunk(event.getPlayer(), block, event, "access containers");
-        }
+        
+        canPlayerModifyInChunk(event.getPlayer(), block, event, "interact with blocks");
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

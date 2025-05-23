@@ -1,5 +1,7 @@
 package com.arkflame.mineclans;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -352,5 +354,19 @@ public class MineClans extends JavaPlugin {
 
     public FactionBenefitsManager getFactionBenefitsManager() {
         return benefitsManager;
+    }
+
+    public double getPowerMultiplier(Player player) {
+        List<Double> multipliers = config.getDoubleList("power_multipliers");
+        if (multipliers == null || multipliers.isEmpty()) {
+            return 1.0;
+        }
+        Collections.sort(multipliers, Collections.reverseOrder());
+        for (double multiplier : multipliers) {
+            if (player.hasPermission("mineclans.power-multiplier." + multiplier)) {
+                return multiplier;
+            }
+        }
+        return 1.0;
     }
 }

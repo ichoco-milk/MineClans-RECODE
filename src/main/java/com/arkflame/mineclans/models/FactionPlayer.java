@@ -31,7 +31,7 @@ public class FactionPlayer {
     private EnteringType enteringType = EnteringType.DEPOSIT;
     private long enteringTime = 0;
     private long lastHomeRequest = 0;
-    private double power = 0;
+    private double power = 1;
     private int maxPower = 10;
 
     // Rank Benefits
