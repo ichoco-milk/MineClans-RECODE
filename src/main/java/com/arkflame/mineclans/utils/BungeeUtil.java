@@ -6,6 +6,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitTask;
 
+import com.arkflame.mineclans.MineClans;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -83,7 +85,7 @@ public class BungeeUtil implements PluginMessageListener {
                 // Retrieve and execute the callback from the queue if available
                 Consumer<String> callback = serverNameCallbacks.poll();
                 if (callback != null) {
-                    callback.accept(serverName);
+                    MineClans.runAsync(() -> callback.accept(serverName));
                 }
             }
         } catch (IOException e) {
