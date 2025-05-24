@@ -108,8 +108,8 @@ public class Faction implements InventoryHolder {
     public Faction(UUID id, UUID owner, String name, String displayName) {
         this.id = id;
         this.owner = owner;
-        setName(name);
-        setDisplayName(displayName);
+        this.name = name.toLowerCase();
+        this.displayName = displayName;
     }
 
     public Collection<UUID> getMembers() {
@@ -161,12 +161,13 @@ public class Faction implements InventoryHolder {
     }
 
     public String getName() {
-        return name;
+        return name.toLowerCase();
     }
 
     public void setName(String name) {
         FactionNamingUtil.checkName(name);
-        this.name = name;
+        this.displayName = name;
+        this.name = name.toLowerCase();
     }
 
     public double getBalance() {

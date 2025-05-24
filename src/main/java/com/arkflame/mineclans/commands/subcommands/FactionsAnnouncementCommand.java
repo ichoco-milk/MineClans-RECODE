@@ -33,7 +33,7 @@ public class FactionsAnnouncementCommand {
                 break;
             case SUCCESS:
                 Titles.sendTitle(player,
-                        messages.getText(basePath + "title").replace("%faction%", faction.getName()),
+                        messages.getText(basePath + "title").replace("%faction%", faction.getDisplayName()),
                         messages.getText(basePath + "subtitle").replace("%announcement%", faction.getAnnouncement()),
                         10, 20, 10);
                 player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "success"));

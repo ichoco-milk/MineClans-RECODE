@@ -34,8 +34,8 @@ public class FactionsJoinCommand {
                 break;
             case SUCCESS:
                 Titles.sendTitle(player,
-                        messages.getText("factions.join.title").replace("%faction%", faction.getName()),
-                        messages.getText("factions.join.subtitle").replace("%faction%", faction.getName()),
+                        messages.getText("factions.join.title").replace("%faction%", faction.getDisplayName()),
+                        messages.getText("factions.join.subtitle").replace("%faction%", faction.getDisplayName()),
                         10, 20, 10);
                 MelodyUtil.playMelody(MineClans.getInstance(), player, Melody.FACTION_JOIN_MELODY);
                 player.sendMessage(messages.getText(basePath + "success")

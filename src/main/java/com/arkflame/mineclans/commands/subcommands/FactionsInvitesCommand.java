@@ -64,7 +64,7 @@ public class FactionsInvitesCommand {
                         })
                         .collect(Collectors.joining(", "));
                 sentInvitesMessage = messages.getText("factions.invites.sent.list")
-                        .replace("%faction%", faction.getName())
+                        .replace("%faction%", faction.getDisplayName())
                         .replace("%invites%", invites)
                         .replace("%inviteCount%", String.valueOf(inviteCount));
             }

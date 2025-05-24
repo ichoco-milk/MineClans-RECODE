@@ -72,7 +72,7 @@ public class FactionsClaimsInventoryMenu {
         ConfigWrapper messages = mineClans.getMessages();
 
         String menuTitle = ChatColors.color(messages.getText(BASE_PATH + "title")
-                .replace("%faction%", faction.getName())
+                .replace("%faction%", faction.getDisplayName())
                 .replace("%page%", String.valueOf(currentPage))
                 .replace("%max_page%", String.valueOf(totalPages)));
 

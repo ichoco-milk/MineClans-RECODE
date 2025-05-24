@@ -27,8 +27,8 @@ public class FactionsLeaveCommand {
                 break;
             case SUCCESS:
                 Titles.sendTitle(player,
-                        messages.getText("factions.leave.title").replace("%faction%", faction.getName()),
-                        messages.getText("factions.leave.subtitle").replace("%faction%", faction.getName()),
+                        messages.getText("factions.leave.title").replace("%faction%", faction.getDisplayName()),
+                        messages.getText("factions.leave.subtitle").replace("%faction%", faction.getDisplayName()),
                         10, 20, 10);
                 MelodyUtil.playMelody(MineClans.getInstance(), player, Melody.FACTION_LEAVE_MELODY);
                 player.sendMessage(messages.getText(basePath + "success"));

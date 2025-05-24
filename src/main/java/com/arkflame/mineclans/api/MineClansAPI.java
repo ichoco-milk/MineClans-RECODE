@@ -188,9 +188,6 @@ public class MineClansAPI {
             return new CreateResult(CreateResultState.NULL_NAME, null);
         }
 
-        String displayName = factionName;
-        factionName = factionName.toLowerCase();
-
         FactionPlayer factionPlayer = factionPlayerManager.getOrLoad(player.getUniqueId());
         Faction faction = factionPlayer.getFaction();
         if (faction != null) {
@@ -204,7 +201,6 @@ public class MineClansAPI {
         try {
             // Create the faction
             faction = factionManager.createFaction(player.getUniqueId(), factionName);
-            faction.setDisplayName(displayName);
             redisProvider.createFaction(faction.getId(), player.getUniqueId(), factionName);
 
             // Add player to faction
@@ -305,8 +301,6 @@ public class MineClansAPI {
         if (newName == null) {
             return new RenameResult(null, RenameResultState.NULL_NAME);
         }
-        String displayName = newName;
-        newName = newName.toLowerCase();
 
         Faction faction = MineClans.getInstance().getFactionManager().getFaction(newName);
         if (faction != null) {
@@ -331,7 +325,6 @@ public class MineClansAPI {
 
         try {
             factionManager.updateFactionName(playerFaction.getId(), newName);
-            playerFaction.setDisplayName(displayName);
             playerFaction.setRenameCooldown();
             factionManager.saveFactionToDatabase(playerFaction);
             redisProvider.updateName(playerFaction.getId(), newName);
@@ -405,7 +398,7 @@ public class MineClansAPI {
         Faction faction = factionPlayer.getFaction();
         String chatPrefix = MineClans.getInstance().getMessages().getText("factions.chat.prefix_alliance");
         String playerName = player.getName();
-        String formattedMessage = chatPrefix.replace("%player%", playerName).replace("%faction%", faction.getName())
+        String formattedMessage = chatPrefix.replace("%player%", playerName).replace("%faction%", faction.getDisplayName())
                 + message;
 
         // Send faction message

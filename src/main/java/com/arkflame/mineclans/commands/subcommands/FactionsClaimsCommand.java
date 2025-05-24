@@ -90,7 +90,7 @@ public class FactionsClaimsCommand {
 
         // Build header
         String header = ChatColors.color(messages.getText(BASE_PATH + "header")
-                .replace("%faction%", faction.getName())
+                .replace("%faction%", faction.getDisplayName())
                 .replace("%page%", String.valueOf(page))
                 .replace("%max_page%", String.valueOf(maxPage))
                 .replace("%total%", String.valueOf(claimsList.size())));

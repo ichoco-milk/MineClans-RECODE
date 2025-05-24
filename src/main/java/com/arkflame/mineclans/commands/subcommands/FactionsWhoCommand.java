@@ -48,7 +48,7 @@ public class FactionsWhoCommand {
     }
 
     private static String buildFactionInfoMessage(ConfigWrapper messages, Faction faction, MineClansAPI api) {
-        String factionName = faction.getName();
+        String factionName = faction.getDisplayName();
         int onlineCount = (int) faction.getMembers().stream()
                 .map(api::getFactionPlayer)
                 .filter(FactionPlayer::isOnline)

@@ -18,6 +18,13 @@ public class FactionManager {
     // Cache for factions by ID
     private Map<UUID, Faction> factionCacheByID = new ConcurrentHashMap<>();
 
+    public void cache(Faction faction) {
+        if (faction != null) {
+            factionCacheByName.put(faction.getName(), faction);
+            factionCacheByID.put(faction.getId(), faction);
+        }
+    }
+
     // Get faction from cache or load from database
     public Faction getFaction(String name) {
         if (name == null) {
@@ -33,10 +40,7 @@ public class FactionManager {
         MineClans.getInstance().getLogger().info("getFaction(name): " + name);
         // If not in cache, load from database
         faction = loadFactionFromDatabase(name);
-        if (faction != null) {
-            factionCacheByName.put(name, faction);
-            factionCacheByID.put(faction.getId(), faction);
-        }
+        cache(faction);
         return faction;
     }
 
@@ -53,10 +57,7 @@ public class FactionManager {
 
         // If not in cache, load from database
         faction = loadFactionFromDatabase(id);
-        if (faction != null) {
-            factionCacheByName.put(faction.getName(), faction);
-            factionCacheByID.put(faction.getId(), faction);
-        }
+        cache(faction);
         return faction;
     }
 
@@ -90,8 +91,7 @@ public class FactionManager {
     // Create a new faction
     public Faction createFaction(UUID playerId, String factionName, UUID factionId) {
         Faction newFaction = new Faction(factionId, playerId, factionName, factionName);
-        factionCacheByName.put(factionName, newFaction);
-        factionCacheByID.put(factionId, newFaction);
+        cache(newFaction);
         return newFaction;
     }
 
@@ -187,8 +187,7 @@ public class FactionManager {
                 faction.setRenameCooldown();
                 factionCacheByName.remove(faction.getName());
                 faction.setName(newName);
-                faction.setDisplayName(newName);
-                factionCacheByName.put(newName, faction);
+                cache(faction);
             }
         }
     }

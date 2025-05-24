@@ -34,8 +34,8 @@ public class FactionsCreateCommand {
                 break;
             case SUCCESS:
                 Titles.sendTitle(player,
-                        messages.getText("factions.create.title").replace("%faction%", faction.getName()),
-                        messages.getText("factions.create.subtitle").replace("%faction%", faction.getName()),
+                        messages.getText("factions.create.title").replace("%faction%", faction.getDisplayName()),
+                        messages.getText("factions.create.subtitle").replace("%faction%", faction.getDisplayName()),
                         10, 20, 10);
                 MelodyUtil.playMelody(MineClans.getInstance(), player, Melody.FACTION_CREATE_MELODY);
                 player.sendMessage(messages.getText(basePath + "success").replace("%faction%", factionName));

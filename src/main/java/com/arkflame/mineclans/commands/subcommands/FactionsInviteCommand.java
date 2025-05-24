@@ -48,7 +48,7 @@ public class FactionsInviteCommand {
                 FactionPlayer factionPlayer = inviteResult.getPlayer();
                 if (factionPlayer != null) {
                     factionPlayer.sendMessage(
-                            messages.getText(basePath + "invite_message").replace("%faction%", faction.getName()));
+                            messages.getText(basePath + "invite_message").replace("%faction%", faction.getDisplayName()));
                 }
                 break;
             case PLAYER_NOT_FOUND:

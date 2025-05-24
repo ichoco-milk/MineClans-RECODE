@@ -70,7 +70,7 @@ public class FactionsListCommand {
             int maxPower = faction.getMaxPower();
 
             player.sendMessage(messages.getText("factions.list.entry")
-                    .replace("%faction%", faction.getName())
+                    .replace("%faction%", faction.getDisplayName())
                     .replace("%online%", String.valueOf(onlineCount))
                     .replace("%total%", String.valueOf(totalMembers))
                     .replace("%level%", score)

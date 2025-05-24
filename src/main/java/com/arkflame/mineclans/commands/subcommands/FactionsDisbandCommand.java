@@ -29,8 +29,8 @@ public class FactionsDisbandCommand {
                 break;
             case SUCCESS:
                 Titles.sendTitle(player,
-                        messages.getText("factions.disband.title").replace("%faction%", faction.getName()),
-                        messages.getText("factions.disband.subtitle").replace("%faction%", faction.getName()),
+                        messages.getText("factions.disband.title").replace("%faction%", faction.getDisplayName()),
+                        messages.getText("factions.disband.subtitle").replace("%faction%", faction.getDisplayName()),
                         10, 20, 10);
                 MelodyUtil.playMelody(MineClans.getInstance(), player, Melody.FACTION_DISBAND_MELODY);
                 player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "success"));
