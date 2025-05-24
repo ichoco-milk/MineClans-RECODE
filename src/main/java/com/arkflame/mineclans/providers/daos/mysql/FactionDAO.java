@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
@@ -164,6 +165,7 @@ public class FactionDAO {
     }
 
     public Faction getFactionByName(String name) {
+        MineClans.getInstance().getLogger().info("getFactionByName: " + name);
         AtomicReference<Faction> faction = new AtomicReference<>(null);
         mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_NAME_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {

@@ -352,6 +352,10 @@ factions:
     player_not_found: "&cThe specified player is not a member of your faction."
     superior_rank: "&cYou cannot kick a player with a higher or equal rank."
     not_yourself: "&cYou cannot kick yourself."
+    already_kicked: "&cYou have already kicked this player."
+    different_faction: "&cYou cannot kick a player from a different faction."
+    faction_owner: "&cYou cannot kick the faction owner."
+    no_faction: "&cPlayer has no faction."
     error: "&cAn error occurred while kicking the player."
   leave:
     title: "&cLeft Faction"

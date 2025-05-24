@@ -25,6 +25,8 @@ public class MemberDAO {
 
     protected String SELECT_MEMBERS_BY_FACTION_QUERY = "SELECT member_id FROM mineclans_members WHERE faction_id = ?";
 
+    protected String GET_FACTION_BY_MEMBER_QUERY = "SELECT faction_id FROM mineclans_members WHERE member_id = ?";
+
     private MySQLProvider mySQLProvider;
 
     public MemberDAO(MySQLProvider mySQLProvider) {

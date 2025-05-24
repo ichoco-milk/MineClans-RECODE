@@ -1,6 +1,7 @@
 package com.arkflame.mineclans.api;
 
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
@@ -187,6 +188,9 @@ public class MineClansAPI {
             return new CreateResult(CreateResultState.NULL_NAME, null);
         }
 
+        String displayName = factionName;
+        factionName = factionName.toLowerCase();
+
         FactionPlayer factionPlayer = factionPlayerManager.getOrLoad(player.getUniqueId());
         Faction faction = factionPlayer.getFaction();
         if (faction != null) {
@@ -200,6 +204,7 @@ public class MineClansAPI {
         try {
             // Create the faction
             faction = factionManager.createFaction(player.getUniqueId(), factionName);
+            faction.setDisplayName(displayName);
             redisProvider.createFaction(faction.getId(), player.getUniqueId(), factionName);
 
             // Add player to faction
@@ -300,6 +305,8 @@ public class MineClansAPI {
         if (newName == null) {
             return new RenameResult(null, RenameResultState.NULL_NAME);
         }
+        String displayName = newName;
+        newName = newName.toLowerCase();
 
         Faction faction = MineClans.getInstance().getFactionManager().getFaction(newName);
         if (faction != null) {
@@ -324,6 +331,7 @@ public class MineClansAPI {
 
         try {
             factionManager.updateFactionName(playerFaction.getId(), newName);
+            playerFaction.setDisplayName(displayName);
             playerFaction.setRenameCooldown();
             factionManager.saveFactionToDatabase(playerFaction);
             redisProvider.updateName(playerFaction.getId(), newName);
@@ -664,68 +672,78 @@ public class MineClansAPI {
     }
 
     public KickResult kick(Player kicker, String playerName) {
-        // Check if kicker is provided, otherwise skip faction and rank checks
-        Faction faction = null;
-        FactionPlayer kickerFactionPlayer = null;
+        try {
+            // Validate kicker if provided
+            Faction kickerFaction = null;
+            FactionPlayer kickerPlayer = null;
 
-        if (kicker != null) {
-            kickerFactionPlayer = factionPlayerManager.getOrLoad(kicker.getUniqueId());
-            if (kickerFactionPlayer == null || kickerFactionPlayer.getFaction() == null) {
-                return new KickResult(KickResultType.NOT_IN_FACTION, null, null);
+            if (kicker != null) {
+                kickerPlayer = factionPlayerManager.getOrLoad(kicker.getUniqueId());
+                if (kickerPlayer == null) {
+                    return new KickResult(KickResultType.NOT_IN_FACTION, null, null);
+                }
+
+                kickerFaction = kickerPlayer.getFaction();
+                if (kickerFaction == null) {
+                    return new KickResult(KickResultType.NOT_IN_FACTION, null, null);
+                }
+
+                if (kickerPlayer.getRank().isLowerThan(Rank.MODERATOR)) {
+                    return new KickResult(KickResultType.NOT_MODERATOR, kickerFaction, null);
+                }
             }
-            faction = kickerFactionPlayer.getFaction();
 
-            // Check if the kicker has the required rank to kick (MODERATOR or higher)
-            if (kickerFactionPlayer.getRank().isLowerThan(Rank.MODERATOR)) {
-                return new KickResult(KickResultType.NOT_MODERATOR, faction, null);
+            // Load player to kick with additional validation
+            FactionPlayer kickedPlayer = factionPlayerManager.getOrLoad(playerName);
+            if (kickedPlayer == null) {
+                return new KickResult(KickResultType.PLAYER_NOT_FOUND, kickerFaction, null);
             }
+
+            Faction faction = kickedPlayer.getFaction();
+            if (faction == null) {
+                return new KickResult(KickResultType.NO_FACTION, kickerFaction, kickedPlayer);
+            }
+
+            if (kickedPlayer.getRank().isEqualOrHigherThan(Rank.LEADER)) {
+                return new KickResult(KickResultType.FACTION_OWNER, faction, kickedPlayer);
+            }
+
+            if (kickerFaction != null && !kickerFaction.getId().equals(faction.getId())) {
+                return new KickResult(KickResultType.DIFFERENT_FACTION, kickerFaction, kickedPlayer);
+            }
+
+            if (kickerPlayer != null) {
+                if (kickerPlayer.getPlayerId().equals(kickedPlayer.getPlayerId())) {
+                    return new KickResult(KickResultType.NOT_YOURSELF, faction, kickedPlayer);
+                }
+
+                if (kickedPlayer.getRank().isEqualOrHigherThan(kickerPlayer.getRank())) {
+                    return new KickResult(KickResultType.SUPERIOR_RANK, faction, kickedPlayer);
+                }
+            }
+
+            // Re-validate after synchronization
+            if (!faction.hasMember(kickedPlayer.getPlayerId())) {
+                return new KickResult(KickResultType.ALREADY_KICKED, faction, kickedPlayer);
+            }
+
+            // Update local cache
+            faction.removeMember(kickedPlayer.getPlayerId());
+            kickedPlayer.setFaction(null);
+
+            // Update Redis
+            redisProvider.updateFaction(kickedPlayer.getPlayerId(), null);
+            redisProvider.removePlayer(faction.getId(), kickedPlayer.getPlayerId());
+
+            // Update data stores
+            factionPlayerManager.save(kickedPlayer);
+            mySQLProvider.getMemberDAO().removeMember(faction.getId(), kickedPlayer.getPlayerId());
+
+            return new KickResult(KickResultType.SUCCESS, faction, kickedPlayer);
+        } catch (Exception e) {
+            MineClans.getInstance().getLogger().log(Level.SEVERE, "Error processing kick command", e);
+            return new KickResult(KickResultType.ERROR, null, null);
         }
-
-        // Retrieve the player to kick
-        FactionPlayer playerToKick = factionPlayerManager.getOrLoad(playerName);
-
-        // Check if player to kick exists and has a faction
-        if (playerToKick == null) {
-            return new KickResult(KickResultType.PLAYER_NOT_FOUND, faction, null);
-        }
-        if (playerToKick.getFaction() == null) {
-            return new KickResult(KickResultType.NO_FACTION, faction, playerToKick);
-        }
-
-        // Ensure the faction of kicker (if present) and player to kick are the same
-        if (faction != null && !isSameFaction(faction, playerToKick.getFaction())) {
-            return new KickResult(KickResultType.PLAYER_NOT_FOUND, faction, playerToKick);
-        }
-
-        faction = playerToKick.getFaction();
-
-        // Check if the player to be kicked is the leader of the faction
-        if (playerToKick.getRank().isEqualOrHigherThan(Rank.LEADER)) {
-            return new KickResult(KickResultType.FACTION_OWNER, faction, playerToKick);
-        }
-
-        // Check if kicker is trying to kick themselves
-        if (kickerFactionPlayer != null && kickerFactionPlayer.getPlayerId().equals(playerToKick.getPlayerId())) {
-            return new KickResult(KickResultType.NOT_YOURSELF, faction, playerToKick);
-        }
-
-        // Check if the player to be kicked has a rank equal or higher than the kicker
-        if (kickerFactionPlayer != null && playerToKick.getRank().isEqualOrHigherThan(kickerFactionPlayer.getRank())) {
-            return new KickResult(KickResultType.SUPERIOR_RANK, faction, playerToKick);
-        }
-
-        UUID playerToKickId = playerToKick.getPlayerId();
-        // Remove player from faction
-        faction.removeMember(playerToKickId);
-        // Remove faction from player
-        factionPlayerManager.updateFaction(playerToKickId, null);
-        factionPlayerManager.save(playerToKick);
-        mySQLProvider.getMemberDAO().removeMember(faction.getId(), playerToKickId);
-        // Send update to redis
-        redisProvider.removePlayer(faction.getId(), playerToKick.getPlayerId());
-        redisProvider.updateFaction(playerToKick.getPlayerId(), null);
-
-        return new KickResult(KickResultType.SUCCESS, faction, playerToKick);
     }
 
     private boolean isSameFaction(FactionPlayer factionPlayer, FactionPlayer factionPlayer2) {
@@ -1149,7 +1167,7 @@ public class MineClansAPI {
 
     public ClaimResult canBeClaimed(UUID claimingFactionId, int x, int z, String worldName) {
         MineClansAPI api = MineClans.getInstance().getAPI();
-    
+
         // 1. Check if claiming faction exists
         Faction claimingFaction = api.getFaction(claimingFactionId);
         if (claimingFaction == null) {
@@ -1163,14 +1181,14 @@ public class MineClansAPI {
         if (currentClaims >= maxClaims) {
             return ClaimResult.CLAIM_LIMIT_REACHED;
         }
-        
+
         // 3. Check if original faction still exists
         UUID chunkFactionId = MineClans.getInstance().getClaimedChunks().getClaimingFactionId(x, z, worldName);
         Faction chunkFaction = api.getFaction(chunkFactionId);
         if (chunkFaction == null) {
             return ClaimResult.CHUNK_FACTION_GONE;
         }
-    
+
         // 4. Check if chunk is already claimed
         if (!MineClans.getInstance().getClaimedChunks().isChunkClaimed(x, z, worldName)) {
             return ClaimResult.SUCCESS;
@@ -1179,30 +1197,32 @@ public class MineClansAPI {
         if (chunkFaction.equals(claimingFaction)) {
             return ClaimResult.ALREADY_CLAIMED;
         }
-    
+
         // 5. Check adjacent claims for raiding
         boolean hasAdjacentClaim = false;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
-                if (dx == 0 && dz == 0) continue;
-                
-                ChunkCoordinate adjacent = MineClans.getInstance().getClaimedChunks().getChunkAt(x + dx, z + dz, worldName);
+                if (dx == 0 && dz == 0)
+                    continue;
+
+                ChunkCoordinate adjacent = MineClans.getInstance().getClaimedChunks().getChunkAt(x + dx, z + dz,
+                        worldName);
                 if (adjacent != null && claimingFactionId.equals(adjacent.getFactionId())) {
                     hasAdjacentClaim = true; // Has adjacent claim from claiming faction
                     break;
                 }
             }
         }
-    
+
         if (!hasAdjacentClaim) {
             return ClaimResult.NO_ADJACENT_CLAIM;
         }
-    
+
         // 6. Check if enemy chunk is raidable
         if (!chunkFaction.canBeRaided()) {
             return ClaimResult.NOT_RAIDABLE;
         }
-    
+
         return ClaimResult.SUCCESS;
     }
 

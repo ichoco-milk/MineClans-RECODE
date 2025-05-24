@@ -34,6 +34,6 @@ public class KickResult {
         SUPERIOR_RANK, 
         NOT_YOURSELF, 
         FACTION_OWNER, 
-        NO_FACTION;
+        NO_FACTION, DIFFERENT_FACTION, ALREADY_KICKED, ERROR;
     }
 }

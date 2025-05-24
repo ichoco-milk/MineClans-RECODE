@@ -31,6 +31,21 @@ public class FactionsKickCommand {
             case NOT_YOURSELF:
                 player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "not_yourself"));
                 break;
+            case ALREADY_KICKED:
+                player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "already_kicked"));
+                break;
+            case DIFFERENT_FACTION:
+                player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "different_faction"));
+                break;
+            case ERROR:
+                player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "error"));
+                break;
+            case FACTION_OWNER:
+                player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "faction_owner"));
+                break;
+            case NO_FACTION:
+                player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "no_faction"));
+                break;
             default:
                 player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "error"));
                 break;

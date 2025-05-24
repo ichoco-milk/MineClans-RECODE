@@ -558,4 +558,8 @@ public class Faction implements InventoryHolder {
     public int getClaimedLandCount() {
         return MineClans.getInstance().getClaimedChunks().getClaimedChunkCount(id);
     }
+
+    public boolean hasMember(UUID playerId) {
+        return getMembers().contains(playerId);
+    }
 }
