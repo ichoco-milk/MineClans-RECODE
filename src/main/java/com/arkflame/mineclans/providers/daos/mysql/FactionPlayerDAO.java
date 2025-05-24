@@ -127,12 +127,12 @@ public class FactionPlayerDAO {
         
         try {
             // Try to get the new columns, fall back to defaults if they don't exist
-            player.setPower(resultSet.getInt("power"));
             player.setMaxPower(resultSet.getInt("max_power"));
+            player.setPower(resultSet.getInt("power"));
         } catch (SQLException e) {
             // Columns don't exist, use defaults
-            player.setPower(1);
             player.setMaxPower(10);
+            player.setPower(1);
         }
         
         return player;
