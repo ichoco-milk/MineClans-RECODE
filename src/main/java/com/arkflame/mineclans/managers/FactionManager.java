@@ -37,7 +37,6 @@ public class FactionManager {
             return faction;
         }
 
-        MineClans.getInstance().getLogger().info("getFaction(name): " + name);
         // If not in cache, load from database
         faction = loadFactionFromDatabase(name);
         cache(faction);
@@ -62,7 +61,6 @@ public class FactionManager {
     }
 
     public Faction loadFactionFromDatabase(String name) {
-        MineClans.getInstance().getLogger().info("loadFactionFromDatabase: " + name);
         return MineClans.getInstance().getMySQLProvider().getFactionDAO().getFactionByName(name);
     }
 

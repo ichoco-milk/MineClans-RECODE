@@ -165,7 +165,6 @@ public class FactionDAO {
     }
 
     public Faction getFactionByName(String name) {
-        MineClans.getInstance().getLogger().info("getFactionByName: " + name);
         AtomicReference<Faction> faction = new AtomicReference<>(null);
         mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_NAME_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
