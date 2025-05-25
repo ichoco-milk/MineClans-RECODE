@@ -116,8 +116,8 @@ public class ClaimedChunks {
             for (ChunkCoordinate chunk : chunks) {
                 unclaimChunk(chunk.getX(), chunk.getZ(), chunk.getWorldName(), chunk.getServerName(), false);
             }
-            claimedChunksDAO.unclaimAllChunks(factionId);
         }
+        claimedChunksDAO.unclaimAllChunks(factionId);
     }
 
     public boolean isChunkClaimed(int x, int z, String worldName, String serverName) {

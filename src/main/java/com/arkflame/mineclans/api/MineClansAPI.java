@@ -238,7 +238,7 @@ public class MineClansAPI {
         if (factionPlayer.getRank().isLowerThan(Rank.LEADER)) {
             return new DisbandResult(DisbandResultState.NO_PERMISSION);
         }
-        mySQLProvider.getClaimedChunksDAO().unclaimAllChunks(faction.getId());
+        MineClans.getInstance().getClaimedChunks().unclaimAllChunks(faction.getId());
         factionPlayerManager.updateFaction(factionPlayer.getPlayerId(), null);
         factionPlayerManager.save(factionPlayer);
         for (UUID uuid : faction.getMembers()) {
