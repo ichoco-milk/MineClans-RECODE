@@ -68,6 +68,9 @@ public class FactionPlayer {
     }
 
     public UUID getFactionId() {
+        if (factionId != null && getFaction() == null) {
+            return factionId = null;
+        }
         return factionId;
     }
 
