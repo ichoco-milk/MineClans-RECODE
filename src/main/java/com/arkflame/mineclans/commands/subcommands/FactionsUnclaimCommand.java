@@ -11,6 +11,8 @@ import com.arkflame.mineclans.modernlib.commands.ModernArguments;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.utils.ChatColors;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class FactionsUnclaimCommand {
     private static final String BASE_PATH = "factions.unclaim.";
 
@@ -22,6 +24,14 @@ public class FactionsUnclaimCommand {
         if (!mineClans.getCfg().getBoolean("claims.enabled", true)) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "disabled")));
             return;
+        }
+
+        if (player.hasPermission("mineclans.admin")) {
+            int chunkX = player.getLocation().getBlockX() >> 4;
+            int chunkZ = player.getLocation().getBlockZ() >> 4;
+            String worldName = player.getLocation().getWorld().getName();
+            api.getClaimedChunks().unclaimChunk(chunkX, chunkZ, worldName, true);
+            player.sendMessage(ChatColor.RED + "Administrator forced unclaimed chunk!!!");
         }
 
         // Check if player is in a faction
@@ -66,7 +76,7 @@ public class FactionsUnclaimCommand {
 
         // Attempt to unclaim the chunk
         boolean success = api.getClaimedChunks().unclaimChunk(chunkX, chunkZ, worldName, true);
-        
+
         if (success) {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "success")
                     .replace("%x%", String.valueOf(chunkX))

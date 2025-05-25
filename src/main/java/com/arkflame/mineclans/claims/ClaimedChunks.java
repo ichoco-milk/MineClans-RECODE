@@ -131,10 +131,6 @@ public class ClaimedChunks {
             return false;
         }
 
-        if (MineClans.getInstance().getFactionManager().getFaction(factionId) == null) {
-            return false;
-        }
-
         return true;
     }
 
