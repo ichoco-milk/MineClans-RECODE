@@ -17,8 +17,8 @@ import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.utils.ChatColors;
-import com.arkflame.mineclans.modernlib.utils.Materials;
 import com.arkflame.mineclans.utils.LocationData;
+import com.arkflame.mineclans.utils.Materials;
 
 public class FactionsClaimsInventoryMenu {
     private static final String BASE_PATH = "factions.claims.menu.";

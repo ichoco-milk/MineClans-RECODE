@@ -8,7 +8,7 @@ import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
 import com.arkflame.mineclans.modernlib.menus.items.MenuItem;
 import com.arkflame.mineclans.modernlib.utils.ChatColors;
-import com.arkflame.mineclans.modernlib.utils.Materials;
+import com.arkflame.mineclans.utils.Materials;
 
 public class BuffItem extends MenuItem {
     private Buff buff;

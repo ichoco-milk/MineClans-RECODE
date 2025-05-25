@@ -14,8 +14,8 @@ import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.enums.EventObjectiveType;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
-import com.arkflame.mineclans.modernlib.utils.Materials;
 import com.arkflame.mineclans.utils.Titles;
+import com.arkflame.mineclans.utils.Materials;
 import com.arkflame.mineclans.utils.MelodyUtil;
 import com.arkflame.mineclans.utils.MelodyUtil.Melody;
 

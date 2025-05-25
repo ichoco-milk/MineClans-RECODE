@@ -1,14 +1,13 @@
 package com.arkflame.mineclans.listeners;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -35,6 +34,9 @@ public class ChunkProtectionListener implements Listener {
 
     private final MineClans plugin;
     private final ClaimedChunks claimedChunks;
+
+    private final Map<UUID, Long> protectionMessageCooldowns = new HashMap<>();
+    private static final long PROTECTION_MESSAGE_COOLDOWN_MS = 5000; // 5 seconds
 
     public ChunkProtectionListener(MineClans plugin) {
         this.plugin = plugin;
@@ -110,15 +112,28 @@ public class ChunkProtectionListener implements Listener {
             return null;
         return faction.getId();
     }
-
+    
     /**
-     * Sends a protection message to a player
-     * 
+     * Sends a protection message to a player with cooldown
+     *
      * @param player     The player to notify
      * @param factionId  The ID of the faction that owns the chunk
      * @param actionType The type of action that was blocked
      */
     private void sendProtectionMessage(Player player, UUID factionId, String actionType) {
+        UUID playerId = player.getUniqueId();
+        long now = System.currentTimeMillis();
+    
+        // Check cooldown
+        Long lastMessage = protectionMessageCooldowns.get(playerId);
+        if (lastMessage != null && now - lastMessage < PROTECTION_MESSAGE_COOLDOWN_MS) {
+            return; // Still in cooldown
+        }
+    
+        // Update cooldown
+        protectionMessageCooldowns.put(playerId, now);
+    
+        // Send message
         Faction faction = plugin.getFactionManager().getFaction(factionId);
         String factionName = faction != null ? faction.getName() : "Unknown Faction";
         player.sendMessage(ChatColor.RED + "You cannot " + actionType + " in " +
@@ -152,7 +167,10 @@ public class ChunkProtectionListener implements Listener {
             return;
 
         Block block = event.getClickedBlock();
-        
+        // Skip if the block is not interactable
+        if (!Materials.interactables.contains(block.getType())) {
+            return;
+        }
         canPlayerModifyInChunk(event.getPlayer(), block, event, "interact with blocks");
     }
 
@@ -160,8 +178,12 @@ public class ChunkProtectionListener implements Listener {
     public void onEntityInteract(PlayerInteractEntityEvent event) {
         // Protect certain entities (armor stands, item frames, etc.)
         Entity entity = event.getRightClicked();
-        Block block = entity.getLocation().getBlock();
 
+        // Allow interact if target is a mob
+        if (entity instanceof LivingEntity)
+            return;
+
+        Block block = entity.getLocation().getBlock();
         canPlayerModifyInChunk(event.getPlayer(), block, event, "interact with entities");
     }
 
@@ -176,6 +198,10 @@ public class ChunkProtectionListener implements Listener {
 
         // Skip if target is a player (PvP is handled elsewhere)
         if (target instanceof Player)
+            return;
+
+        // Allow hit if target is a mob
+        if (target instanceof LivingEntity)
             return;
 
         Block block = target.getLocation().getBlock();
