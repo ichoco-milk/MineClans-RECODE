@@ -10,6 +10,11 @@ public class Materials {
 
     public static Set<Material> interactables = ConcurrentHashMap.newKeySet();
     static {
+        // Signs
+        interactables.add(Materials.get("SIGN_POST"));
+        interactables.add(Materials.get("SIGN_WALL"));
+        interactables.add(Materials.get("SIGN"));
+
         // Containers
         interactables.add(Materials.get("CHEST"));
         interactables.add(Materials.get("TRAPPED_CHEST"));
