@@ -86,6 +86,27 @@ public class Materials {
         // Bells, Lecterns (1.14+)
         interactables.add(Materials.get("BELL"));
         interactables.add(Materials.get("LECTERN"));
+
+        // Pressure plates
+        interactables.add(Materials.get("WOOD_PLATE"));
+        interactables.add(Materials.get("STONE_PLATE"));
+        interactables.add(Materials.get("IRON_PLATE"));
+        interactables.add(Materials.get("GOLD_PLATE"));
+        interactables.add(Materials.get("OAK_PRESSURE_PLATE"));
+        interactables.add(Materials.get("SPRUCE_PRESSURE_PLATE"));
+        interactables.add(Materials.get("BIRCH_PRESSURE_PLATE"));
+        interactables.add(Materials.get("JUNGLE_PRESSURE_PLATE"));
+        interactables.add(Materials.get("ACACIA_PRESSURE_PLATE"));
+        interactables.add(Materials.get("DARK_OAK_PRESSURE_PLATE"));
+        interactables.add(Materials.get("MANGROVE_PRESSURE_PLATE"));
+        interactables.add(Materials.get("CRIMSON_PRESSURE_PLATE"));
+        interactables.add(Materials.get("WARPED_PRESSURE_PLATE"));
+        interactables.add(Materials.get("CHERRY_PRESSURE_PLATE"));
+        interactables.add(Materials.get("BAMBOO_PRESSURE_PLATE"));
+        interactables.add(Materials.get("STONE_PRESSURE_PLATE"));
+        interactables.add(Materials.get("POLISHED_BLACKSTONE_PRESSURE_PLATE"));
+        interactables.add(Materials.get("LIGHT_WEIGHTED_PRESSURE_PLATE"));
+        interactables.add(Materials.get("HEAVY_WEIGHTED_PRESSURE_PLATE"));
     }
     private Materials() {}
 
