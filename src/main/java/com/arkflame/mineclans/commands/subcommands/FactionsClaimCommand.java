@@ -67,7 +67,7 @@ public class FactionsClaimCommand {
         MineClansAPI api = mineClans.getAPI();
         String message = messages.getText(result.getMessagePath());
         ChunkCoordinate existingClaim = api.getClaimedChunks().getChunkAt(chunkX, chunkZ, worldName);
-        String ownerName = existingClaim != null ? api.getFactionName(existingClaim.getFactionId()) : "Unknown";
+        String ownerName = existingClaim != null ? api.getFactionDisplayName(existingClaim.getFactionId()) : "Unknown";
 
         message = message
                 .replace("%faction%", ownerName)

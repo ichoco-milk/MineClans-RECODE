@@ -5,14 +5,17 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import com.arkflame.mineclans.MineClans;
+import com.arkflame.mineclans.enums.Rank;
 import com.arkflame.mineclans.events.ClanEvent;
 import com.arkflame.mineclans.events.ClanEventScheduler;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
+import com.arkflame.mineclans.models.Relation;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.expansion.Relational;
 
-public class FactionsPlaceholder extends PlaceholderExpansion {
+public class FactionsPlaceholder extends PlaceholderExpansion implements Relational {
 
     private MineClans plugin;
 
@@ -96,7 +99,14 @@ public class FactionsPlaceholder extends PlaceholderExpansion {
             case "displayname":
                 return faction.getDisplayName();
             case "prefix":
-                return ChatColor.GREEN + "**" + faction.getDisplayName() + ChatColor.RESET + " ";
+                String stars = "";
+                Rank rank = faction.getRank(player.getUniqueId());
+                if (rank == Rank.LEADER) {
+                    stars = "**";
+                } else if (rank == Rank.COLEADER) {
+                    stars = "*";
+                }
+                return ChatColor.GREEN + stars + faction.getDisplayName() + ChatColor.RESET;
             case "online":
                 return String.valueOf(faction.getOnlineMembers().size());
             case "owner":
@@ -111,6 +121,22 @@ public class FactionsPlaceholder extends PlaceholderExpansion {
                 return focusedFaction == null ? "" : String.valueOf(focusedFaction.getOnlineMembers().size());
             default:
                 return "";
+        }
+    }
+
+    @Override
+    public String onPlaceholderRequest(Player viewer, Player target, String identifier) {
+        switch (identifier) {
+            case "prefix":
+                if (target == null) {
+                    return "";
+                }
+                String relationColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
+                String stars = MineClans.getInstance().getAPI().getRankStars(target.getUniqueId());
+                String factionDisplayName = MineClans.getInstance().getAPI().getFactionDisplayName(target);
+                return relationColor + stars + factionDisplayName + ChatColor.RESET;
+            default:
+                return onRequest(target, identifier);
         }
     }
 }

@@ -203,8 +203,17 @@ public class Faction implements InventoryHolder {
         if (relation != null) {
             return relation.getRelationType();
         }
-
+        if (otherFactionId.equals(id)) {
+            return RelationType.SAME_FACTION;
+        }
         return RelationType.NEUTRAL;
+    }
+
+    public RelationType getRelationType(Faction otherFaction) {
+        if (otherFaction == null) {
+            return RelationType.NEUTRAL;
+        }
+        return getRelationType(otherFaction.getId());
     }
 
     public Map<String, Boolean> getChestPermissions() {

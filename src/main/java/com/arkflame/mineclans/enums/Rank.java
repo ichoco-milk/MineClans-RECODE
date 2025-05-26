@@ -1,16 +1,22 @@
 package com.arkflame.mineclans.enums;
 
 public enum Rank {
-    LEADER(5),
-    COLEADER(4),
+    LEADER(5, "**"),
+    COLEADER(4, "*"),
     MODERATOR(3),
     MEMBER(2),
     RECRUIT(1);
 
     private final int score;
+    private final String stars;
 
     Rank(int score) {
+        this(score, "");
+    }
+
+    Rank(int score, String stars) {
         this.score = score;
+        this.stars = stars;
     }
 
     public int getScore() {
@@ -53,5 +59,9 @@ public enum Rank {
 
     public boolean isLowerThan(Rank rank) {
         return this.score < rank.score;
+    }
+
+    public String getStars() {
+        return stars;
     }
 }

@@ -1219,14 +1219,48 @@ public class MineClansAPI {
         return ClaimResult.SUCCESS;
     }
 
-    public String getFactionName(UUID factionId) {
+    public String getFactionDisplayName(UUID factionId) {
         if (factionId == null) {
-            return "Unknown";
+            return "";
         }
         Faction faction = getFaction(factionId);
         if (faction == null) {
-            return "Unknown";
+            return "";
         }
-        return faction.getName();
+        return faction.getDisplayName();
+    }
+
+    public String getFactionDisplayName(Player target) {
+        if (target == null) {
+            return "";
+        }
+        Faction faction = getFaction(target);
+        if (faction == null) {
+            return "";
+        }
+        return faction.getDisplayName();
+    }
+
+    public String getRankStars(UUID uniqueId) {
+        if (uniqueId == null) {
+            return "";
+        }
+        FactionPlayer factionPlayer = getFactionPlayer(uniqueId);
+        if (factionPlayer == null) {
+            return "";
+        }
+        return factionPlayer.getRank().getStars();
+    }
+
+    public String getRelationColor(Player viewer, Player target) {
+        if (viewer == null || target == null) {
+            return "";
+        }
+        Faction viewerFaction = getFaction(viewer);
+        Faction targetFaction = getFaction(target);
+        if (viewerFaction == null || targetFaction == null) {
+            return "";
+        }
+        return viewerFaction.getRelationType(targetFaction).getColor().toString();
     }
 }
