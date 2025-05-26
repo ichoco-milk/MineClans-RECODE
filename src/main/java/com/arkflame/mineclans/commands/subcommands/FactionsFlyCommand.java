@@ -14,7 +14,7 @@ import com.arkflame.mineclans.modernlib.utils.ChatColors;
 import com.arkflame.mineclans.modernlib.utils.Players;
 
 public class FactionsFlyCommand {
-    private static final String BASE_PATH = "factions.fly.";
+    public static final String BASE_PATH = "factions.fly.";
 
     public static void onCommand(Player player, ModernArguments args) {
         MineClans mineClans = MineClans.getInstance();
@@ -51,7 +51,7 @@ public class FactionsFlyCommand {
             player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "enabled")));
             
             // Check if can currently use benefits
-            if (benefitsManager.canUseRankBenefits(player)) {
+            if (benefitsManager.canUseRankBenefits(factionPlayer, player)) {
                 Players.setFlying(player, true);
                 player.sendMessage(ChatColors.color(messages.getText(BASE_PATH + "activated")));
             } else {
@@ -65,6 +65,6 @@ public class FactionsFlyCommand {
         }
 
         // Update status immediately
-        benefitsManager.updateRankBenefitsStatus(player);
+        benefitsManager.updateBenefits(player);
     }
 }

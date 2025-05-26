@@ -560,7 +560,7 @@ public class Faction implements InventoryHolder {
         return MineClans.getInstance().getClaimedChunks().getClaimedChunkCount(id);
     }
 
-    public boolean hasMember(UUID playerId) {
+    public boolean isMember(UUID playerId) {
         return getMembers().contains(playerId);
     }
 }

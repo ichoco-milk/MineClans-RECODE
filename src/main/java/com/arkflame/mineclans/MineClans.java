@@ -48,6 +48,7 @@ import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.tasks.BuffExpireTask;
 import com.arkflame.mineclans.tasks.ClaimedChunksParticleTask;
+import com.arkflame.mineclans.tasks.FactionBenefitsTask;
 import com.arkflame.mineclans.tasks.PowerTask;
 import com.arkflame.mineclans.tasks.TeleportScheduler;
 import com.arkflame.mineclans.utils.BungeeUtil;
@@ -130,6 +131,7 @@ public class MineClans extends JavaPlugin {
     private WorldGuardReflectionUtil worldGuardReflectionUil;
 
     private FactionBenefitsManager benefitsManager;
+    private FactionBenefitsTask benefitsTask;
 
     public ConfigWrapper getCfg() {
         return config;
@@ -262,6 +264,8 @@ public class MineClans extends JavaPlugin {
             teleportScheduler = new TeleportScheduler(this);
             claimedChunks = new ClaimedChunks(mySQLProvider.getClaimedChunksDAO());
             benefitsManager = new FactionBenefitsManager();
+            benefitsTask = new FactionBenefitsTask();
+            benefitsTask.register();
 
             // Register Listeners
             PluginManager pluginManager = server.getPluginManager();
@@ -354,6 +358,10 @@ public class MineClans extends JavaPlugin {
 
     public FactionBenefitsManager getFactionBenefitsManager() {
         return benefitsManager;
+    }
+
+    public FactionBenefitsTask getFactionBenefitsTask() {
+        return benefitsTask;
     }
 
     public double getPowerMultiplier(Player player) {

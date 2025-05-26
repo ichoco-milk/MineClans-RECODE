@@ -1,7 +1,6 @@
 package com.arkflame.mineclans.managers;
 
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -13,69 +12,66 @@ import org.bukkit.entity.Player;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.api.MineClansAPI;
+import com.arkflame.mineclans.commands.subcommands.FactionsFlyCommand;
+import com.arkflame.mineclans.commands.subcommands.FactionsGodCommand;
 import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
+import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
+import com.arkflame.mineclans.modernlib.utils.ChatColors;
 import com.arkflame.mineclans.modernlib.utils.Players;
 
 public class FactionBenefitsManager {
     private final MineClansAPI api;
 
+    private Map<String, Set<UUID>> playersInChunks = new ConcurrentHashMap<>();
+    private Map<UUID, String> playerChunks = new ConcurrentHashMap<>();
+    private ConfigWrapper messages;
+
     public FactionBenefitsManager() {
         this.api = MineClans.getInstance().getAPI();
+        this.messages = MineClans.getInstance().getMessages();
     }
 
-    /**
-     * Checks if a player can use rank benefits (fly/god mode) based on:
-     * 1. Player has the benefit enabled
-     * 2. Current chunk is from the same faction as the player
-     * 3. Current and neighboring chunks don't have enemy players
-     */
-    public boolean canUseRankBenefits(Player player) {
-        FactionPlayer factionPlayer = api.getFactionPlayer(player);
-        if (factionPlayer == null) {
-            return false;
-        }
+    public String getChunkKey(String worldName, int chunkX, int chunkZ) {
+        return worldName + ":" + chunkX + ":" + chunkZ;
+    }
 
-        // Check if player has any benefits enabled
-        if (!factionPlayer.isFlying() && !factionPlayer.isGodMode()) {
-            return true; // No benefits to check
-        }
+    public Collection<UUID> getPlayersInChunk(String worldName, int chunkX, int chunkZ) {
+        String key = getChunkKey(worldName, chunkX, chunkZ);
+        return playersInChunks.getOrDefault(key, ConcurrentHashMap.newKeySet());
+    }
 
-        // Check if player is in a faction
-        Faction playerFaction = factionPlayer.getFaction();
-        if (playerFaction == null) {
-            return false;
-        }
-
-        Location playerLoc = player.getLocation();
-        int centerX = playerLoc.getBlockX() >> 4;
-        int centerZ = playerLoc.getBlockZ() >> 4;
-        String worldName = playerLoc.getWorld().getName();
-
-        // Check if current chunk is claimed by same faction
-        if (!isChunkClaimedBySameFaction(centerX, centerZ, worldName, playerFaction.getId())) {
-            return false;
-        }
-
-        // Check all 9 chunks (3x3 grid around player) for enemy players
-        for (int xOffset = -1; xOffset <= 1; xOffset++) {
-            for (int zOffset = -1; zOffset <= 1; zOffset++) {
-                int chunkX = centerX + xOffset;
-                int chunkZ = centerZ + zOffset;
-
-                if (hasEnemyPlayersInChunk(chunkX, chunkZ, worldName, playerFaction.getId())) {
-                    return false;
+    public Collection<UUID> getNearbyPlayers(String worldName, int chunkX, int chunkZ, int radius) {
+        Collection<UUID> nearbyPlayers = ConcurrentHashMap.newKeySet();
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                String key = getChunkKey(worldName, chunkX + x, chunkZ + z);
+                if (playersInChunks.containsKey(key)) {
+                    nearbyPlayers.addAll(playersInChunks.get(key));
                 }
             }
         }
-
-        return true;
+        return nearbyPlayers;
     }
 
-    /**
-     * Checks if a chunk is claimed by the same faction as the player
-     */
+    public Collection<UUID> getNearbyPlayers(Player player, int radius) {
+        Location location = player.getLocation();
+        return getNearbyPlayers(location.getWorld().getName(), location.getBlockX() >> 4, location.getBlockZ() >> 4,
+                radius);
+    }
+
+    public void setChunk(String worldName, int chunkX, int chunkZ, UUID playerId) {
+        String key = getChunkKey(worldName, chunkX, chunkZ);
+        // Remove from old chunks
+        if (playerChunks.containsKey(playerId)) {
+            playersInChunks.get(playerChunks.get(playerId)).remove(playerId);
+        }
+        // Add to new chunks
+        playersInChunks.computeIfAbsent(key, k -> ConcurrentHashMap.newKeySet()).add(playerId);
+        playerChunks.put(playerId, key);
+    }
+
     private boolean isChunkClaimedBySameFaction(int chunkX, int chunkZ, String worldName, UUID factionId) {
         if (!api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ, worldName)) {
             return false;
@@ -85,249 +81,88 @@ public class FactionBenefitsManager {
         return claim != null && factionId.equals(claim.getFactionId());
     }
 
-    /**
-     * Checks if there are enemy players in or near a specific chunk
-     * 
-     * @param centerChunkX    The center chunk X coordinate
-     * @param centerChunkZ    The center chunk Z coordinate
-     * @param worldName       The world name to check in
-     * @param playerFactionId The UUID of the faction to check against
-     * @param radius          How many chunks around the center to check (0 = just
-     *                        the center chunk)
-     * @return true if enemy players are found in the specified area
-     */
-    private boolean hasEnemyPlayersNearChunk(int centerChunkX, int centerChunkZ, String worldName,
-            UUID playerFactionId, int radius) {
-        // Check all chunks in the radius around the center chunk
-        for (int x = centerChunkX - radius; x <= centerChunkX + radius; x++) {
-            for (int z = centerChunkZ - radius; z <= centerChunkZ + radius; z++) {
-                Set<UUID> playerIds = playersInChunks.getOrDefault(worldName, Collections.emptyMap())
-                        .getOrDefault(x, Collections.emptyMap())
-                        .getOrDefault(z, Collections.emptySet());
+    public boolean canUseRankBenefits(FactionPlayer factionPlayer, Player player) {
+        // Check if player is in a faction
+        Faction faction = factionPlayer.getFaction();
+        if (faction == null) {
+            return false;
+        }
 
-                for (UUID playerId : playerIds) {
-                    Player player = Bukkit.getPlayer(playerId);
-                    if (player == null || !player.isOnline()) {
-                        continue;
-                    }
+        Location location = player.getLocation();
+        int chunkX = location.getBlockX() >> 4;
+        int chunkZ = location.getBlockZ() >> 4;
+        String worldName = location.getWorld().getName();
 
-                    FactionPlayer otherFactionPlayer = api.getFactionPlayer(player);
-                    if (otherFactionPlayer == null || otherFactionPlayer.getFactionId() == null) {
-                        // No faction = enemy
-                        return true;
-                    }
+        // Check if current chunk is claimed by same faction
+        if (!isChunkClaimedBySameFaction(chunkX, chunkZ, worldName, faction.getId())) {
+            return false;
+        }
 
-                    if (!otherFactionPlayer.getFactionId().equals(playerFactionId)) {
-                        // Different faction = enemy
-                        return true;
-                    }
+        Collection<UUID> playersInChunk = getNearbyPlayers(player, 1);
+        if (playersInChunk.isEmpty()) {
+            return true;
+        }
+        UUID playerId = player.getUniqueId();
+        for (UUID playerInChunkId : playersInChunk) {
+            if (playerInChunkId != null && playerInChunkId != playerId) {
+                if (!faction.isMember(playerInChunkId)) {
+                    System.out.println(playerId);
+                    System.out.println(playerInChunkId);
+                    return false;
                 }
             }
         }
-        return false;
+
+        return true;
     }
 
-    // Helper method with default radius of 1 (checks 3x3 area)
-    private boolean hasEnemyPlayersInChunk(int chunkX, int chunkZ, String worldName, UUID playerFactionId) {
-        return hasEnemyPlayersNearChunk(chunkX, chunkZ, worldName, playerFactionId, 1);
-    }
-
-    /**
-     * Updates the rank benefits status for a player based on current conditions
-     */
-    public void updateRankBenefitsStatus(Player player) {
+    public void updateBenefits(Player player) {
         FactionPlayer factionPlayer = api.getFactionPlayer(player);
         if (factionPlayer == null) {
             return;
         }
-        boolean canUseBenefits = canUseRankBenefits(player);
-        // Handle flying
-        if (factionPlayer.isFlying()) {
-            if (canUseBenefits) {
-                // Enable flying if not already enabled
-                if (!player.getAllowFlight()) {
-                    Players.setFlying(player, true);
-                }
-            } else {
-                // Disable flying
-                Players.setFlying(player, false);
-            }
-        }
-
-        // Handle god mode
-        if (factionPlayer.isGodMode()) {
-            if (canUseBenefits) {
-                factionPlayer.setCanReceiveDamage(false);
-            } else {
-                factionPlayer.setCanReceiveDamage(true);
-            }
-        }
-    }
-
-    private Map<String, Map<Integer, Map<Integer, Set<UUID>>>> playersInChunks = new ConcurrentHashMap<>();
-    private Map<UUID, int[]> playerChunkMap = new ConcurrentHashMap<>();
-
-    public void addPlayerToChunk(Player player) {
-        if (player == null) {
-            return;
-        }
-
-        UUID playerId = player.getUniqueId();
-        Location loc = player.getLocation();
-        int chunkX = loc.getBlockX() >> 4;
-        int chunkZ = loc.getBlockZ() >> 4;
-        String worldName = loc.getWorld().getName();
-
-        playerChunkMap.put(playerId, new int[] { chunkX, chunkZ });
-        playersInChunks.computeIfAbsent(worldName, k -> new ConcurrentHashMap<>())
-                .computeIfAbsent(chunkX, k -> new ConcurrentHashMap<>())
-                .computeIfAbsent(chunkZ, k -> ConcurrentHashMap.newKeySet())
-                .add(playerId);
-    }
-
-    public void removePlayerFromChunk(Player player) {
-        if (player == null) {
-            return;
-        }
-
-        UUID playerId = player.getUniqueId();
-        int[] oldChunk = playerChunkMap.remove(playerId);
-        if (oldChunk == null) {
-            return;
-        }
-
-        String worldName = player.getLocation().getWorld().getName();
-        removePlayerFromSpecificChunk(worldName, oldChunk[0], oldChunk[1], playerId);
-    }
-
-    private void removePlayerFromSpecificChunk(String worldName, int chunkX, int chunkZ, UUID playerId) {
-        Map<Integer, Map<Integer, Set<UUID>>> worldMap = playersInChunks.get(worldName);
-        if (worldMap == null)
-            return;
-
-        Map<Integer, Set<UUID>> xMap = worldMap.get(chunkX);
-        if (xMap == null)
-            return;
-
-        Set<UUID> chunkSet = xMap.get(chunkZ);
-        if (chunkSet == null)
-            return;
-
-        chunkSet.remove(playerId);
-
-        // Clean up empty structures
-        if (chunkSet.isEmpty()) {
-            xMap.remove(chunkZ);
-            if (xMap.isEmpty()) {
-                worldMap.remove(chunkX);
-                if (worldMap.isEmpty()) {
-                    playersInChunks.remove(worldName);
-                }
-            }
-        }
-    }
-
-    public Set<UUID> getPlayersInChunk(int chunkX, int chunkZ, String worldName) {
-        return playersInChunks.getOrDefault(worldName, Collections.emptyMap())
-                .getOrDefault(chunkX, Collections.emptyMap())
-                .getOrDefault(chunkZ, Collections.emptySet());
-    }
-
-    public Set<UUID> getPlayersInChunk(Player player) {
-        if (player == null) {
-            return Collections.emptySet();
-        }
-        Location loc = player.getLocation();
-        return getPlayersInChunk(
-                loc.getBlockX() >> 4,
-                loc.getBlockZ() >> 4,
-                loc.getWorld().getName());
-    }
-
-    public void updateChunks(Player player) {
-        if (player == null) {
-            return;
-        }
-
-        UUID playerId = player.getUniqueId();
-        Location loc = player.getLocation();
-        String worldName = loc.getWorld().getName();
-        int newChunkX = loc.getBlockX() >> 4;
-        int newChunkZ = loc.getBlockZ() >> 4;
-
-        // Get old chunk and check if we need to update
-        int[] oldChunk = playerChunkMap.get(playerId);
-        if (oldChunk != null && oldChunk[0] == newChunkX && oldChunk[1] == newChunkZ) {
-            return; // Player hasn't changed chunks
-        }
-
-        // Remove from old chunk if exists
-        if (oldChunk != null) {
-            removePlayerFromSpecificChunk(worldName, oldChunk[0], oldChunk[1], playerId);
-        }
-
-        // Add to new chunk
-        playerChunkMap.put(playerId, new int[] { newChunkX, newChunkZ });
-        playersInChunks.computeIfAbsent(worldName, k -> new ConcurrentHashMap<>())
-                .computeIfAbsent(newChunkX, k -> new ConcurrentHashMap<>())
-                .computeIfAbsent(newChunkZ, k -> ConcurrentHashMap.newKeySet())
-                .add(playerId);
-    }
-
-    /**
-     * Updates benefits for all players near the specified player
-     * 
-     * @param player The center player whose nearby players should be updated
-     */
-    public void updateNearbyPlayersBenefits(Player player) {
-        if (player == null || !player.isOnline()) {
-            return;
-        }
-
-        // Get player's faction info
-        FactionPlayer factionPlayer = api.getFactionPlayer(player);
-        if (factionPlayer == null) {
-            return;
-        }
-
-        // Get player's current chunk location
-        Location loc = player.getLocation();
-        int centerChunkX = loc.getBlockX() >> 4;
-        int centerChunkZ = loc.getBlockZ() >> 4;
-        String worldName = loc.getWorld().getName();
-
-        // Define radius (in chunks) for "nearby" players
-        final int BENEFIT_RADIUS = 2; // 2 chunks = ~32 blocks radius
-
-        // Track which players we've already processed to avoid duplicates
-        Set<UUID> processedPlayers = new HashSet<>();
-
-        // Include the center player first
-        processedPlayers.add(player.getUniqueId());
-        updateRankBenefitsStatus(player);
-
-        // Check all chunks in the radius around the player
-        for (int x = centerChunkX - BENEFIT_RADIUS; x <= centerChunkX + BENEFIT_RADIUS; x++) {
-            for (int z = centerChunkZ - BENEFIT_RADIUS; z <= centerChunkZ + BENEFIT_RADIUS; z++) {
-                // Get all players in this chunk
-                Set<UUID> playerIds = playersInChunks.getOrDefault(worldName, Collections.emptyMap())
-                        .getOrDefault(x, Collections.emptyMap())
-                        .getOrDefault(z, Collections.emptySet());
-
-                // Process each player in the chunk
-                for (UUID playerId : playerIds) {
-                    // Skip if we've already processed this player
-                    if (processedPlayers.contains(playerId)) {
-                        continue;
+        if (factionPlayer.isGodMode() || factionPlayer.isFlying()) {
+            boolean canUseRankBenefits = canUseRankBenefits(factionPlayer, player);
+            if (factionPlayer.isGodMode()) {
+                boolean invulnerable = !canUseRankBenefits;
+                if (factionPlayer.canReceiveDamage() != invulnerable) {
+                    factionPlayer.setCanReceiveDamage(invulnerable);
+                    if (invulnerable) {
+                        player.sendMessage(
+                                ChatColors.color(messages.getText(FactionsGodCommand.BASE_PATH + "activated")));
+                    } else {
+                        player.sendMessage(
+                                ChatColors.color(messages.getText(FactionsGodCommand.BASE_PATH + "deactivated")));
                     }
-
-                    Player nearbyPlayer = Bukkit.getPlayer(playerId);
-                    if (nearbyPlayer != null && nearbyPlayer.isOnline()) {
-                        updateRankBenefitsStatus(nearbyPlayer);
-                        processedPlayers.add(playerId);
+                }
+            }
+            if (factionPlayer.isFlying()) {
+                boolean canFly = canUseRankBenefits;
+                if (player.getAllowFlight() != canFly) {
+                    Players.setFlying(player, canFly);
+                    if (canFly) {
+                        player.sendMessage(
+                                ChatColors.color(messages.getText(FactionsFlyCommand.BASE_PATH + "activated")));
+                    } else {
+                        player.sendMessage(
+                                ChatColors.color(messages.getText(FactionsFlyCommand.BASE_PATH + "deactivated")));
                     }
                 }
             }
         }
+    }
+
+    public void updateBenefits(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            updateBenefits(player);
+        }
+    }
+
+    public void setChunk(Player player, Location to) {
+        int chunkX = to.getBlockX() >> 4;
+        int chunkZ = to.getBlockZ() >> 4;
+        String worldName = to.getWorld().getName();
+        setChunk(worldName, chunkX, chunkZ, player.getUniqueId());
     }
 }

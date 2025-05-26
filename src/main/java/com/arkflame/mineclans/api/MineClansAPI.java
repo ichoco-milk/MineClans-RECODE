@@ -716,7 +716,7 @@ public class MineClansAPI {
             }
 
             // Re-validate after synchronization
-            if (!faction.hasMember(kickedPlayer.getPlayerId())) {
+            if (!faction.isMember(kickedPlayer.getPlayerId())) {
                 return new KickResult(KickResultType.ALREADY_KICKED, faction, kickedPlayer);
             }
 

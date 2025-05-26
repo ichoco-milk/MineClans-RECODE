@@ -1,81 +1,80 @@
 package com.arkflame.mineclans.listeners;
 
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.managers.FactionBenefitsManager;
-import com.arkflame.mineclans.models.FactionPlayer;
+import com.arkflame.mineclans.tasks.FactionBenefitsTask;
 
 public class FactionBenefitsListener implements Listener {
+    private final FactionBenefitsTask benefitsTask;
     private final FactionBenefitsManager benefitsManager;
 
     public FactionBenefitsListener() {
+        this.benefitsTask = MineClans.getInstance().getFactionBenefitsTask();
         this.benefitsManager = MineClans.getInstance().getFactionBenefitsManager();
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerMove(PlayerMoveEvent event) {
-        Player player = event.getPlayer();
-
-        // Only check if player actually moved to a different chunk
-        if (event.getFrom().getBlockX() >> 4 != event.getTo().getBlockX() >> 4 ||
-                event.getFrom().getBlockZ() >> 4 != event.getTo().getBlockZ() >> 4) {
-            MineClans.runAsync(() -> {
-                // Player changed chunks, update their rank benefits status
-                benefitsManager.updateRankBenefitsStatus(player);
-
-                // Also update all other players since this player moving might affect
-                // enemy detection in neighboring chunks
-                benefitsManager.updateNearbyPlayersBenefits(player);
-            });
-            ;
-        }
+    public void updateNearby(Player player) {
+        MineClans.runAsync(() -> {
+            // Get nearby players
+            for (UUID playerId : benefitsManager.getNearbyPlayers(player, 1)) {
+                // Schedule for benefit update
+                benefitsTask.scheduleUpdate(playerId);
+            }
+        });
     }
 
-    // Optional: Also update on teleport events
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent event) {
-        Player player = event.getPlayer();
-
-        // Schedule update for next tick to ensure teleport is complete
+    public void updateNearby(String worldName, int chunkX, int chunkZ) {
         MineClans.runAsync(() -> {
-            benefitsManager.updateRankBenefitsStatus(player);
-            benefitsManager.updateNearbyPlayersBenefits(player);
-        },
-                1L);
-    }
-
-    // Update when players join/leave to recalculate enemy presence
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent event) {
-        // Schedule update for next tick
-        MineClans.runAsync(() -> {
-            benefitsManager.updateNearbyPlayersBenefits(event.getPlayer());
-        }, 20L);
-    }
-
-    @EventHandler
-    public void onPlayerQuit(org.bukkit.event.player.PlayerQuitEvent event) {
-        MineClans.runAsync(() -> {
-            // Update all remaining players since an enemy might have left
-            benefitsManager.updateNearbyPlayersBenefits(event.getPlayer());
+            // Get nearby players
+            for (UUID playerId : benefitsManager.getNearbyPlayers(worldName, chunkX, chunkZ, 1)) {
+                // Schedule for benefit update
+                benefitsTask.scheduleUpdate(playerId);
+            }
         });
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
-            if (player != null && player.isOnline()) {
-                FactionPlayer factionPlayer = MineClans.getInstance().getFactionPlayerManager().get(player);
-                if (factionPlayer != null && !factionPlayer.canReceiveDamage()) {
-                    event.setCancelled(true);
-                }
-            }
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!event.getPlayer().isOnline()) {
+            return;
         }
+        int fromChunkX = event.getFrom().getBlockX() >> 4;
+        int fromChunkZ = event.getFrom().getBlockZ() >> 4;
+        int toChunkX = event.getTo().getBlockX() >> 4;
+        int toChunkZ = event.getTo().getBlockZ() >> 4;
+
+        // Skip if chunk didnt change
+        if (fromChunkX == toChunkX && fromChunkZ == toChunkZ) {
+            return;
+        }
+
+        // Update chunk
+        benefitsManager.setChunk(event.getPlayer(), event.getTo());
+        updateNearby(event.getFrom().getWorld().getName(), fromChunkX, fromChunkZ);
+        updateNearby(event.getTo().getWorld().getName(), toChunkX, toChunkZ);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        // Update chunk
+        benefitsManager.setChunk(event.getPlayer(), event.getTo());
+        updateNearby(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        // Update chunk
+        benefitsManager.setChunk(event.getPlayer(), event.getPlayer().getLocation());
+        updateNearby(event.getPlayer());
     }
 }
