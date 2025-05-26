@@ -11,9 +11,9 @@ public class FactionsTellLocationCommand {
     public static void onCommand(Player player, ModernArguments args) {
         Location location = player.getLocation();
         String world = location.getWorld().getName();
-        double x = location.getX();
-        double y = location.getY();
-        double z = location.getZ();
+        int x = (int) location.getX();
+        int y = (int) location.getY();
+        int z = (int) location.getZ();
         String basePath = "factions.tell_location.";
 
         String message = MineClans.getInstance().getMessages().getText(basePath + "message")
