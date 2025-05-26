@@ -5,9 +5,9 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import com.arkflame.mineclans.MineClans;
@@ -67,6 +67,8 @@ public class FactionBenefitsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         // Update chunk
+        updateNearby(event.getFrom().getWorld().getName(),
+                event.getFrom().getBlockX() >> 4, event.getFrom().getBlockZ() >> 4);
         benefitsManager.setChunk(event.getPlayer(), event.getTo());
         updateNearby(event.getPlayer());
     }
@@ -75,6 +77,13 @@ public class FactionBenefitsListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         // Update chunk
         benefitsManager.setChunk(event.getPlayer(), event.getPlayer().getLocation());
+        updateNearby(event.getPlayer());
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        // Update chunk
+        benefitsManager.setChunk(event.getPlayer(), null);
         updateNearby(event.getPlayer());
     }
 }

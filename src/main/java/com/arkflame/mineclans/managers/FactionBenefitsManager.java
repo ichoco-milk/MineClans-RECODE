@@ -72,6 +72,22 @@ public class FactionBenefitsManager {
         playerChunks.put(playerId, key);
     }
 
+    public void setChunk(Player player, Location to) {
+        if (to == null) {
+            UUID playerId = player.getUniqueId();
+            // Remove from old chunks
+            if (playerChunks.containsKey(playerId)) {
+                playersInChunks.get(playerChunks.get(playerId)).remove(playerId);
+            }
+            playerChunks.remove(playerId);
+            return;
+        }
+        int chunkX = to.getBlockX() >> 4;
+        int chunkZ = to.getBlockZ() >> 4;
+        String worldName = to.getWorld().getName();
+        setChunk(worldName, chunkX, chunkZ, player.getUniqueId());
+    }
+
     private boolean isChunkClaimedBySameFaction(int chunkX, int chunkZ, String worldName, UUID factionId) {
         if (!api.getClaimedChunks().isChunkClaimed(chunkX, chunkZ, worldName)) {
             return false;
@@ -157,12 +173,5 @@ public class FactionBenefitsManager {
         if (player != null && player.isOnline()) {
             updateBenefits(player);
         }
-    }
-
-    public void setChunk(Player player, Location to) {
-        int chunkX = to.getBlockX() >> 4;
-        int chunkZ = to.getBlockZ() >> 4;
-        String worldName = to.getWorld().getName();
-        setChunk(worldName, chunkX, chunkZ, player.getUniqueId());
     }
 }
