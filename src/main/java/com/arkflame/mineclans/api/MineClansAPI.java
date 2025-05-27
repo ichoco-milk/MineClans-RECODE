@@ -471,6 +471,11 @@ public class MineClansAPI {
             return new HomeResult(HomeResultState.NO_HOME_SET);
         }
 
+        if (getClaimedChunks().isChunkClaimed(homeLocation)) {
+            ChunkCoordinate claim = getClaimedChunks().getChunkAt(homeLocation);
+            return new HomeResult(HomeResultState.HOME_IN_ENEMY_CLAIM);
+        }
+
         return new HomeResult(HomeResultState.SUCCESS, homeLocation);
     }
 

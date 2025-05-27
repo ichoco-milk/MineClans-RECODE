@@ -287,6 +287,7 @@ factions:
     unknown_error: "&cAn unknown error occurred."
   sethome:
     no_permission: "&cYou do not have permission to set home."
+    at_enemy_claim: "&cYou cannot set home in an enemy claim."
     success: "&aHome set successfully."
     error: "&cAn error occurred while setting home."
     not_in_faction: "&cYou are not in any faction."
@@ -397,6 +398,7 @@ factions:
       description: "&7Teleport to one of your faction's claimed chunks."
   home:
     no_home_set: "&cYou haven't set a home yet."
+    home_in_enemy_claim: "&cYour home is at an enemy claim. Can't teleport."
     teleporting: "&aTeleporting. &7Please don't move for {time} seconds!"
     error: "&cAn error occurred while teleporting home."
     not_in_faction: "&cYou are not in a faction."

@@ -1,6 +1,5 @@
 package com.arkflame.mineclans.claims;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -10,6 +9,7 @@ import org.bukkit.Chunk;
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.providers.daos.mysql.ClaimedChunksDAO;
+import com.arkflame.mineclans.utils.LocationData;
 
 public class ClaimedChunks {
     private final FactionChunkMap factionChunkMap;
@@ -185,5 +185,19 @@ public class ClaimedChunks {
 
     public void claimChunk(UUID claimingFaction, Chunk chunk, boolean publishUpdate) {
         claimChunk(claimingFaction, chunk.getX(), chunk.getZ(), chunk.getWorld().getName(), publishUpdate);
+    }
+
+    public boolean isChunkClaimed(LocationData homeLocation) {
+        int chunkX = homeLocation.getBlockX() >> 4;
+        int chunkZ = homeLocation.getBlockZ() >> 4;
+        String worldName = homeLocation.getWorldName();
+        return isChunkClaimed(chunkX, chunkZ, worldName, MineClans.getServerId());
+    }
+
+    public ChunkCoordinate getChunkAt(LocationData homeLocation) {
+        int chunkX = homeLocation.getBlockX() >> 4;
+        int chunkZ = homeLocation.getBlockZ() >> 4;
+        String worldName = homeLocation.getWorldName();
+        return getChunkAt(chunkX, chunkZ, worldName, MineClans.getServerId());
     }
 }

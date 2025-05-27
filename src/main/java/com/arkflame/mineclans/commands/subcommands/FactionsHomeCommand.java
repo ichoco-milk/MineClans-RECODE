@@ -20,6 +20,9 @@ public class FactionsHomeCommand {
                 player.sendMessage(messages.getText(basePath + "teleporting", "").replace("{time}", String.valueOf(warmup)));
                 MineClans.getInstance().getTeleportScheduler().schedule(player, result.getHomeLocation(), warmup);
                 break;
+            case HOME_IN_ENEMY_CLAIM:
+                player.sendMessage(messages.getText(basePath + "home_in_enemy_claim"));
+                break;
             case NO_HOME_SET:
                 player.sendMessage(messages.getText(basePath + "no_home_set"));
                 break;

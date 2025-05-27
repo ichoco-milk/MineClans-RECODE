@@ -25,6 +25,6 @@ public class HomeResult {
     }
     
     public enum HomeResultState {
-        NOT_IN_FACTION, NO_HOME_SET, SUCCESS, ERROR
+        NOT_IN_FACTION, NO_HOME_SET, SUCCESS, ERROR, HOME_IN_ENEMY_CLAIM
     }
 }
