@@ -156,7 +156,7 @@ public class FactionsPlaceholder extends PlaceholderExpansion implements Relatio
                     return ChatColor.LIGHT_PURPLE.toString();
                 }
                 if (MineClans.getInstance().getFactionManager().getEffectiveRelation(viewerFaction, faction) == RelationType.NEUTRAL) {
-                    return "";
+                    return RelationType.NEUTRAL.getColor().toString();
                 }
                 String relationshipColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
                 return relationshipColor;

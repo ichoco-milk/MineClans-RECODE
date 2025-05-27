@@ -1272,16 +1272,16 @@ public class MineClansAPI {
 
     public String getRelationColor(Player viewer, Player target) {
         if (viewer == null || target == null) {
-            return "";
+            return RelationType.NEUTRAL.getColor().toString();
         }
         Faction viewerFaction = getFaction(viewer);
         Faction targetFaction = getFaction(target);
         if (viewerFaction == null || targetFaction == null) {
-            return "";
+            return RelationType.NEUTRAL.getColor().toString();
         }
         ChatColor color = factionManager.getEffectiveRelation(viewerFaction.getName(), targetFaction.getName()).getColor();
         if (color == null) {
-            return "";
+            return RelationType.NEUTRAL.getColor().toString();
         }
         return color.toString();
     }
