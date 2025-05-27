@@ -187,7 +187,7 @@ public class ChunkProtectionListener implements Listener {
         canPlayerModifyInChunk(event.getPlayer(), block, event, "interact with entities");
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         // Skip if not caused by a player
         if (!(event.getDamager() instanceof Player))

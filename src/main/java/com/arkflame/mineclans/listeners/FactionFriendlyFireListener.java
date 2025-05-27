@@ -9,12 +9,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
 import com.arkflame.mineclans.MineClans;
+import com.arkflame.mineclans.enums.RelationType;
 import com.arkflame.mineclans.models.Faction;
-import com.arkflame.mineclans.models.FactionPlayer;
 
 public class FactionFriendlyFireListener implements Listener {
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = org.bukkit.event.EventPriority.LOW)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         Entity damager = event.getDamager();
         if (damager instanceof Projectile) {
@@ -28,24 +28,12 @@ public class FactionFriendlyFireListener implements Listener {
         if (!(damager instanceof Player) || !(entity instanceof Player)) {
             return;
         }
-
-        Player attacker = (Player) damager;
-        Player victim = (Player) entity;
-
-        FactionPlayer attackerFP = MineClans.getInstance().getAPI().getFactionPlayer(attacker.getUniqueId());
-        FactionPlayer victimFP = MineClans.getInstance().getAPI().getFactionPlayer(victim.getUniqueId());
-
-        if (attackerFP == null || victimFP == null || attackerFP.getFaction() == null || victimFP.getFaction() == null) {
-            return;
-        }
-
-        Faction attackerFaction = attackerFP.getFaction();
-        Faction victimFaction = victimFP.getFaction();
-
-        // Check if both players are in the same faction and friendly fire is disabled
-        if (attackerFaction.equals(victimFaction) && !attackerFaction.isFriendlyFire()) {
+        Faction attackerFaction = MineClans.getInstance().getAPI().getFaction(((Player) damager).getUniqueId());
+        Faction entityFaction = MineClans.getInstance().getAPI().getFaction(((Player) entity).getUniqueId());
+        RelationType relation = MineClans.getInstance().getFactionManager().getEffectiveRelation(attackerFaction, entityFaction);
+        if ((relation == RelationType.ALLY || relation == RelationType.SAME_FACTION) && !attackerFaction.isFriendlyFire()) {
             event.setCancelled(true);
-            attacker.sendMessage(MineClans.getInstance().getMessages().getText("factions.friendly_fire.cannot_attack"));
+            damager.sendMessage(MineClans.getInstance().getMessages().getText("factions.friendly_fire.cannot_attack"));
         }
     }
 }
