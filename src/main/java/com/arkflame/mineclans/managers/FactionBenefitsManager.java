@@ -122,8 +122,6 @@ public class FactionBenefitsManager {
         for (UUID playerInChunkId : playersInChunk) {
             if (playerInChunkId != null && playerInChunkId != playerId) {
                 if (!faction.isMember(playerInChunkId)) {
-                    System.out.println(playerId);
-                    System.out.println(playerInChunkId);
                     return false;
                 }
             }
