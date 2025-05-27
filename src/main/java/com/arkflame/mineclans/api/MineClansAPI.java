@@ -449,8 +449,15 @@ public class MineClansAPI {
         if (factionPlayer.getRank().isLowerThan(Rank.COLEADER)) {
             return new SetHomeResult(SetHomeResultState.NO_PERMISSION);
         }
-
         Faction faction = factionPlayer.getFaction();
+
+        if (getClaimedChunks().isChunkClaimed(homeLocation)) {
+            ChunkCoordinate claim = getClaimedChunks().getChunkAt(homeLocation);
+            if (claim != null && !claim.getFactionId().equals(faction.getId())) {
+                return new SetHomeResult(SetHomeResultState.AT_ENEMY_CLAIM);
+            }
+        }
+
         factionManager.updateHome(faction.getId(), homeLocation);
         redisProvider.updateHome(faction.getId(), homeLocation);
 
@@ -470,10 +477,12 @@ public class MineClansAPI {
         if (homeLocation == null) {
             return new HomeResult(HomeResultState.NO_HOME_SET);
         }
-
+        Faction faction = factionPlayer.getFaction();
         if (getClaimedChunks().isChunkClaimed(homeLocation)) {
             ChunkCoordinate claim = getClaimedChunks().getChunkAt(homeLocation);
-            return new HomeResult(HomeResultState.HOME_IN_ENEMY_CLAIM);
+            if (claim != null && !claim.getFactionId().equals(faction.getId())) {
+                return new HomeResult(HomeResultState.HOME_IN_ENEMY_CLAIM);
+            }
         }
 
         return new HomeResult(HomeResultState.SUCCESS, homeLocation);

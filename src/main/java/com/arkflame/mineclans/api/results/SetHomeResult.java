@@ -12,6 +12,6 @@ public class SetHomeResult {
     }
 
     public enum SetHomeResultState {
-        SUCCESS, NOT_IN_FACTION, ERROR, NO_PERMISSION
+        SUCCESS, NOT_IN_FACTION, ERROR, NO_PERMISSION, AT_ENEMY_CLAIM
     }
 }

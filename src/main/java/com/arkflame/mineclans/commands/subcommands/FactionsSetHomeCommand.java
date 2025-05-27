@@ -29,6 +29,9 @@ public class FactionsSetHomeCommand {
                 case NOT_IN_FACTION:
                     player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "not_in_faction"));
                     break;
+                case AT_ENEMY_CLAIM:
+                    player.sendMessage(MineClans.getInstance().getMessages().getText(basePath + "at_enemy_claim"));
+                    break;
                 default:
                     break;
             }
