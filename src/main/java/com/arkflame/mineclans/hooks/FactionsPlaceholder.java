@@ -6,11 +6,11 @@ import org.bukkit.entity.Player;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.enums.Rank;
+import com.arkflame.mineclans.enums.RelationType;
 import com.arkflame.mineclans.events.ClanEvent;
 import com.arkflame.mineclans.events.ClanEventScheduler;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
-import com.arkflame.mineclans.models.Relation;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.expansion.Relational;
@@ -106,7 +106,7 @@ public class FactionsPlaceholder extends PlaceholderExpansion implements Relatio
                 } else if (rank == Rank.COLEADER) {
                     stars = "*";
                 }
-                return ChatColor.GREEN + stars + faction.getDisplayName() + ChatColor.RESET;
+                return ChatColor.GREEN + stars + faction.getDisplayName() + ChatColor.RESET + " ";
             case "online":
                 return String.valueOf(faction.getOnlineMembers().size());
             case "owner":
@@ -126,15 +126,41 @@ public class FactionsPlaceholder extends PlaceholderExpansion implements Relatio
 
     @Override
     public String onPlaceholderRequest(Player viewer, Player target, String identifier) {
+        FactionPlayer factionPlayer = MineClans.getInstance().getFactionPlayerManager().getOrLoad(target);
+        Faction faction = MineClans.getInstance().getAPI().getFaction(target);
+        Faction viewerFaction = MineClans.getInstance().getAPI().getFaction(viewer);
         switch (identifier) {
-            case "prefix":
+            case "prefix": {
                 if (target == null) {
+                    return RelationType.NEUTRAL.getColor().toString();
+                }
+                String factionDisplayName = MineClans.getInstance().getAPI().getFactionDisplayName(target);
+                if (factionDisplayName == null || factionDisplayName.isEmpty()) {
+                    return RelationType.NEUTRAL.getColor().toString();
+                }
+                String relationColor;
+
+                if (MineClans.getInstance().getAPI().isFocusedFaction(viewer, target)) {
+                    relationColor = ChatColor.LIGHT_PURPLE.toString();
+                } else {
+                    relationColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
+                }
+                String stars = MineClans.getInstance().getAPI().getRankStars(target.getUniqueId());
+                return relationColor + stars + factionDisplayName + ChatColor.RESET + " ";
+            }
+            case "color": {
+                if (target == null) {
+                    return RelationType.NEUTRAL.getColor().toString();
+                }
+                if (MineClans.getInstance().getAPI().isFocusedFaction(viewer, target)) {
+                    return ChatColor.LIGHT_PURPLE.toString();
+                }
+                if (MineClans.getInstance().getFactionManager().getEffectiveRelation(viewerFaction, faction) == RelationType.NEUTRAL) {
                     return "";
                 }
-                String relationColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
-                String stars = MineClans.getInstance().getAPI().getRankStars(target.getUniqueId());
-                String factionDisplayName = MineClans.getInstance().getAPI().getFactionDisplayName(target);
-                return relationColor + stars + factionDisplayName + ChatColor.RESET;
+                String relationshipColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
+                return relationshipColor;
+            }
             default:
                 return onRequest(target, identifier);
         }

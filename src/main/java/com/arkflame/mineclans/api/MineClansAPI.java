@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -88,6 +89,9 @@ public class MineClansAPI {
     }
 
     public Faction getFaction(Player player) {
+        if (player == null) {
+            return null;
+        }
         FactionPlayer factionPlayer = factionPlayerManager.getOrLoad(player.getUniqueId());
         return factionPlayer != null ? factionPlayer.getFaction() : null;
     }
@@ -1261,6 +1265,19 @@ public class MineClansAPI {
         if (viewerFaction == null || targetFaction == null) {
             return "";
         }
-        return viewerFaction.getRelationType(targetFaction).getColor().toString();
+        ChatColor color = factionManager.getEffectiveRelation(viewerFaction.getName(), targetFaction.getName()).getColor();
+        if (color == null) {
+            return "";
+        }
+        return color.toString();
+    }
+
+    public boolean isFocusedFaction(Player viewer, Player target) {
+        Faction viewerFaction = getFaction(viewer);
+        Faction targetFaction = getFaction(target);
+        if (viewerFaction == null || targetFaction == null) {
+            return false;
+        }
+        return viewerFaction.isFocusedFaction(targetFaction.getId());
     }
 }

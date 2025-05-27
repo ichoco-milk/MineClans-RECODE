@@ -572,4 +572,8 @@ public class Faction implements InventoryHolder {
     public boolean isMember(UUID playerId) {
         return getMembers().contains(playerId);
     }
+
+    public boolean isFocusedFaction(UUID id2) {
+        return getFocusedFaction() != null && getFocusedFaction().equals(id2);
+    }
 }

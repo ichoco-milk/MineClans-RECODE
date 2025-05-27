@@ -49,6 +49,13 @@ public class FactionPlayerManager {
         return factionPlayer;
     }
 
+    public FactionPlayer getOrLoad(Player player) {
+        if (player == null) {
+            return null;
+        }
+        return getOrLoad(player.getUniqueId());
+    }
+
     // Get or load a FactionPlayer by name
     public FactionPlayer getOrLoad(String playerName) {
         if (playerName == null) {

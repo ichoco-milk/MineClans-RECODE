@@ -4,7 +4,7 @@ import org.bukkit.ChatColor;
 
 public enum RelationType {
     ENEMY(ChatColor.RED),
-    NEUTRAL(null),
+    NEUTRAL(ChatColor.YELLOW),
     ALLY(ChatColor.AQUA),
     SAME_FACTION(ChatColor.GREEN);
     

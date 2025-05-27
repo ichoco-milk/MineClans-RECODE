@@ -211,12 +211,13 @@ public class FactionManager {
         }
     }
 
-    public RelationType getEffectiveRelation(String factionName1, String factionName2) {
-        Faction faction1 = getFaction(factionName1);
-        Faction faction2 = getFaction(factionName2);
-    
+    public RelationType getEffectiveRelation(Faction faction1, Faction faction2) {
         if (faction1 == null || faction2 == null) {
             return RelationType.NEUTRAL; // Default relation if either faction is not found
+        }
+
+        if (faction1 == faction2 || faction1.getId().equals(faction2.getId())) {
+            return RelationType.SAME_FACTION; // Same faction
         }
     
         RelationType relationFrom1To2 = faction1.getRelationType(faction2.getId());
@@ -224,11 +225,25 @@ public class FactionManager {
     
         if (relationFrom1To2 == RelationType.ENEMY || relationFrom2To1 == RelationType.ENEMY) {
             return RelationType.ENEMY;
-        } else if (relationFrom1To2 == RelationType.NEUTRAL || relationFrom2To1 == RelationType.NEUTRAL) {
+        } else if (relationFrom1To2 == RelationType.NEUTRAL && relationFrom2To1 == RelationType.NEUTRAL) {
             return RelationType.NEUTRAL;
-        } else {
+        } else if (relationFrom1To2 == RelationType.ALLY && relationFrom2To1 == RelationType.ALLY) {
             return RelationType.ALLY;
         }
+        
+        return RelationType.NEUTRAL; // Default relation if no specific relation is found
+    }
+
+    public RelationType getEffectiveRelation(UUID factionId1, UUID factionId2) {
+        Faction faction1 = getFaction(factionId1);
+        Faction faction2 = getFaction(factionId2);
+        return getEffectiveRelation(faction1, faction2);
+    }
+
+    public RelationType getEffectiveRelation(String factionName1, String factionName2) {
+        Faction faction1 = getFaction(factionName1);
+        Faction faction2 = getFaction(factionName2);
+        return getEffectiveRelation(faction1, faction2);
     }
     
     public boolean deposit(UUID factionId, double amount) {
