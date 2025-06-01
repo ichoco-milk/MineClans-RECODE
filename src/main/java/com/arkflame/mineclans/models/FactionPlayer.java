@@ -40,6 +40,8 @@ public class FactionPlayer {
     private boolean godMode = false;
     private boolean canReceiveDamage = true;
 
+    private boolean isMapViewer = true;
+
     public FactionPlayer(UUID playerId) {
         this.playerId = playerId;
         this.name = null;
@@ -284,8 +286,11 @@ public class FactionPlayer {
         return canReceiveDamage;
     }
 
-    public boolean updateFriendlyFireNotificationCooldown() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateFriendlyFireNotificationCooldown'");
+    public boolean isMapViewer() {
+        return isMapViewer;
+    }
+
+    public void setMapViewer(boolean isMapViewer) {
+        this.isMapViewer = isMapViewer;
     }
 }

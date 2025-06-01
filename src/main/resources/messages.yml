@@ -53,6 +53,9 @@ menus:
 
 prefix: "&a&lFACTION&8 » "
 factions:
+  map:
+    enabled: "&aFaction map enabled."
+    disabled: "&cFaction map has been disabled!"
   rally:
     success: "%prefix%&b%player%&a is rallying at&b %x%&7,&b %z%&a."
     no_faction: "%prefix%&cYou are not in a faction."
