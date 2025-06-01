@@ -94,12 +94,6 @@ public class ChunkProtectionListener implements Listener {
             event.setCancelled(true);
             sendProtectionMessage(player, claimingFactionId, actionType);
         }
-
-        if (block != null) {
-            MineClans.runAsync(() -> {
-                MineClans.getInstance().getProtocolLibHook().sendBlockChange(player, block);
-            });
-        }
         return false;
     }
 
@@ -178,6 +172,11 @@ public class ChunkProtectionListener implements Listener {
             return;
         }
         canPlayerModifyInChunk(event.getPlayer(), block, event, "interact with blocks");
+        if (block != null && event.isCancelled()) {
+            MineClans.runAsync(() -> {
+                MineClans.getInstance().getProtocolLibHook().sendBlockChange(event.getPlayer(), block);
+            });
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
