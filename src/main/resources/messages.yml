@@ -51,7 +51,7 @@ menus:
         name: "&eSpecific Amount"
         lore: "&7Enter specific amount to withdraw"
 
-prefix: "&a&lFACTION&8 » "
+prefix: "&a&lFactions&8 » "
 factions:
   map:
     enabled: "&aFaction map enabled."
