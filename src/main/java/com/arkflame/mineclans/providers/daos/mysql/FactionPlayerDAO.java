@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.arkflame.mineclans.MineClans;
+import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
@@ -95,14 +95,11 @@ public class FactionPlayerDAO {
 
     public void insertOrUpdatePlayer(FactionPlayer player) {
         checkAndUpdateSchema();
-
+        Faction faction = player.getFaction();
         mySQLProvider.executeUpdateQuery(
                 INSERT_PLAYER_QUERY,
                 player.getPlayerId(),
-                player.getFactionId() != null
-                        && MineClans.getInstance().getAPI().getFaction(player.getFactionId()) != null
-                                ? player.getFactionId()
-                                : null,
+                faction != null ? faction.getId() : null,
                 player.getJoinDate(),
                 player.getLastActive(),
                 player.getKills(),

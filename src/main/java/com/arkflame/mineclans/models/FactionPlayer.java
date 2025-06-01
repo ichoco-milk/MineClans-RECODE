@@ -56,7 +56,13 @@ public class FactionPlayer {
         if (factionId == null) {
             return null;
         }
-        return MineClans.getInstance().getFactionManager().getFaction(factionId);
+        Faction faction = MineClans.getInstance().getFactionManager().getFaction(factionId);
+        // Force remove invalid members
+        if (!faction.isMember(playerId)) {
+            setFaction(null);
+            return null;
+        }
+        return faction;
     }
 
     public void setFaction(Faction faction) {
@@ -67,7 +73,7 @@ public class FactionPlayer {
         }
     }
 
-    public UUID getFactionId() {
+    private UUID getFactionId() {
         if (factionId != null && getFaction() == null) {
             return factionId = null;
         }
@@ -276,5 +282,10 @@ public class FactionPlayer {
 
     public boolean canReceiveDamage() {
         return canReceiveDamage;
+    }
+
+    public boolean updateFriendlyFireNotificationCooldown() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateFriendlyFireNotificationCooldown'");
     }
 }

@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -37,6 +38,8 @@ import com.arkflame.mineclans.api.results.KickResult.KickResultType;
 import com.arkflame.mineclans.api.results.OpenChestResult;
 import com.arkflame.mineclans.api.results.OpenChestResult.OpenChestResultType;
 import com.arkflame.mineclans.api.results.OpenResult;
+import com.arkflame.mineclans.api.results.RallyResult;
+import com.arkflame.mineclans.api.results.RallyResult.RallyResultType;
 import com.arkflame.mineclans.api.results.RankChangeResult;
 import com.arkflame.mineclans.api.results.RankChangeResult.RankChangeResultType;
 import com.arkflame.mineclans.api.results.RenameDisplayResult;
@@ -61,6 +64,8 @@ import com.arkflame.mineclans.models.ChunkCoordinate;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
 import com.arkflame.mineclans.models.Relation;
+import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
+import com.arkflame.mineclans.modernlib.utils.ChatColors;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.utils.LocationData;
@@ -104,12 +109,18 @@ public class MineClansAPI {
         return factionManager.getFaction(id);
     }
 
-    public FactionPlayer getFactionPlayer(Player player) {
-        return factionPlayerManager.getOrLoad(player.getUniqueId());
+    public FactionPlayer getFactionPlayer(UUID uuid) {
+        if (uuid == null) {
+            return null;
+        }
+        return factionPlayerManager.getOrLoad(uuid);
     }
 
-    public FactionPlayer getFactionPlayer(UUID uuid) {
-        return factionPlayerManager.getOrLoad(uuid);
+    public FactionPlayer getFactionPlayer(Player player) {
+        if (player == null) {
+            return null;
+        }
+        return getFactionPlayer(player.getUniqueId());
     }
 
     public FactionPlayer getFactionPlayer(String name) {
@@ -402,7 +413,8 @@ public class MineClansAPI {
         Faction faction = factionPlayer.getFaction();
         String chatPrefix = MineClans.getInstance().getMessages().getText("factions.chat.prefix_alliance");
         String playerName = player.getName();
-        String formattedMessage = chatPrefix.replace("%player%", playerName).replace("%faction%", faction.getDisplayName())
+        String formattedMessage = chatPrefix.replace("%player%", playerName).replace("%faction%",
+                faction.getDisplayName())
                 + message;
 
         // Send faction message
@@ -1279,7 +1291,8 @@ public class MineClansAPI {
         if (viewerFaction == null || targetFaction == null) {
             return RelationType.NEUTRAL.getColor().toString();
         }
-        ChatColor color = factionManager.getEffectiveRelation(viewerFaction.getName(), targetFaction.getName()).getColor();
+        ChatColor color = factionManager.getEffectiveRelation(viewerFaction.getName(), targetFaction.getName())
+                .getColor();
         if (color == null) {
             return RelationType.NEUTRAL.getColor().toString();
         }
@@ -1293,5 +1306,46 @@ public class MineClansAPI {
             return false;
         }
         return viewerFaction.isFocusedFaction(targetFaction.getId());
+    }
+
+    public RallyResult rally(Player player) {
+        Faction faction = getFaction(player);
+        if (faction == null) {
+            return new RallyResult(RallyResultType.NO_FACTION);
+        }
+        UUID playerId = player.getUniqueId();
+        if (faction.getRank(playerId).isLowerThan(Rank.RECRUIT)) {
+            return new RallyResult(RallyResultType.NO_RANK);
+        }
+        if (faction.hasRallyCooldown()) {
+            return new RallyResult(RallyResultType.IN_COOLDOWN);
+        }
+        ConfigWrapper messages = MineClans.getInstance().getMessages();
+        faction.setRally(player.getLocation());
+        faction.sendMessage(messages.getText("factions.rally.success",
+                "%player%", player.getName(),
+                "%x%", player.getLocation().getBlockX(),
+                "%z%", player.getLocation().getBlockZ()));
+        return new RallyResult(RallyResultType.SUCCESS);
+    }
+
+    public Faction getFaction(Block block) {
+        ChunkCoordinate chunk = getClaimedChunks().getChunkAt(block);
+        if (chunk == null) {
+            return null;
+        }
+        Faction faction = getFaction(chunk.getFactionId());
+        if (faction == null) {
+            return null;
+        }
+        return faction;
+    }
+
+    public Faction getFactionByPlayer(UUID uniqueId) {
+        FactionPlayer factionPlayer = getFactionPlayer(uniqueId);
+        if (factionPlayer == null) {
+            return null;
+        }
+        return factionPlayer.getFaction();
     }
 }

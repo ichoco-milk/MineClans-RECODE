@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -103,6 +104,10 @@ public class Faction implements InventoryHolder {
 
     private long lastRename = 0; // Time of the last rename in milliseconds
     private static final long RENAME_COOLDOWN = 60 * 1000; // Cooldown duration in milliseconds (e.g., 1 minute)
+
+    private long lastRally = 0; // Time of the last rally in milliseconds
+    private static final long RALLY_COOLDOWN = 5 * 1000; // Cooldown duration in milliseconds (e.g., 1 minute)
+    private Location rally = null;
 
     // Constructor
     public Faction(UUID id, UUID owner, String name, String displayName) {
@@ -575,5 +580,28 @@ public class Faction implements InventoryHolder {
 
     public boolean isFocusedFaction(UUID id2) {
         return getFocusedFaction() != null && getFocusedFaction().equals(id2);
+    }
+
+    public boolean hasRallyCooldown() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastRally >= RALLY_COOLDOWN) {
+            return false;
+        }
+        return true;
+    }
+
+    public void setRally(Location location) {
+        this.rally = location;
+        this.lastRally = System.currentTimeMillis();
+        for (UUID uuid : getOnlineMembers()) {
+            Player otherPlayer = Bukkit.getPlayer(uuid);
+            if (otherPlayer != null && otherPlayer.isOnline()) {
+                MineClans.getInstance().getProtocolLibHook().showFakeBeacon(otherPlayer, location);
+            }
+        }
+    }
+
+    public Location getRallyPoint() {
+        return rally;
     }
 }

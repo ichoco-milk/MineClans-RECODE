@@ -51,7 +51,13 @@ menus:
         name: "&eSpecific Amount"
         lore: "&7Enter specific amount to withdraw"
 
+prefix: "&a&lFACTION&8 » "
 factions:
+  rally:
+    success: "%prefix%&b%player%&a is rallying at&b %x%&7,&b %z%&a."
+    no_faction: "%prefix%&cYou are not in a faction."
+    no_rank: "%prefix%&cYou need a higher rank to use rally."
+    in_cooldown: "%prefix%&cWait before rallying again."
   fly:
     not_in_faction: "&cYou must be in a faction to use fly!"
     no_permission: "&cYou don't have permission to use faction fly!"
@@ -382,7 +388,7 @@ factions:
     not_in_faction: "&cYou are not in a faction."
     error: "&cAn error occurred while toggling friendly fire."
     unknown_error: "&cAn unknown error occurred."
-    cannot_attack: "&cYou cannot attack faction members. If you want to allow friendly fire, type /f ff."
+    cannot_attack: "&cDisable friendly fire with '/f ff'."
   teleport:
     success: "&aTeleporting..."
   tpclaim:
