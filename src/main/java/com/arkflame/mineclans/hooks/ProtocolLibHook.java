@@ -3,6 +3,7 @@ package com.arkflame.mineclans.hooks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -36,26 +37,28 @@ public class ProtocolLibHook {
         } else {
             this.enabled = false;
             this.protocolManager = null;
-            Bukkit.getLogger().warning("[ProtocolLibHook] ProtocolLib not found. Fake-beacon functionality is disabled.");
+            Bukkit.getLogger()
+                    .warning("[ProtocolLibHook] ProtocolLib not found. Fake-beacon functionality is disabled.");
         }
     }
 
     public void updateFakeBeacon(Player player, Location center) {
-        if (!enabled || protocolManager == null || player == null || center == null) return;
-    
+        if (!enabled || protocolManager == null || player == null || center == null)
+            return;
+
         // Too far away
         if (!player.getWorld().equals(center.getWorld()) || player.getLocation().distance(center) > 128) {
             return;
         }
-    
+
         int cx = center.getBlockX();
         int cy = center.getBlockY();
         int cz = center.getBlockZ();
-    
+
         // 1. Send the beacon one block below the center
         Location beaconLoc = new Location(center.getWorld(), cx, cy - 1, cz);
         sendBlockChange(player, beaconLoc, Material.BEACON);
-    
+
         // 2. Send the 3x3 iron base two blocks below the center
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
@@ -66,29 +69,30 @@ public class ProtocolLibHook {
     }
 
     public void showFakeBeacon(Player player, Location center) {
-        if (!enabled || protocolManager == null) return;
-    
+        if (!enabled || protocolManager == null)
+            return;
+
         // Too far away
         Location loc = player.getLocation();
         if (!loc.getWorld().equals(center.getWorld()) || loc.distance(center) > 128) {
             return;
         }
-    
+
         UUID uuid = player.getUniqueId();
         if (beaconCache.containsKey(uuid)) {
             removeFakeBeacon(player);
         }
-    
+
         CachedBeacon cache = new CachedBeacon();
         int cx = center.getBlockX();
         int cy = center.getBlockY();
         int cz = center.getBlockZ();
-    
+
         // 1. Cache and send the beacon one block below the center
         Location beaconLoc = new Location(center.getWorld(), cx, cy - 1, cz);
         cache.storeOriginal(beaconLoc);
         sendBlockChange(player, beaconLoc, Material.BEACON);
-    
+
         // 2. Cache and send the 3x3 iron base two blocks below the center
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
@@ -97,12 +101,13 @@ public class ProtocolLibHook {
                 sendBlockChange(player, baseLoc, Material.IRON_BLOCK);
             }
         }
-    
+
         beaconCache.put(uuid, cache);
     }
-    
+
     public void removeFakeBeacon(Player player) {
-        if (!enabled || protocolManager == null) return;
+        if (!enabled || protocolManager == null)
+            return;
 
         UUID uuid = player.getUniqueId();
         CachedBeacon cache = beaconCache.remove(uuid);
@@ -112,14 +117,15 @@ public class ProtocolLibHook {
     }
 
     private void sendBlockChange(Player player, Location loc, Material mat) {
-        if (!enabled || protocolManager == null) return;
+        if (!enabled || protocolManager == null)
+            return;
 
         PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.BLOCK_CHANGE);
         BlockPosition position = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        
+
         packet.getBlockPositionModifier().write(0, position);
         packet.getBlockData().write(0, WrappedBlockData.createData(mat));
-        
+
         try {
             protocolManager.sendServerPacket(player, packet);
         } catch (Exception e) {
@@ -127,7 +133,7 @@ public class ProtocolLibHook {
         }
     }
 
-    private static class CachedBeacon {
+    private class CachedBeacon {
         private final Collection<Location> originalLocations = new HashSet<>();
 
         public void storeOriginal(Location loc) {
@@ -136,17 +142,7 @@ public class ProtocolLibHook {
 
         public void restoreAll(Player player) {
             for (Location loc : originalLocations) {
-                PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.BLOCK_CHANGE);
-                BlockPosition position = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-                
-                packet.getBlockPositionModifier().write(0, position);
-                packet.getBlockData().write(0, WrappedBlockData.createData(loc.getBlock().getType(), loc.getBlock().getData()));
-                
-                try {
-                    ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-                } catch (Exception e) {
-                    Bukkit.getLogger().severe("[ProtocolLibHook] Failed to restore block: " + e.getMessage());
-                }
+                sendBlockChange(player, loc.getBlock());
             }
         }
     }
@@ -155,6 +151,22 @@ public class ProtocolLibHook {
         if (enabled && protocolManager != null) {
             for (UUID uuid : new HashSet<>(beaconCache.keySet())) {
                 removeFakeBeacon(Bukkit.getPlayer(uuid));
+            }
+        }
+    }
+
+    public void sendBlockChange(Player player, Block block) {
+        if (enabled && protocolManager != null) {
+            PacketContainer packet = ProtocolLibrary.getProtocolManager()
+                    .createPacket(PacketType.Play.Server.BLOCK_CHANGE);
+            BlockPosition position = new BlockPosition(block.getX(), block.getY(), block.getZ());
+            packet.getBlockPositionModifier().write(0, position);
+            packet.getBlockData().write(0,
+                    WrappedBlockData.createData(block.getType(), block.getData()));
+            try {
+                ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
+            } catch (Exception e) {
+                Bukkit.getLogger().severe("[ProtocolLibHook] Failed to restore block: " + e.getMessage());
             }
         }
     }

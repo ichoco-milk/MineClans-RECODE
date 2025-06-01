@@ -21,7 +21,6 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 
 import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.Faction;
@@ -96,6 +95,11 @@ public class ChunkProtectionListener implements Listener {
             sendProtectionMessage(player, claimingFactionId, actionType);
         }
 
+        if (block != null) {
+            MineClans.runAsync(() -> {
+                MineClans.getInstance().getProtocolLibHook().sendBlockChange(player, block);
+            });
+        }
         return false;
     }
 
