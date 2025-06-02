@@ -69,6 +69,7 @@ import com.arkflame.mineclans.modernlib.utils.ChatColors;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.utils.LocationData;
+import com.arkflame.mineclans.utils.NameUtil;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -203,6 +204,10 @@ public class MineClansAPI {
             return new CreateResult(CreateResultState.NULL_NAME, null);
         }
 
+        if (!NameUtil.isValidName(factionName)) {
+            return new CreateResult(CreateResultState.INVALID_NAME, null);
+        }
+
         FactionPlayer factionPlayer = factionPlayerManager.getOrLoad(player.getUniqueId());
         Faction faction = factionPlayer.getFaction();
         if (faction != null) {
@@ -322,6 +327,10 @@ public class MineClansAPI {
             return new RenameResult(null, RenameResultState.ALREADY_EXISTS);
         }
 
+        if (!NameUtil.isValidName(newName)) {
+            return new RenameResult(null, RenameResultState.INVALID_NAME);
+        }
+
         FactionPlayer factionPlayer = factionPlayerManager
                 .getOrLoad(player.getUniqueId());
         Faction playerFaction = factionPlayer.getFaction();
@@ -352,11 +361,17 @@ public class MineClansAPI {
 
     public RenameDisplayResult renameDisplay(Player player, String displayName) {
         if (displayName != null) {
+            if (!NameUtil.isValidName(displayName)) {
+                return new RenameDisplayResult(null, RenameDisplayResultState.INVALID_NAME);
+            }
             FactionPlayer factionPlayer = factionPlayerManager
                     .getOrLoad(player.getUniqueId());
             Faction playerFaction = factionPlayer.getFaction();
             if (playerFaction != null) {
                 try {
+                    if (!displayName.toLowerCase().equals(playerFaction.getName())) {
+                        return new RenameDisplayResult(playerFaction, RenameDisplayResultState.DIFFERENT_NAME);
+                    }
                     factionManager.updateFactionDisplayName(playerFaction.getId(), displayName);
                     factionManager.saveFactionToDatabase(playerFaction);
                     redisProvider.updateDisplayName(playerFaction.getId(), displayName);

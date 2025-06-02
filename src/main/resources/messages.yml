@@ -308,6 +308,7 @@ factions:
     success: "&aFaction name successfully changed."
     null_name: "&cYou have to enter a name."
     error: "&cThe name is not valid."
+    invalid_name: "&cInvalid name."
   list:
     header: "&6Faction List: &e(Page %current_page%/%total_pages%)"
     entry: "&e%faction% &7(%online%/%total%) [Score: %level%] [Power: %power%/%max_power%]"
@@ -424,6 +425,7 @@ factions:
     success: "&aFaction name successfully changed."
     null_name: "&cYou have to enter a name."
     error: "&cThe displayname is not valid."
+    invalid_name: "&cInvalid name."
   event:
     disabled: "&cEvents are disabled."
     no_permission_start: "&cYou do not have permission to start events."
@@ -474,6 +476,7 @@ factions:
     error: "&cAn error occurred while creating the faction. (Invalid name?)"
     already_have_faction: "&cYou already have a faction. Disband it or leave first."
     faction_exists: "&cThe faction already exists."
+    invalid_name: "&cInvalid name."
   chest:
     success: "&aYou have opened the faction chest."
     not_in_faction: "&cYou are not in a faction."
