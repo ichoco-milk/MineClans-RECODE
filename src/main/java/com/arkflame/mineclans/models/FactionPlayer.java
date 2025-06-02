@@ -59,7 +59,12 @@ public class FactionPlayer {
             return null;
         }
         Faction faction = MineClans.getInstance().getFactionManager().getFaction(factionId);
-        // Force remove invalid members
+        // Faction stopped existing
+        if (faction == null) {
+            factionId = null;
+            return null;
+        }
+        // No longer member
         if (!faction.isMember(playerId)) {
             setFaction(null);
             return null;
@@ -72,11 +77,16 @@ public class FactionPlayer {
             this.factionId = null;
         } else {
             this.factionId = faction.getId();
+            // Make sure player is a member
+            if (!faction.isMember(playerId)) {
+                faction.addMember(playerId);
+            }
         }
     }
 
     private UUID getFactionId() {
-        if (factionId != null && getFaction() == null) {
+        // Faction stopped existing
+        if (factionId != null && MineClans.getInstance().getFactionManager().getFaction(factionId) == null) {
             return factionId = null;
         }
         return factionId;

@@ -251,6 +251,11 @@ public class Faction implements InventoryHolder {
 
     public void addMember(UUID member) {
         this.members.add(member);
+        // Make sure member is on faction
+        FactionPlayer factionPlayer = MineClans.getInstance().getFactionPlayerManager().getOrLoad(member);
+        if (factionPlayer.getFaction() != this) {
+            factionPlayer.setFaction(this);
+        }
         updateScore();
         updatePower();
     }
