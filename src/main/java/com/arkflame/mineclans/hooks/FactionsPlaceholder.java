@@ -51,118 +51,121 @@ public class FactionsPlaceholder extends PlaceholderExpansion implements Relatio
     @Override
     public String onRequest(OfflinePlayer player, String identifier) {
         if (player == null) {
-            return null;
+            return "";
         }
 
-        Player onlinePlayer = (Player) player;
-
-        if (identifier.startsWith("leaderboard_")) {
-            try {
+        try {
+            Player onlinePlayer = (Player) player;
+            if (identifier.startsWith("leaderboard_")) {
                 int position = Integer.parseInt(identifier.replace("leaderboard_", ""));
                 Faction faction = MineClans.getInstance().getLeaderboardManager().getFactionByPosition(position);
                 if (faction != null) {
                     return faction.getName();
                 } else {
-                    return "N/A";
+                    return "";
                 }
-            } catch (NumberFormatException ex) {
-                // Do nothing
             }
-            return "N/A";
-        }
 
-        ClanEventScheduler eventScheduler = plugin.getClanEventScheduler();
-        ClanEvent currentEvent = eventScheduler.getEvent();
-        ClanEvent nextEvent = eventScheduler.getNextEvent();
+            ClanEventScheduler eventScheduler = plugin.getClanEventScheduler();
+            ClanEvent currentEvent = eventScheduler.getEvent();
+            ClanEvent nextEvent = eventScheduler.getNextEvent();
 
-        switch (identifier) {
-            case "event_name":
-                return currentEvent == null ? (nextEvent == null ? "" : nextEvent.getName()) : currentEvent.getName();
-            case "event_time_left":
-                return eventScheduler.getTimeLeftFormatted();
-            default:
-                break;
-        }
+            switch (identifier) {
+                case "event_name":
+                    return currentEvent == null ? (nextEvent == null ? "" : nextEvent.getName())
+                            : currentEvent.getName();
+                case "event_time_left":
+                    return eventScheduler.getTimeLeftFormatted();
+                default:
+                    break;
+            }
 
-        FactionPlayer factionPlayer = plugin.getFactionPlayerManager().getOrLoad(onlinePlayer.getUniqueId());
-        Faction faction = factionPlayer.getFaction();
+            FactionPlayer factionPlayer = plugin.getFactionPlayerManager().getOrLoad(onlinePlayer.getUniqueId());
+            Faction faction = factionPlayer.getFaction();
 
-        if (faction == null) {
-            return "";
-        }
-
-        Faction focusedFaction = plugin.getFactionManager().getFaction(faction.getFocusedFaction());
-
-        switch (identifier) {
-            case "name":
-                return faction.getName();
-            case "displayname":
-                return faction.getDisplayName();
-            case "prefix":
-                String stars = "";
-                Rank rank = faction.getRank(player.getUniqueId());
-                if (rank == Rank.LEADER) {
-                    stars = "**";
-                } else if (rank == Rank.COLEADER) {
-                    stars = "*";
-                }
-                return ChatColor.GREEN + stars + faction.getDisplayName() + ChatColor.RESET + " ";
-            case "online":
-                return String.valueOf(faction.getOnlineMembers().size());
-            case "owner":
-                return plugin.getFactionPlayerManager().getOrLoad(faction.getOwner()).getName();
-            case "balance":
-                return String.valueOf(faction.getBalance());
-            case "members":
-                return String.valueOf(faction.getMembers().size());
-            case "focus_name":
-                return focusedFaction == null ? "" : focusedFaction.getDisplayName();
-            case "focus_online":
-                return focusedFaction == null ? "" : String.valueOf(focusedFaction.getOnlineMembers().size());
-            default:
+            if (faction == null) {
                 return "";
+            }
+
+            Faction focusedFaction = plugin.getFactionManager().getFaction(faction.getFocusedFaction());
+
+            switch (identifier) {
+                case "name":
+                    return faction.getName();
+                case "displayname":
+                    return faction.getDisplayName();
+                case "prefix":
+                    String stars = "";
+                    Rank rank = faction.getRank(player.getUniqueId());
+                    if (rank == Rank.LEADER) {
+                        stars = "**";
+                    } else if (rank == Rank.COLEADER) {
+                        stars = "*";
+                    }
+                    return ChatColor.GREEN + stars + faction.getDisplayName() + ChatColor.RESET + " ";
+                case "online":
+                    return String.valueOf(faction.getOnlineMembers().size());
+                case "owner":
+                    return plugin.getFactionPlayerManager().getOrLoad(faction.getOwner()).getName();
+                case "balance":
+                    return String.valueOf(faction.getBalance());
+                case "members":
+                    return String.valueOf(faction.getMembers().size());
+                case "focus_name":
+                    return focusedFaction == null ? "" : focusedFaction.getDisplayName();
+                case "focus_online":
+                    return focusedFaction == null ? "" : String.valueOf(focusedFaction.getOnlineMembers().size());
+                default:
+                    return "";
+            }
+        } catch (Exception e) {
+            return "";
         }
     }
 
     @Override
     public String onPlaceholderRequest(Player viewer, Player target, String identifier) {
-        FactionPlayer factionPlayer = MineClans.getInstance().getFactionPlayerManager().getOrLoad(target);
-        Faction faction = MineClans.getInstance().getAPI().getFaction(target);
-        Faction viewerFaction = MineClans.getInstance().getAPI().getFaction(viewer);
-        switch (identifier) {
-            case "prefix": {
-                if (target == null) {
-                    return RelationType.NEUTRAL.getColor().toString();
-                }
-                String factionDisplayName = MineClans.getInstance().getAPI().getFactionDisplayName(target);
-                if (factionDisplayName == null || factionDisplayName.isEmpty()) {
-                    return RelationType.NEUTRAL.getColor().toString();
-                }
-                String relationColor;
+        try {
+            Faction faction = MineClans.getInstance().getAPI().getFaction(target);
+            Faction viewerFaction = MineClans.getInstance().getAPI().getFaction(viewer);
+            switch (identifier) {
+                case "prefix": {
+                    if (target == null) {
+                        return RelationType.NEUTRAL.getColor().toString();
+                    }
+                    String factionDisplayName = MineClans.getInstance().getAPI().getFactionDisplayName(target);
+                    if (factionDisplayName == null || factionDisplayName.isEmpty()) {
+                        return RelationType.NEUTRAL.getColor().toString();
+                    }
+                    String relationColor;
 
-                if (MineClans.getInstance().getAPI().isFocusedFaction(viewer, target)) {
-                    relationColor = ChatColor.LIGHT_PURPLE.toString();
-                } else {
-                    relationColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
+                    if (MineClans.getInstance().getAPI().isFocusedFaction(viewer, target)) {
+                        relationColor = ChatColor.LIGHT_PURPLE.toString();
+                    } else {
+                        relationColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
+                    }
+                    String stars = MineClans.getInstance().getAPI().getRankStars(target.getUniqueId());
+                    return relationColor + stars + factionDisplayName + ChatColor.RESET + " ";
                 }
-                String stars = MineClans.getInstance().getAPI().getRankStars(target.getUniqueId());
-                return relationColor + stars + factionDisplayName + ChatColor.RESET + " ";
+                case "color": {
+                    if (target == null) {
+                        return "";
+                    }
+                    if (MineClans.getInstance().getAPI().isFocusedFaction(viewer, target)) {
+                        return ChatColor.LIGHT_PURPLE.toString();
+                    }
+                    if (MineClans.getInstance().getFactionManager().getEffectiveRelation(viewerFaction,
+                            faction) == RelationType.NEUTRAL) {
+                        return "";
+                    }
+                    String relationshipColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
+                    return relationshipColor;
+                }
+                default:
+                    return onRequest(target, identifier);
             }
-            case "color": {
-                if (target == null) {
-                    return "";
-                }
-                if (MineClans.getInstance().getAPI().isFocusedFaction(viewer, target)) {
-                    return ChatColor.LIGHT_PURPLE.toString();
-                }
-                if (MineClans.getInstance().getFactionManager().getEffectiveRelation(viewerFaction, faction) == RelationType.NEUTRAL) {
-                    return "";
-                }
-                String relationshipColor = MineClans.getInstance().getAPI().getRelationColor(viewer, target);
-                return relationshipColor;
-            }
-            default:
-                return onRequest(target, identifier);
+        } catch (Exception e) {
+            return "";
         }
     }
 }
