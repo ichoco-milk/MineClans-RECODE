@@ -64,7 +64,7 @@ public class FactionsWhoCommand {
 
         String formattedBalance = NumberUtil.formatBalance(faction.getBalance());
         String kills = String.valueOf(faction.getKills());
-        String score = String.valueOf(faction.getScore());
+        String score = NumberUtil.formatScore(faction.getScore());
         String foundedDate = faction.getCreationDate();
         String announcement = Optional.ofNullable(faction.getAnnouncement()).orElse("No announcements.");
         String discordLink = Optional.ofNullable(faction.getDiscord()).orElse("No Discord link.");

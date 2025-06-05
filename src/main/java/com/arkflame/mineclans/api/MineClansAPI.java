@@ -65,7 +65,6 @@ import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.models.FactionPlayer;
 import com.arkflame.mineclans.models.Relation;
 import com.arkflame.mineclans.modernlib.config.ConfigWrapper;
-import com.arkflame.mineclans.modernlib.utils.ChatColors;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.redis.RedisProvider;
 import com.arkflame.mineclans.utils.LocationData;
@@ -1214,8 +1213,7 @@ public class MineClansAPI {
 
         // 2. Check claim limits
         int currentClaims = claimingFaction.getClaimedLandCount();
-        int maxClaims = (int) claimingFaction.getPower();
-
+        int maxClaims = claimingFaction.getClaimLimit();
         if (currentClaims >= maxClaims) {
             return ClaimResult.CLAIM_LIMIT_REACHED;
         }
