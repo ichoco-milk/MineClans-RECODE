@@ -73,7 +73,7 @@ public class FactionsListCommand {
                     .replace("%faction%", faction.getDisplayName())
                     .replace("%online%", String.valueOf(onlineCount))
                     .replace("%total%", String.valueOf(totalMembers))
-                    .replace("%level%", score)
+                    .replace("%level%", String.format("%.1f", score))
                     .replace("%power%", String.valueOf(power))
                     .replace("%max_power%", String.valueOf(maxPower)));
         }

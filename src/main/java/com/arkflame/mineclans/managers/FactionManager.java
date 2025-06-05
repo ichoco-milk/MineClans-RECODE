@@ -40,8 +40,12 @@ public class FactionManager {
 
         // If not in cache, load from database
         faction = cache(new Faction(name)); // Early cache, anti-multiload
-        loadFactionFromDatabase(name, faction);
-        return cache(faction);
+        if (loadFactionFromDatabase(name, faction)) {
+            return cache(faction);
+        } else {
+            factionCacheByName.remove(name);
+            return null;
+        }
     }
 
     // Get faction from cache or load from database
@@ -57,15 +61,19 @@ public class FactionManager {
 
         // If not in cache, load from database
         faction = cache(new Faction(id)); // Early cache, anti-multiload
-        loadFactionFromDatabase(id, faction);
-        return cache(faction);
+        if (loadFactionFromDatabase(id, faction)) {
+            return cache(faction);
+        } else {
+            factionCacheByID.remove(id);
+            return null;
+        }
     }
 
-    public Faction loadFactionFromDatabase(String name, Faction faction) {
+    public boolean loadFactionFromDatabase(String name, Faction faction) {
         return MineClans.getInstance().getMySQLProvider().getFactionDAO().getFactionByName(name, faction);
     }
 
-    public Faction loadFactionFromDatabase(UUID id, Faction faction) {
+    public boolean loadFactionFromDatabase(UUID id, Faction faction) {
         return MineClans.getInstance().getMySQLProvider().getFactionDAO().getFactionById(id, faction);
     }
 

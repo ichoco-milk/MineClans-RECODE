@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.arkflame.mineclans.MineClans;
@@ -101,7 +102,7 @@ public class FactionDAO {
         removeFaction(faction.getId());
     }
 
-    private void extractFactionFromResultSet(ResultSet resultSet, Faction faction) throws SQLException {
+    private boolean extractFactionFromResultSet(ResultSet resultSet, Faction faction) throws SQLException {
         if (resultSet.next()) {
             UUID id = UUID.fromString(resultSet.getString("faction_id"));
             UUID ownerId = UUID.fromString(resultSet.getString("owner_id"));
@@ -148,24 +149,28 @@ public class FactionDAO {
 
             // Load Power
             faction.updatePower();
+            return true;
         }
+        return false;
     }
 
-    public Faction getFactionById(UUID factionId, Faction faction) {
+    public boolean getFactionById(UUID factionId, Faction faction) {
+        AtomicBoolean extracted = new AtomicBoolean(false);
         mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_ID_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
-                extractFactionFromResultSet(resultSet, faction);
+                extracted.set(extractFactionFromResultSet(resultSet, faction));
             };
         }, factionId.toString());
-        return faction;
+        return extracted.get();
     }
 
-    public Faction getFactionByName(String name, Faction faction) {
+    public boolean getFactionByName(String name, Faction faction) {
+        AtomicBoolean extracted = new AtomicBoolean(false);
         mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_NAME_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
-                extractFactionFromResultSet(resultSet, faction);
+                extracted.set(extractFactionFromResultSet(resultSet, faction));
             };
         }, name);
-        return faction;
+        return extracted.get();
     }
 }

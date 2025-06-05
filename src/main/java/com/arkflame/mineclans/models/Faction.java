@@ -166,6 +166,9 @@ public class Faction implements InventoryHolder {
     }
 
     public String getDisplayName() {
+        if (displayName == null) {
+            return "Loading";
+        }
         return displayName;
     }
 
@@ -182,6 +185,9 @@ public class Faction implements InventoryHolder {
     }
 
     public String getName() {
+        if (name == null) {
+            return "Loading";
+        }
         return name.toLowerCase();
     }
 
