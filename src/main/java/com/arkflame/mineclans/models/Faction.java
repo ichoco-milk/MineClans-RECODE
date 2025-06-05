@@ -34,7 +34,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public class Faction implements InventoryHolder {
     // The ID
-    private final UUID id;
+    private UUID id;
 
     // Members
     private Collection<UUID> members = ConcurrentHashMap.newKeySet();
@@ -109,12 +109,28 @@ public class Faction implements InventoryHolder {
     private static final long RALLY_COOLDOWN = 5 * 1000; // Cooldown duration in milliseconds (e.g., 1 minute)
     private Location rally = null;
 
-    // Constructor
+    public Faction(String name) {
+        this.name = name.toLowerCase();
+        this.displayName = name;
+    }
+
+    public Faction(UUID id) {
+        this.id = id;
+    }
+
     public Faction(UUID id, UUID owner, String name, String displayName) {
         this.id = id;
         this.owner = owner;
         this.name = name.toLowerCase();
         this.displayName = displayName;
+    }
+
+    public Faction setup(UUID id, UUID owner, String name, String displayName) {
+        this.id = id;
+        this.owner = owner;
+        this.name = name.toLowerCase();
+        this.displayName = displayName;
+        return this;
     }
 
     public Collection<UUID> getMembers() {

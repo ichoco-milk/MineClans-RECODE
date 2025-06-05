@@ -109,40 +109,36 @@ public class FactionPlayerDAO {
                 player.getName());
     }
 
-    public FactionPlayer getPlayerById(UUID playerId) {
+    public FactionPlayer getPlayerById(UUID playerId, FactionPlayer factionPlayer) {
         checkAndUpdateSchema();
-
-        AtomicReference<FactionPlayer> player = new AtomicReference<>(null);
         mySQLProvider.executeSelectQuery(SELECT_BY_ID_QUERY,
                 new ResultSetProcessor() {
                     @Override
                     public void run(ResultSet resultSet) throws SQLException {
                         if (resultSet != null && resultSet.next()) {
-                            player.set(extractPlayerFromResultSet(resultSet));
+                            extractPlayerFromResultSet(resultSet, factionPlayer);
                         }
                     }
                 }, playerId.toString());
-        return player.get();
+        return factionPlayer;
     }
 
-    public FactionPlayer getPlayerByName(String name) {
+    public FactionPlayer getPlayerByName(String name, FactionPlayer factionPlayer) {
         checkAndUpdateSchema();
-
-        AtomicReference<FactionPlayer> player = new AtomicReference<>(null);
         mySQLProvider.executeSelectQuery(SELECT_BY_NAME_QUERY,
                 new ResultSetProcessor() {
                     public void run(ResultSet resultSet) throws SQLException {
                         if (resultSet != null && resultSet.next()) {
-                            player.set(extractPlayerFromResultSet(resultSet));
+                            extractPlayerFromResultSet(resultSet, factionPlayer);
                         }
                     };
                 },
                 name);
-        return player.get();
+        return factionPlayer;
     }
 
-    private FactionPlayer extractPlayerFromResultSet(ResultSet resultSet) throws SQLException {
-        FactionPlayer player = new FactionPlayer(UUID.fromString(resultSet.getString("player_id")));
+    private FactionPlayer extractPlayerFromResultSet(ResultSet resultSet, FactionPlayer player) throws SQLException {
+        player.setId(UUID.fromString(resultSet.getString("player_id")));
         player.setFactionId(resultSet.getString("faction_id"));
         player.setJoinDate(resultSet.getTimestamp("join_date"));
         player.setLastActive(resultSet.getTimestamp("last_active"));

@@ -18,14 +18,10 @@ public class FactionManager {
     // Cache for factions by ID
     private Map<UUID, Faction> factionCacheByID = new ConcurrentHashMap<>();
 
-    // Loading Status
-    private Map<String, Boolean> loadingNames = new ConcurrentHashMap<>();
-    private Map<UUID, Boolean> loadingIDs = new ConcurrentHashMap<>();
-
     public Faction cache(Faction faction) {
         if (faction != null) {
-            factionCacheByName.put(faction.getName(), faction);
-            factionCacheByID.put(faction.getId(), faction);
+            if (faction.getName() != null) factionCacheByName.put(faction.getName(), faction);
+            if (faction.getId() != null) factionCacheByID.put(faction.getId(), faction);
         }
         return faction;
     }
@@ -36,25 +32,16 @@ public class FactionManager {
             return null;
         }
         name = name.toLowerCase();
-        // Check loading status
-        if (loadingNames.containsKey(name)) {
-            return null;
-        }
-        try {
-            loadingNames.put(name, true);
-            // Check cache first
-            Faction faction = factionCacheByName.get(name);
-            if (faction != null) {
-                return faction;
-            }
-
-            // If not in cache, load from database
-            faction = loadFactionFromDatabase(name);
-            cache(faction);
+        // Check cache first
+        Faction faction = factionCacheByName.get(name);
+        if (faction != null) {
             return faction;
-        } finally {
-            loadingNames.remove(name);
         }
+
+        // If not in cache, load from database
+        faction = cache(new Faction(name)); // Early cache, anti-multiload
+        loadFactionFromDatabase(name, faction);
+        return cache(faction);
     }
 
     // Get faction from cache or load from database
@@ -62,33 +49,24 @@ public class FactionManager {
         if (id == null) {
             return null;
         }
-        // Check loading status
-        if (loadingIDs.containsKey(id)) {
-            return null;
-        }
-        try {
-            loadingIDs.put(id, true);
-            // Check cache first
-            Faction faction = factionCacheByID.get(id);
-            if (faction != null) {
-                return faction;
-            }
-
-            // If not in cache, load from database
-            faction = loadFactionFromDatabase(id);
-            cache(faction);
+        // Check cache first
+        Faction faction = factionCacheByID.get(id);
+        if (faction != null) {
             return faction;
-        } finally {
-            loadingIDs.remove(id);
         }
+
+        // If not in cache, load from database
+        faction = cache(new Faction(id)); // Early cache, anti-multiload
+        loadFactionFromDatabase(id, faction);
+        return cache(faction);
     }
 
-    public Faction loadFactionFromDatabase(String name) {
-        return MineClans.getInstance().getMySQLProvider().getFactionDAO().getFactionByName(name);
+    public Faction loadFactionFromDatabase(String name, Faction faction) {
+        return MineClans.getInstance().getMySQLProvider().getFactionDAO().getFactionByName(name, faction);
     }
 
-    public Faction loadFactionFromDatabase(UUID id) {
-        return MineClans.getInstance().getMySQLProvider().getFactionDAO().getFactionById(id);
+    public Faction loadFactionFromDatabase(UUID id, Faction faction) {
+        return MineClans.getInstance().getMySQLProvider().getFactionDAO().getFactionById(id, faction);
     }
 
     // Save a faction to the database

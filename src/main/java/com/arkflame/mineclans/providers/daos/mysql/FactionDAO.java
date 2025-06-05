@@ -101,7 +101,7 @@ public class FactionDAO {
         removeFaction(faction.getId());
     }
 
-    private Faction extractFactionFromResultSet(ResultSet resultSet) throws SQLException {
+    private void extractFactionFromResultSet(ResultSet resultSet, Faction faction) throws SQLException {
         if (resultSet.next()) {
             UUID id = UUID.fromString(resultSet.getString("faction_id"));
             UUID ownerId = UUID.fromString(resultSet.getString("owner_id"));
@@ -122,7 +122,7 @@ public class FactionDAO {
             String discord = resultSet.getString("discord");
 
             // Create a Faction object and set additional properties
-            Faction faction = new Faction(id, ownerId, name, displayName);
+            faction.setup(id, ownerId, name, displayName);
             faction.setHome(home);
             faction.setBalance(balance);
             faction.setFriendlyFire(friendlyFire);
@@ -148,29 +148,24 @@ public class FactionDAO {
 
             // Load Power
             faction.updatePower();
-
-            return faction;
         }
-        return null;
     }
 
-    public Faction getFactionById(UUID factionId) {
-        AtomicReference<Faction> faction = new AtomicReference<>(null);
+    public Faction getFactionById(UUID factionId, Faction faction) {
         mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_ID_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
-                faction.set(extractFactionFromResultSet(resultSet));
+                extractFactionFromResultSet(resultSet, faction);
             };
         }, factionId.toString());
-        return faction.get();
+        return faction;
     }
 
-    public Faction getFactionByName(String name) {
-        AtomicReference<Faction> faction = new AtomicReference<>(null);
+    public Faction getFactionByName(String name, Faction faction) {
         mySQLProvider.executeSelectQuery(SELECT_FACTION_BY_NAME_QUERY, new ResultSetProcessor() {
             public void run(ResultSet resultSet) throws SQLException {
-                faction.set(extractFactionFromResultSet(resultSet));
+                extractFactionFromResultSet(resultSet, faction);
             };
         }, name);
-        return faction.get();
+        return faction;
     }
 }

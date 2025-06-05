@@ -50,8 +50,20 @@ public class FactionPlayer {
         this.lastActive = null;
     }
 
+    public FactionPlayer(String name) {
+        this.playerId = null;
+        this.name = name;
+        this.factionId = null;
+        this.joinDate = null;
+        this.lastActive = null;
+    }
+
     public UUID getPlayerId() {
         return playerId;
+    }
+
+    public void setId(UUID playerId) {
+        this.playerId = playerId;
     }
 
     public Faction getFaction() {
