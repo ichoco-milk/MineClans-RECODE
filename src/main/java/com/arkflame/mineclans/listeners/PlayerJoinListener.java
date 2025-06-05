@@ -24,7 +24,7 @@ public class PlayerJoinListener implements Listener {
         this.factionPlayerManager = factionPlayerManager;
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(final PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID id = player.getUniqueId();

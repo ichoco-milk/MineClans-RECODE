@@ -18,11 +18,16 @@ public class FactionManager {
     // Cache for factions by ID
     private Map<UUID, Faction> factionCacheByID = new ConcurrentHashMap<>();
 
-    public void cache(Faction faction) {
+    // Loading Status
+    private Map<String, Boolean> loadingNames = new ConcurrentHashMap<>();
+    private Map<UUID, Boolean> loadingIDs = new ConcurrentHashMap<>();
+
+    public Faction cache(Faction faction) {
         if (faction != null) {
             factionCacheByName.put(faction.getName(), faction);
             factionCacheByID.put(faction.getId(), faction);
         }
+        return faction;
     }
 
     // Get faction from cache or load from database
@@ -31,16 +36,25 @@ public class FactionManager {
             return null;
         }
         name = name.toLowerCase();
-        // Check cache first
-        Faction faction = factionCacheByName.get(name);
-        if (faction != null) {
-            return faction;
+        // Check loading status
+        if (loadingNames.containsKey(name)) {
+            return null;
         }
+        try {
+            loadingNames.put(name, true);
+            // Check cache first
+            Faction faction = factionCacheByName.get(name);
+            if (faction != null) {
+                return faction;
+            }
 
-        // If not in cache, load from database
-        faction = loadFactionFromDatabase(name);
-        cache(faction);
-        return faction;
+            // If not in cache, load from database
+            faction = loadFactionFromDatabase(name);
+            cache(faction);
+            return faction;
+        } finally {
+            loadingNames.remove(name);
+        }
     }
 
     // Get faction from cache or load from database
@@ -48,16 +62,25 @@ public class FactionManager {
         if (id == null) {
             return null;
         }
-        // Check cache first
-        Faction faction = factionCacheByID.get(id);
-        if (faction != null) {
-            return faction;
+        // Check loading status
+        if (loadingIDs.containsKey(id)) {
+            return null;
         }
+        try {
+            loadingIDs.put(id, true);
+            // Check cache first
+            Faction faction = factionCacheByID.get(id);
+            if (faction != null) {
+                return faction;
+            }
 
-        // If not in cache, load from database
-        faction = loadFactionFromDatabase(id);
-        cache(faction);
-        return faction;
+            // If not in cache, load from database
+            faction = loadFactionFromDatabase(id);
+            cache(faction);
+            return faction;
+        } finally {
+            loadingIDs.remove(id);
+        }
     }
 
     public Faction loadFactionFromDatabase(String name) {
@@ -219,10 +242,10 @@ public class FactionManager {
         if (faction1 == faction2 || faction1.getId().equals(faction2.getId())) {
             return RelationType.SAME_FACTION; // Same faction
         }
-    
+
         RelationType relationFrom1To2 = faction1.getRelationType(faction2.getId());
         RelationType relationFrom2To1 = faction2.getRelationType(faction1.getId());
-    
+
         if (relationFrom1To2 == RelationType.ENEMY || relationFrom2To1 == RelationType.ENEMY) {
             return RelationType.ENEMY;
         } else if (relationFrom1To2 == RelationType.NEUTRAL && relationFrom2To1 == RelationType.NEUTRAL) {
@@ -230,7 +253,7 @@ public class FactionManager {
         } else if (relationFrom1To2 == RelationType.ALLY && relationFrom2To1 == RelationType.ALLY) {
             return RelationType.ALLY;
         }
-        
+
         return RelationType.NEUTRAL; // Default relation if no specific relation is found
     }
 
@@ -245,7 +268,7 @@ public class FactionManager {
         Faction faction2 = getFaction(factionName2);
         return getEffectiveRelation(faction1, faction2);
     }
-    
+
     public boolean deposit(UUID factionId, double amount) {
         Faction faction = getFaction(factionId);
         if (faction != null) {
