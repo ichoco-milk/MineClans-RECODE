@@ -3,6 +3,7 @@ package com.arkflame.mineclans.hooks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -142,6 +143,10 @@ public class ProtocolLibHook {
 
         public void restoreAll(Player player) {
             for (Location loc : originalLocations) {
+                World world = loc.getWorld();
+                if (!world.isChunkLoaded(loc.getBlockX() >> 4, loc.getBlockZ() >> 4)) {
+                    return;
+                }
                 sendBlockChange(player, loc.getBlock());
             }
         }
