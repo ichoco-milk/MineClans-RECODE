@@ -24,6 +24,7 @@ import com.arkflame.mineclans.events.ClanEventManager;
 import com.arkflame.mineclans.events.ClanEventScheduler;
 import com.arkflame.mineclans.hooks.DynmapIntegration;
 import com.arkflame.mineclans.hooks.FactionsPlaceholder;
+import com.arkflame.mineclans.hooks.MineClansPlaceholder;
 import com.arkflame.mineclans.hooks.ProtocolLibHook;
 import com.arkflame.mineclans.hooks.WorldGuardReflectionUtil;
 import com.arkflame.mineclans.listeners.ChatListener;
@@ -303,6 +304,7 @@ public class MineClans extends JavaPlugin {
             if (pluginManager.getPlugin("PlaceholderAPI") != null) {
                 runSync(() -> {
                     new FactionsPlaceholder(this).register();
+                    new MineClansPlaceholder(this).register();
                 });
             }
 

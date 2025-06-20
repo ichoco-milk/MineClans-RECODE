@@ -5,9 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
-import com.arkflame.mineclans.MineClans;
 import com.arkflame.mineclans.models.Faction;
 import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
@@ -15,7 +13,9 @@ import com.arkflame.mineclans.utils.LocationData;
 import com.arkflame.mineclans.utils.LocationUtil;
 
 public class FactionDAO {
-    protected String CREATE_FACTIONS_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS mineclans_factions (" +
+    private final static String TABLE_NAME = "mineclans_factions";
+    
+    protected String CREATE_FACTIONS_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
             "faction_id CHAR(36) PRIMARY KEY," +
             "owner_id CHAR(36) NOT NULL," +
             "display_name VARCHAR(64) NOT NULL," +
@@ -30,9 +30,9 @@ public class FactionDAO {
             "announcement TEXT," +
             "discord VARCHAR(255))";
 
-    protected String DELETE_FACTION_BY_NAME_QUERY = "DELETE FROM mineclans_factions WHERE name = ?";
+    protected String DELETE_FACTION_BY_NAME_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE name = ?";
 
-    protected String UPSERT_FACTION_QUERY = "INSERT INTO mineclans_factions (" +
+    protected String UPSERT_FACTION_QUERY = "INSERT INTO " + TABLE_NAME + " (" +
             "faction_id, owner_id, display_name, home, name, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord) "
             +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
@@ -50,15 +50,15 @@ public class FactionDAO {
             "announcement = VALUES(announcement), " +
             "discord = VALUES(discord)";
 
-    protected String DELETE_FACTION_BY_ID_QUERY = "DELETE FROM mineclans_factions WHERE faction_id = ?";
+    protected String DELETE_FACTION_BY_ID_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE faction_id = ?";
 
     protected String SELECT_FACTION_BY_ID_QUERY = "SELECT faction_id, name, owner_id, display_name, home, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord "
             +
-            "FROM mineclans_factions WHERE faction_id = ?";
+            "FROM " + TABLE_NAME + " WHERE faction_id = ?";
 
     protected String SELECT_FACTION_BY_NAME_QUERY = "SELECT faction_id, name, owner_id, display_name, home, balance, kills, events_won, friendly_fire, open, creation_date, announcement, discord "
             +
-            "FROM mineclans_factions WHERE name = ?";
+            "FROM " + TABLE_NAME + " WHERE name = ?";
 
     private MySQLProvider mySQLProvider;
 

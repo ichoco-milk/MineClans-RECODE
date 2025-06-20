@@ -11,7 +11,9 @@ import com.arkflame.mineclans.providers.MySQLProvider;
 import com.arkflame.mineclans.providers.processors.ResultSetProcessor;
 
 public class FactionPlayerDAO {
-    protected String CREATE_TABLES_QUERY = "CREATE TABLE IF NOT EXISTS mineclans_players ("
+    private final static String TABLE_NAME = "mineclans_players";
+
+    protected String CREATE_TABLES_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ("
             + "player_id TEXT NOT NULL PRIMARY KEY,"
             + "faction_id TEXT,"
             + "join_date TIMESTAMP,"
@@ -24,25 +26,25 @@ public class FactionPlayerDAO {
             + ")";
 
     protected String CHECK_COLUMNS_QUERY = "SELECT COUNT(*) AS column_count FROM information_schema.columns "
-            + "WHERE table_name = 'mineclans_players' AND table_schema = DATABASE()";
+            + "WHERE table_name = '" + TABLE_NAME + "' AND table_schema = DATABASE()";
 
-    protected String INSERT_PLAYER_QUERY = "INSERT INTO mineclans_players (player_id, faction_id, join_date, last_active, kills, deaths, power, max_power, name) "
+    protected String INSERT_PLAYER_QUERY = "INSERT INTO " + TABLE_NAME + " (player_id, faction_id, join_date, last_active, kills, deaths, power, max_power, name) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
             + "ON DUPLICATE KEY UPDATE "
             + "faction_id = VALUES(faction_id), join_date = VALUES(join_date), last_active = VALUES(last_active), "
             + "kills = VALUES(kills), deaths = VALUES(deaths), name = VALUES(name), "
             + "power = VALUES(power), max_power = VALUES(max_power)";
 
-    protected String SELECT_BY_ID_QUERY = "SELECT * FROM mineclans_players WHERE player_id = ?";
-    protected String SELECT_BY_NAME_QUERY = "SELECT * FROM mineclans_players WHERE name = ?";
-    protected String DELETE_PLAYER_QUERY = "DELETE FROM mineclans_players WHERE player_id = ?";
+    protected String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE player_id = ?";
+    protected String SELECT_BY_NAME_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE name = ?";
+    protected String DELETE_PLAYER_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE player_id = ?";
 
     // Queries to add new columns if they don't exist
-    protected String ADD_POWER_COLUMN_QUERY = "ALTER TABLE mineclans_players ADD COLUMN IF NOT EXISTS power INT DEFAULT 1";
-    protected String ADD_MAX_POWER_COLUMN_QUERY = "ALTER TABLE mineclans_players ADD COLUMN IF NOT EXISTS max_power INT DEFAULT 10";
+    protected String ADD_POWER_COLUMN_QUERY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN IF NOT EXISTS power INT DEFAULT 1";
+    protected String ADD_MAX_POWER_COLUMN_QUERY = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN IF NOT EXISTS max_power INT DEFAULT 10";
 
     protected String FIND_FK_QUERY = "SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE " +
-            "WHERE TABLE_NAME = 'mineclans_players' AND COLUMN_NAME = 'faction_id' AND REFERENCED_TABLE_NAME IS NOT NULL";
+            "WHERE TABLE_NAME = '" + TABLE_NAME + "' AND COLUMN_NAME = 'faction_id' AND REFERENCED_TABLE_NAME IS NOT NULL";
 
     protected void dropForeignKeyIfExists() {
         try {
@@ -57,7 +59,7 @@ public class FactionPlayerDAO {
             });
 
             if (fkName.get() != null) {
-                mySQLProvider.executeUpdateQuery("ALTER TABLE mineclans_players DROP FOREIGN KEY " + fkName.get());
+                mySQLProvider.executeUpdateQuery("ALTER TABLE " + TABLE_NAME + " DROP FOREIGN KEY " + fkName.get());
             }
         } catch (Exception ignored) {
             // Ignore failures
