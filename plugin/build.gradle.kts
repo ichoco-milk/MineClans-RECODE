@@ -17,6 +17,7 @@ dependencies {
     implementation("com.github.MilkBowl:VaultAPI:1.7")
     implementation("us.dynmap:dynmap-api:3.6")
     implementation("com.comphenix.protocol:ProtocolLib:5.3.0")
+    implementation(project(":api"))
 }
 
 tasks.shadowJar {}

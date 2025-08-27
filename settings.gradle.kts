@@ -1,4 +1,4 @@
-rootProject.name = "PrisonCore"
+rootProject.name = "MineClans"
 
-include("bukkit")
+include("plugin")
 include("api")

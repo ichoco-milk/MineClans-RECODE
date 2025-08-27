@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.arkflame"
-version = "1.1.6"
+version = "1.1.7"
 
 subprojects {
     apply(plugin = "java")
@@ -15,7 +15,6 @@ subprojects {
 
     dependencies {
         compileOnly("org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT")
-        compileOnly("it.unimi.dsi:fastutil:8.5.15")
 
         compileOnly("org.projectlombok:lombok:1.18.38")
         annotationProcessor("org.projectlombok:lombok:1.18.38")
